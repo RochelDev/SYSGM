@@ -9,7 +9,19 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::view('dashboard', 'dashboard')
+Route::get('/home', function () {
+    return view('users.home');
+})->name('userhome');
+
+Route::get('/user', function () {
+    return view('users.index');
+})->middleware(['auth', 'verified'])->name('user');
+
+Route::get('/userhome', function () {
+    return view('users.user');
+})->middleware(['auth', 'verified'])->name('userUser');
+
+Route::view('users.index', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
