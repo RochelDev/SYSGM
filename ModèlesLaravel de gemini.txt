@@ -1,0 +1,521 @@
+Voici les modèles Laravel que vous pouvez utiliser, avec les relations définies :<?php
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
+
+class User extends Model
+{
+    use SoftDeletes; // Pour la suppression logique
+
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'usertype',
+        'email_verified_at',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
+    /**
+     * Relation : Un utilisateur a plusieurs agents.
+     */
+    public function agents(): HasMany
+    {
+        return $this->hasMany(Agent::class);
+    }
+
+      /**
+     * Relation : Un utilisateur a plusieurs suivis de dossiers.
+     */
+    public function suiviDossiers(): HasMany
+    {
+        return $this->hasMany(SuiviDossier::class);
+    }
+
+     /**
+     * Relation : Un utilisateur appartient à plusieurs profils.
+     */
+    public function profils(): BelongsToMany
+    {
+        return $this->belongsToMany(Profil::class, 'user_profils', 'user_id', 'profil_id')->withPivot('statut')->withTimestamps();
+    }
+}
+
+class Agent extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'matricule',
+        'num_NPI',
+        'nom',
+        'prenom',
+        'grade',
+        'categorie',
+        'historique_poste',
+        'date_recrutement',
+        'date_debut_service',
+        'user_id',
+    ];
+
+    protected $casts = [
+        'date_recrutement' => 'date',
+        'date_debut_service' => 'date',
+    ];
+
+    /**
+     * Relation : Un agent appartient à un utilisateur (nullable).
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Relation : Un agent peut être concerné par plusieurs dossiers.
+     */
+    public function dossiers(): HasMany
+    {
+        return $this->hasMany(Dossier::class);
+    }
+
+     /**
+     * Relation : Un agent occupe plusieurs postes à travers l'historique.
+     */
+    public function postes(): BelongsToMany
+    {
+        return $this->belongsToMany(Poste::class, 'occuper')
+                    ->withPivot(['fonction_id', 'date_recrutement', 'date_debut_service'])
+                    ->withTimestamps();
+    }
+
+      /**
+     * Relation : Un agent occupe une ou plusieurs fonctions.
+     */
+    public function fonctions(): BelongsToMany
+    {
+        return $this->belongsToMany(Fonction::class, 'occuper')
+                    ->withPivot(['poste_id', 'date_recrutement', 'date_debut_service'])
+                    ->withTimestamps();
+    }
+}
+
+class Fonction extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'code_fonction',
+        'intitule_fonction',
+    ];
+
+     /**
+     * Relation : Une fonction peut être occupée par plusieurs agents à travers différents postes.
+     */
+    public function agents(): BelongsToMany
+    {
+        return $this->belongsToMany(Agent::class, 'occuper')
+                    ->withPivot(['poste_id', 'date_recrutement', 'date_debut_service'])
+                    ->withTimestamps();
+    }
+}
+
+class Poste extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'code_poste',
+        'intitule_poste',
+        'service',
+        'direction',
+        'structure_id',
+    ];
+
+    /**
+     * Relation : Un poste appartient à une structure.
+     */
+    public function structure(): BelongsTo
+    {
+        return $this->belongsTo(Structure::class);
+    }
+
+     /**
+     * Relation : Un poste peut être occupé par plusieurs agents à travers l'historique.
+     */
+    public function agents(): BelongsToMany
+    {
+       return $this->belongsToMany(Agent::class, 'occuper')
+                    ->withPivot(['fonction_id', 'date_recrutement', 'date_debut_service'])
+                    ->withTimestamps();
+    }
+}
+
+
+class Ministere extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'code_ministere',
+        'nom_ministere',
+        'site_ministere',
+    ];
+
+    /**
+     * Relation : Un ministère a plusieurs structures.
+     */
+    public function structures(): HasMany
+    {
+        return $this->hasMany(Structure::class);
+    }
+
+     /**
+     * Relation : Un ministère a plusieurs dossiers.
+     */
+    public function dossiers(): HasMany
+    {
+        return $this->hasMany(Dossier::class);
+    }
+}
+
+class Structure extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'code_structure',
+        'nom_structure',
+        'ministere_id',
+    ];
+
+    /**
+     * Relation : Une structure appartient à un ministère.
+     */
+    public function ministere(): BelongsTo
+    {
+        return $this->belongsTo(Ministere::class);
+    }
+
+    /**
+     * Relation : Une structure a plusieurs postes.
+     */
+    public function postes(): HasMany
+    {
+        return $this->hasMany(Poste::class);
+    }
+}
+
+class Dossier extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'code_dossier',
+        'titre',
+        'ministere_id',
+        'type_mobilite_id',
+        'agent_id',
+        'statut',
+        'annee',
+        'historique_statut',
+        'type_acte',
+        'signataire',
+        'reference_dossier',
+        'contenu_acte'
+    ];
+
+    protected $casts = [
+        'annee' => 'integer',
+        'historique_statut' => 'array', // Pour stocker l'historique comme JSON
+    ];
+
+    /**
+     * Relation : Un dossier appartient à un ministère.
+     */
+    public function ministere(): BelongsTo
+    {
+        return $this->belongsTo(Ministere::class);
+    }
+
+    /**
+     * Relation : Un dossier est lié à un type de mobilité.
+     */
+    public function typeMobilite(): BelongsTo
+    {
+        return $this->belongsTo(TypeMobilite::class, 'type_mobilite_id');
+    }
+
+    /**
+     * Relation : Un dossier est lié à un agent.
+     */
+    public function agent(): BelongsTo
+    {
+        return $this->belongsTo(Agent::class);
+    }
+
+      /**
+     * Relation : Un dossier a plusieurs suivis.
+     */
+    public function suiviDossiers(): HasMany
+    {
+        return $this->hasMany(SuiviDossier::class, 'dossier_id');
+    }
+
+     /**
+     * Relation : Un dossier a plusieurs pièces justificatives.
+     */
+    public function piecesJustificatives(): HasMany
+    {
+        return $this->hasMany(PieceJustificative::class, 'dossier_id');
+    }
+}
+
+class TypeMobilite extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'intitule_mobilite',
+    ];
+
+    /**
+     * Relation : Un type de mobilité a plusieurs dossiers.
+     */
+    public function dossiers(): HasMany
+    {
+        return $this->hasMany(Dossier::class, 'type_mobilite_id');
+    }
+
+     /**
+     * Relation : Un type de mobilité a plusieurs pièces requises.
+     */
+    public function piecesRequises(): HasMany
+    {
+        return $this->hasMany(PieceRequise::class, 'type_mobilite_id');
+    }
+}
+
+class Etape extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'nom',
+        'ordre',
+        'delai_max',
+    ];
+
+     /**
+     * Relation : Une étape est suivie par plusieurs dossiers.
+     */
+    public function suiviDossiers(): HasMany
+    {
+        return $this->hasMany(SuiviDossier::class, 'etape_id');
+    }
+}
+
+class SuiviDossier extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'etape_id',
+        'dossier_id',
+        'user_id',
+        'motif'
+    ];
+    protected $table = 'suivi_dossiers'; // Définir explicitement le nom de la table
+
+    /**
+    * Clé primaire composite
+    * @var string[]
+    */
+   protected $primaryKey = ['etape_id', 'dossier_id', 'user_id'];
+
+   /**
+    * Désactive l'incrémentation automatique pour les clés primaires composites.
+    * @var bool
+    */
+   public $incrementing = false;
+
+
+    /**
+     * Relation : Un suivi de dossier appartient à une étape.
+     */
+    public function etape(): BelongsTo
+    {
+        return $this->belongsTo(Etape::class, 'etape_id');
+    }
+
+    /**
+     * Relation : Un suivi de dossier appartient à un dossier.
+     */
+    public function dossier(): BelongsTo
+    {
+        return $this->belongsTo(Dossier::class, 'dossier_id');
+    }
+
+     /**
+     * Relation : Un suivi de dossier est effectué par un utilisateur.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+}
+
+class TypePiece extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'nom',
+        'modeltype'
+    ];
+
+     /**
+     * Relation : Un type de pièce peut être requis pour plusieurs types de mobilité.
+     */
+    public function pieceRequises(): HasMany
+    {
+        return $this->hasMany(PieceRequise::class, 'type_piece_id');
+    }
+
+      /**
+     * Relation : Un type de pièce peut être justifié par plusieurs pièces justificatives.
+     */
+    public function pieceJustificatives(): HasMany
+    {
+        return $this->hasMany(PieceJustificative::class, 'type_piece_id');
+    }
+}
+
+class PieceRequise extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'type_mobilite_id',
+        'type_piece_id',
+        'intitule_piece'
+    ];
+    protected $table = 'piece_requises'; // Définir explicitement le nom de la table
+
+     /**
+     * Clé primaire composite
+     * @var string[]
+     */
+    protected $primaryKey = ['type_mobilite_id', 'type_piece_id'];
+
+    /**
+     * Désactive l'incrémentation automatique pour les clés primaires composites.
+     * @var bool
+     */
+    public $incrementing = false;
+
+    /**
+     * Relation : Une pièce requise appartient à un type de mobilité
+     */
+    public function typeMobilite(): BelongsTo
+    {
+        return $this->belongsTo(TypeMobilite::class, 'type_mobilite_id');
+    }
+
+    /**
+     * Relation : Une pièce requise est liée à un type de pièce
+     */
+    public function typePiece(): BelongsTo
+    {
+        return $this->belongsTo(TypePiece::class, 'type_piece_id');
+    }
+}
+
+class PieceJustificative extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'type_mobilite_id',
+        'type_piece_id',
+        'titre',
+        'reference',
+        'date',
+        'signataire',
+        'lien', // Pour le chemin du fichier
+        'nom_du_fichier'
+    ];
+
+    protected $casts = [
+        'date' => 'date',
+    ];
+
+     /**
+     * Relation : Une pièce justificative est liée à un type de mobilité
+     */
+    public function typeMobilite(): BelongsTo
+    {
+        return $this->belongsTo(TypeMobilite::class, 'type_mobilite_id');
+    }
+
+    /**
+     * Relation : Une pièce justificative est liée à un type de pièce
+     */
+    public function typePiece(): BelongsTo
+    {
+        return $this->belongsTo(TypePiece::class, 'type_piece_id');
+    }
+
+    /**
+     * Méthode pour récupérer l'URL du fichier.
+     * Utilise le système de fichiers de Laravel (Storage).
+     */
+    public function getFileUrl(): string
+    {
+        return Storage::url($this->lien);
+    }
+
+     /**
+     * Méthode pour enregistrer un fichier et mettre à jour le lien.
+     *
+     * @param UploadedFile $file Le fichier à enregistrer.
+     * @return void
+     */
+    public function saveFile($file): void
+    {
+        // Enregistre le fichier dans le dossier approprié (par exemple, 'pieces_justificatives')
+        $path = $file->store('pieces_justificatives');
+        $this->lien = $path; // Enregistre le chemin dans la base de données
+        $this->nom_du_fichier = $file->getClientOriginalName();
+        $this->save(); // Sauvegarde le modèle avec le nouveau chemin
+    }
+}
+
+class Profil extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'intitule_profil',
+    ];
+
+     /**
+     * Relation : Un profil peut être attribué à plusieurs utilisateurs.
+     */
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_profils', 'profil_id', 'user_id')->withPivot('statut')->withTimestamps();
+    }
+}

@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('type_mobilites', function (Blueprint $table) {
             $table->id();
-            $table->string('intitule_mobilite');
+            $table->string('intitule_mobilite')->unique();
             $table->timestamps();
         });
 
         Schema::create('dossiers', function (Blueprint $table) {
             $table->id();
-            $table->string('code_dossier');
+            $table->string('code_dossier')->unique();
             $table->string('titre');
             $table->foreignId('ministere_id')->constrained();
             $table->foreignId('type_mobilite_id')->constrained();

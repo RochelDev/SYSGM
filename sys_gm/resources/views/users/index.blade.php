@@ -7,7 +7,7 @@
 <div class="container mx-auto px-4 py-8">
   <div>
       <h2 class="text-xl font-semibold mb-4">
-          Bienvenue, Jean Dupont
+          Bienvenue, {{auth()->user()->name}}
       </h2>
       <p class="text-muted-foreground mb-6">
           Voici un aperçu de votre activité dans le système de gestion des

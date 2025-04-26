@@ -1,0 +1,337 @@
+Voici les requêtes SQL pour insérer les données dans votre base de données, en suivant votre schéma et vos exemples. J'ai inclus des commentaires pour expliquer chaque section.-- Insertion de 10 ministères
+INSERT INTO ministeres (code_ministere, nom_ministere, site_ministere) VALUES
+('MEF', 'Ministère de l\'Économie et des Finances', 'https://www.mef.bj'),
+('MS', 'Ministère de la Santé', 'https://www.sante.bj'),
+('MAEC', 'Ministère des Affaires Étrangères et de la Coopération', 'https://www.mae.bj'),
+('MJ', 'Ministère de la Justice', 'https://www.justice.bj'),
+('MEN', 'Ministère de l\'Éducation Nationale', 'https://www.men.bj'),
+('MDN', 'Ministère de la Défense Nationale', 'https://www.defense.bj'),
+('MTPT', 'Ministère des Transports et des Travaux Publics', 'https://www.mtpt.bj'),
+('MAEP', 'Ministère de l\'Agriculture, de l\'Élevage et de la Pêche', 'https://www.maep.bj'),
+('MDEV', 'Ministère du Développement et de l\'Économie', 'https://www.mdev.bj'),
+('MCT', 'Ministère de la Culture et du Tourisme', 'https://www.mct.bj');
+
+-- Insertion des structures pour chaque ministère
+-- Exemple pour le MEF
+INSERT INTO structures (code_structure, nom_structure, ministere_id) VALUES
+('DGB', 'Direction Générale du Budget', (SELECT id FROM ministeres WHERE code_ministere = 'MEF')),
+('DGI', 'Direction Générale des Impôts', (SELECT id FROM ministeres WHERE code_ministere = 'MEF')),
+('DGML', 'Direction Générale du matériel et de la logistique', (SELECT id FROM ministeres WHERE code_ministere = 'MEF')),
+('DGD', 'Direction Générale de la Douane', (SELECT id FROM ministeres WHERE code_ministere = 'MEF'));
+
+-- Exemple pour le MS
+INSERT INTO structures (code_structure, nom_structure, ministere_id) VALUES
+('CHU', 'Centre Hospitalier Universitaire', (SELECT id FROM ministeres WHERE code_ministere = 'MS')),
+('DDS', 'Direction Départementale de la Santé', (SELECT id FROM ministeres WHERE code_ministere = 'MS'));
+
+-- Exemple pour le MAEC
+INSERT INTO structures (code_structure, nom_structure, ministere_id) VALUES
+('DAEC', 'Direction des Affaires Economiques et Commerciales', (SELECT id FROM ministeres WHERE code_ministere = 'MAEC')),
+('DCP', 'Direction de la Coopération Politique', (SELECT id FROM ministeres WHERE code_ministere = 'MAEC'));
+
+INSERT INTO structures (code_structure, nom_structure, ministere_id) VALUES
+('CS', 'Cour Suprême', (SELECT id FROM ministeres WHERE code_ministere = 'MJ'));
+INSERT INTO structures (code_structure, nom_structure, ministere_id) VALUES
+('DEP', 'Direction de l\'Enseignement Primaire', (SELECT id FROM ministeres WHERE code_ministere = 'MEN'));
+INSERT INTO structures (code_structure, nom_structure, ministere_id) VALUES
+('EM', 'État-Major', (SELECT id FROM ministeres WHERE code_ministere = 'MDN'));
+INSERT INTO structures (code_structure, nom_structure, ministere_id) VALUES
+('DTT', 'Direction des Transports Terrestres', (SELECT id FROM ministeres WHERE code_ministere = 'MTPT'));
+INSERT INTO structures (code_structure, nom_structure, ministere_id) VALUES
+('DAF', 'Direction de l\'Administration et des Finances', (SELECT id FROM ministeres WHERE code_ministere = 'MAEP'));
+INSERT INTO structures (code_structure, nom_structure, ministere_id) VALUES
+('DGP', 'Direction Générale de la Planification', (SELECT id FROM ministeres WHERE code_ministere = 'MDEV'));
+INSERT INTO structures (code_structure, nom_structure, ministere_id) VALUES
+('DAC', 'Direction des Arts et de la Culture', (SELECT id FROM ministeres WHERE code_ministere = 'MCT'));
+
+
+-- Insertion des postes pour chaque structure
+-- Exemple pour la DGB du MEF
+INSERT INTO postes (code_poste, intitule_poste, service, direction, structure_id) VALUES
+('MEFDGB0001', 'Directeur Général', 'Direction Générale', 'DGB', (SELECT id FROM structures WHERE code_structure = 'DGB')),
+('MEFDGB0002', 'Chef Service Budget', 'Service Budget', 'DGB', (SELECT id FROM structures WHERE code_structure = 'DGB')),
+('MEFDGB0003', 'Chargé de Budget', 'Service Budget', 'DGB', (SELECT id FROM structures WHERE code_structure = 'DGB'));
+
+-- Exemple pour le CHU du MS
+INSERT INTO postes (code_poste, intitule_poste, service, direction, structure_id) VALUES
+('MSCHU0001', 'Directeur Général', 'Direction Générale', 'CHU', (SELECT id FROM structures WHERE code_structure = 'CHU')),
+('MSCHU0002', 'Médecin Chef de Service', 'Service de Cardiologie', 'CHU', (SELECT id FROM structures WHERE code_structure = 'CHU'));
+
+-- Exemple pour la DAEC du MAEC
+INSERT INTO postes (code_poste, intitule_poste, service, direction, structure_id) VALUES
+('MAEDAEC0001', 'Directeur', 'Direction', 'DAEC', (SELECT id FROM structures WHERE code_structure = 'DAEC'));
+
+INSERT INTO postes (code_poste, intitule_poste, service, direction, structure_id) VALUES
+('MJCS0001', 'Président', 'Présidence', 'CS', (SELECT id FROM structures WHERE code_structure = 'CS'));
+INSERT INTO postes (code_poste, intitule_poste, service, direction, structure_id) VALUES
+('MENDEP0001', 'Directeur', 'Direction', 'DEP', (SELECT id FROM structures WHERE code_structure = 'DEP'));
+INSERT INTO postes (code_poste, intitule_poste, service, direction, structure_id) VALUES
+('MDNEM0001', 'Chef d\'État-Major', 'État-Major', 'EM', (SELECT id FROM structures WHERE code_structure = 'EM'));
+INSERT INTO postes (code_poste, intitule_poste, service, direction, structure_id) VALUES
+('MTPTDTT0001', 'Directeur', 'Direction', 'DTT', (SELECT id FROM structures WHERE code_structure = 'DTT'));
+INSERT INTO postes (code_poste, intitule_poste, service, direction, structure_id) VALUES
+('MAEPDAF0001', 'Directeur', 'Direction', 'DAF', (SELECT id FROM structures WHERE code_structure = 'DAF'));
+INSERT INTO postes (code_poste, intitule_poste, service, direction, structure_id) VALUES
+('MDEVDPG0001', 'Directeur Général', 'Direction Générale', 'DGP', (SELECT id FROM structures WHERE code_structure = 'DGP'));
+INSERT INTO postes (code_poste, intitule_poste, service, direction, structure_id) VALUES
+('MCTDAC0001', 'Directeur', 'Direction', 'DAC', (SELECT id FROM structures WHERE code_structure = 'DAC'));
+
+
+-- Insertion des fonctions
+INSERT INTO fonctions (code_fonction, intitule_fonction) VALUES
+('MEFDGB0001', 'Directeur Général'),
+('MEFDGB0002', 'Chef Service'),
+('MEFDGB0003', 'Chargé de Budget'),
+('MSCHU0001', 'Directeur Général'),
+('MSCHU0002', 'Médecin Chef de Service'),
+('MAEDAEC0001', 'Directeur'),
+('MJCS0001', 'Président'),
+('MENDEP0001', 'Directeur'),
+('MDNEM0001', 'Chef d\'État-Major'),
+('MTPTDTT0001', 'Directeur'),
+('MAEPDAF0001', 'Directeur'),
+('MDEVDPG0001', 'Directeur Général'),
+('MCTDAC0001', 'Directeur');
+
+
+-- Insertion de 10 agents par ministère
+-- Exemple pour le MEF
+INSERT INTO agents (matricule, num_NPI, nom, prenom, grade, categorie, historique_poste, date_recrutement, date_debut_service, user_id) VALUES
+('MEF001', 'NPI001', 'Dupont', 'Jean', 'A1', 'A', NULL, '2020-01-15', '2020-02-01', NULL),
+('MEF002', 'NPI002', 'Durand', 'Marie', 'A2', 'A', NULL, '2021-03-10', '2021-04-01', NULL),
+('MEF003', 'NPI003', 'Martin', 'Pierre', 'B1', 'B', NULL, '2022-05-20', '2022-06-01', NULL),
+('MEF004', 'NPI004', 'Lefebvre', 'Sophie', 'B2', 'B', NULL, '2023-07-18', '2023-08-01', NULL),
+('MEF005', 'NPI005', 'Garcia', 'Antoine', 'C1', 'C', NULL, '2024-09-22', '2024-10-01', NULL),
+('MEF006', 'NPI006', 'Moreau', 'Isabelle', 'A1', 'A', NULL, '2020-01-15', '2020-02-01', NULL),
+('MEF007', 'NPI007', 'Simon', 'Philippe', 'A2', 'A', NULL, '2021-03-10', '2021-04-01', NULL),
+('MEF008', 'NPI008', 'Laurent', 'Nathalie', 'B1', 'B', NULL, '2022-05-20', '2022-06-01', NULL),
+('MEF009', 'NPI009', 'Roux', 'Olivier', 'B2', 'B', NULL, '2023-07-18', '2023-08-01', NULL),
+('MEF010', 'NPI010', 'David', 'Camille', 'C1', 'C', NULL, '2024-09-22', '2024-10-01', NULL);
+
+
+-- Exemple pour le MS
+INSERT INTO agents (matricule, num_NPI, nom, prenom, grade, categorie, historique_poste, date_recrutement, date_debut_service, user_id) VALUES
+('MS001', 'NPI011', 'Dubois', 'Paul', 'A1', 'A', NULL, '2020-01-15', '2020-02-01', NULL),
+('MS002', 'NPI012', 'Leroy', 'Claire', 'A2', 'A', NULL, '2021-03-10', '2021-04-01', NULL),
+('MS003', 'NPI013', 'Gomez', 'Julien', 'B1', 'B', NULL, '2022-05-20', '2022-06-01', NULL),
+('MS004', 'NPI014', 'Blanc', 'Elodie', 'B2', 'B', NULL, '2023-07-18', '2023-08-01', NULL),
+('MS005', 'NPI015', 'Rossi', 'Mathieu', 'C1', 'C', NULL, '2024-09-22', '2024-10-01', NULL),
+('MS006', 'NPI016', 'Robert', 'Sophie', 'A1', 'A', NULL, '2020-01-15', '2020-02-01', NULL),
+('MS007', 'NPI017', 'Bertrand', 'Pierre', 'A2', 'A', NULL, '2021-03-10', '2021-04-01', NULL),
+('MS008', 'NPI018', 'Riviere', 'Nathalie', 'B1', 'B', NULL, '2022-05-20', '2022-06-01', NULL),
+('MS009', 'NPI019', 'Vincent', 'Olivier', 'B2', 'B', NULL, '2023-07-18', '2023-08-01', NULL),
+('MS010', 'NPI020', 'Petit', 'Camille', 'C1', 'C', NULL, '2024-09-22', '2024-10-01', NULL);
+
+-- Exemple pour le MAEC
+INSERT INTO agents (matricule, num_NPI, nom, prenom, grade, categorie, historique_poste, date_recrutement, date_debut_service, user_id) VALUES
+('MAEC001', 'NPI021', 'Thomas', 'Paul', 'A1', 'A', NULL, '2020-01-15', '2020-02-01', NULL),
+('MAEC002', 'NPI022', 'Girard', 'Marie', 'A2', 'A', NULL, '2021-03-10', '2021-04-01', NULL),
+('MAEC003', 'NPI023', 'Clement', 'Pierre', 'B1', 'B', NULL, '2022-05-20', '2022-06-01', NULL),
+('MAEC004', 'NPI024', 'Morel', 'Sophie', 'B2', 'B', NULL, '2023-07-18', '2023-08-01', NULL),
+('MAEC005', 'NPI025', 'Chevalier', 'Antoine', 'C1', 'C', NULL, '2024-09-22', '2024-10-01', NULL),
+('MAEC006', 'NPI026', 'Roy', 'Isabelle', 'A1', 'A', NULL, '2020-01-15', '2020-02-01', NULL),
+('MAEC007', 'NPI027', 'Garnier', 'Philippe', 'A2', 'A', NULL, '2021-03-10', '2021-04-01', NULL),
+('MAEC008', 'NPI028', 'Faure', 'Nathalie', 'B1', 'B', NULL, '2022-05-20', '2022-06-01', NULL),
+('MAEC009', 'NPI029', 'Perez', 'Olivier', 'B2', 'B', NULL, '2023-07-18', '2023-08-01', NULL),
+('MAEC010', 'NPI030', 'Fernandez', 'Camille', 'C1', 'C', NULL, '2024-09-22', '2024-10-01', NULL);
+
+INSERT INTO agents (matricule, num_NPI, nom, prenom, grade, categorie, historique_poste, date_recrutement, date_debut_service, user_id) VALUES
+('MJ001', 'NPI031', 'Meyer', 'Jean', 'A1', 'A', NULL, '2020-01-15', '2020-02-01', NULL),
+('MJ002', 'NPI032', 'Weber', 'Marie', 'A2', 'A', NULL, '2021-03-10', '2021-04-01', NULL),
+('MJ003', 'NPI033', 'Schneider', 'Pierre', 'B1', 'B', NULL, '2022-05-20', '2022-06-01', NULL),
+('MJ004', 'NPI034', 'Becker', 'Sophie', 'B2', 'B', NULL, '2023-07-18', '2023-08-01', NULL),
+('MJ005', 'NPI035', 'Hoffmann', 'Antoine', 'C1', 'C', NULL, '2024-09-22', '2024-10-01', NULL),
+('MJ006', 'NPI036', 'Koch', 'Isabelle', 'A1', 'A', NULL, '2020-01-15', '2020-02-01', NULL),
+('MJ007', 'NPI037', 'Bauer', 'Philippe', 'A2', 'A', NULL, '2021-03-10', '2021-04-01', NULL),
+('MJ008', 'NPI038', 'Richter', 'Nathalie', 'B1', 'B', NULL, '2022-05-20', '2022-06-01', NULL),
+('MJ009', 'NPI039', 'Schmitt', 'Olivier', 'B2', 'B', NULL, '2023-07-18', '2023-08-01', NULL),
+('MJ010', 'NPI040', 'Schroeder', 'Camille', 'C1', 'C', NULL, '2024-09-22', '2024-10-01', NULL);
+
+INSERT INTO agents (matricule, num_NPI, nom, prenom, grade, categorie, historique_poste, date_recrutement, date_debut_service, user_id) VALUES
+('MEN001', 'NPI041', 'Legrand', 'Jean', 'A1', 'A', NULL, '2020-01-15', '2020-02-01', NULL),
+('MEN002', 'NPI042', 'Lemaire', 'Marie', 'A2', 'A', NULL, '2021-03-10', '2021-04-01', NULL),
+('MEN003', 'NPI043', 'Mercier', 'Pierre', 'B1', 'B', NULL, '2022-05-20', '2022-06-01', NULL),
+('MEN004', 'NPI044', 'Renault', 'Sophie', 'B2', 'B', NULL, '2023-07-18', '2023-08-01', NULL),
+('MEN005', 'NPI045', 'Meunier', 'Antoine', 'C1', 'C', NULL, '2024-09-22', '2024-10-01', NULL),
+('MEN006', 'NPI046', 'Dumont', 'Isabelle', 'A1', 'A', NULL, '2020-01-15', '2020-02-01', NULL),
+('MEN007', 'NPI047', 'Fournier', 'Philippe', 'A2', 'A', NULL, '2021-03-10', '2021-04-01', NULL),
+('MEN008', 'NPI048', 'Girardot', 'Nathalie', 'B1', 'B', NULL, '2022-05-20', '2022-06-01', NULL),
+('MEN009', 'NPI049', 'Chevallier', 'Olivier', 'B2', 'B', NULL, '2023-07-18', '2023-08-01', NULL),
+('MEN010', 'NPI050', 'Collin', 'Camille', 'C1', 'C', NULL, '2024-09-22', '2024-10-01', NULL);
+
+INSERT INTO agents (matricule, num_NPI, nom, prenom, grade, categorie, historique_poste, date_recrutement, date_debut_service, user_id) VALUES
+('MDN001', 'NPI051', 'Lambert', 'Jean', 'A1', 'A', NULL, '2020-01-15', '2020-02-01', NULL),
+('MDN002', 'NPI052', 'Bernard', 'Marie', 'A2', 'A', NULL, '2021-03-10', '2021-04-01', NULL),
+('MDN003', 'NPI053', 'Moreau', 'Pierre', 'B1', 'B', NULL, '2022-05-20', '2022-06-01', NULL),
+('MDN004', 'NPI054', 'Garcia', 'Sophie', 'B2', 'B', NULL, '2023-07-18', '2023-08-01', NULL),
+('MDN005', 'NPI055', 'Rousseau', 'Antoine', 'C1', 'C', NULL, '2024-09-22', '2024-10-01', NULL),
+('MDN006', 'NPI056', 'Poirier', 'Isabelle', 'A1', 'A', NULL, '2020-01-15', '2020-02-01', NULL),
+('MDN007', 'NPI057', 'Richard', 'Philippe', 'A2', 'A', NULL, '2021-03-10', '2021-04-01', NULL),
+('MDN008', 'NPI058', 'Petit', 'Nathalie', 'B1', 'B', NULL, '2022-05-20', '2022-06-01', NULL),
+('MDN009', 'NPI059', 'Durand', 'Olivier', 'B2', 'B', NULL, '2023-07-18', '2023-08-01', NULL),
+('MDN010', 'NPI060', 'Leroy', 'Camille', 'C1', 'C', NULL, '2024-09-22', '2024-10-01', NULL);
+
+INSERT INTO agents (matricule, num_NPI, nom, prenom, grade, categorie, historique_poste, date_recrutement, date_debut_service, user_id) VALUES
+('MTPT001', 'NPI061', 'Michel', 'Jean', 'A1', 'A', NULL, '2020-01-15', '2020-02-01', NULL),
+('MTPT002', 'NPI062', 'Simon', 'Marie', 'A2', 'A', NULL, '2021-03-10', '2021-04-01', NULL),
+('MTPT003', 'NPI063', 'Laurent', 'Pierre', 'B1', 'B', NULL, '2022-05-20', '2022-06-01', NULL),
+('MTPT004', 'NPI064', 'Roux', 'Sophie', 'B2', 'B', NULL, '2023-07-18', '2023-08-01', NULL),
+('MTPT005', 'NPI065', 'David', 'Antoine', 'C1', 'C', NULL, '2024-09-22', '2024-10-01', NULL),
+('MTPT006', 'NPI066', 'Moreau', 'Isabelle', 'A1', 'A', NULL, '2020-01-15', '2020-02-01', NULL),
+('MTPT007', 'NPI067', 'Simon', 'Philippe', 'A2', 'A', NULL, '2021-03-10', '2021-04-01', NULL),
+('MTPT008', 'NPI068', 'Laurent', 'Nathalie', 'B1', 'B', NULL, '2022-05-20', '2022-06-01', NULL),
+('MTPT009', 'NPI069', 'Roux', 'Olivier', 'B2', 'B', NULL, '2023-07-18', '2023-08-01', NULL),
+('MTPT010', 'NPI070', 'David', 'Camille', 'C1', 'C', NULL, '2024-09-22', '2024-10-01', NULL);
+
+INSERT INTO agents (matricule, num_NPI, nom, prenom, grade, categorie, historique_poste, date_recrutement, date_debut_service, user_id) VALUES
+('MAEP001', 'NPI071', 'Dubois', 'Paul', 'A1', 'A', NULL, '2020-01-15', '2020-02-01', NULL),
+('MAEP002', 'NPI072', 'Leroy', 'Claire', 'A2', 'A', NULL, '2021-03-10', '2021-04-01', NULL),
+('MAEP003', 'NPI073', 'Gomez', 'Julien', 'B1', 'B', NULL, '2022-05-20', '2022-06-01', NULL),
+('MAEP004', 'NPI074', 'Blanc', 'Elodie', 'B2', 'B', NULL, '2023-07-18', '2023-08-01', NULL),
+('MAEP005', 'NPI075', 'Rossi', 'Mathieu', 'C1', 'C', NULL, '2024-09-22', '2024-10-01', NULL),
+('MAEP006', 'NPI076', 'Robert', 'Sophie', 'A1', 'A', NULL, '2020-01-15', '2020-02-01', NULL),
+('MAEP007', 'NPI077', 'Bertrand', 'Pierre', 'A2', 'A', NULL, '2021-03-10', '2021-04-01', NULL),
+('MAEP008', 'NPI078', 'Riviere', 'Nathalie', 'B1', 'B', NULL, '2022-05-20', '2022-06-01', NULL),
+('MAEP009', 'NPI079', 'Vincent', 'Olivier', 'B2', 'B', NULL, '2023-07-18', '2023-08-01', NULL),
+('MAEP010', 'NPI080', 'Petit', 'Camille', 'C1', 'C', NULL, '2024-09-22', '2024-10-01', NULL);
+
+INSERT INTO agents (matricule, num_NPI, nom, prenom, grade, categorie, historique_poste, date_recrutement, date_debut_service, user_id) VALUES
+('MDEV001', 'NPI081', 'Thomas', 'Paul', 'A1', 'A', NULL, '2020-01-15', '2020-02-01', NULL),
+('MDEV002', 'NPI082', 'Girard', 'Marie', 'A2', 'A', NULL, '2021-03-10', '2021-04-01', NULL),
+('MDEV003', 'NPI083', 'Clement', 'Pierre', 'B1', 'B', NULL, '2022-05-20', '2022-06-01', NULL),
+('MDEV004', 'NPI084', 'Morel', 'Sophie', 'B2', 'B', NULL, '2023-07-18', '2023-08-01', NULL),
+('MDEV005', 'NPI085', 'Chevalier', 'Antoine', 'C1', 'C', NULL, '2024-09-22', '2024-10-01', NULL),
+('MDEV006', 'NPI086', 'Roy', 'Isabelle', 'A1', 'A', NULL, '2020-01-15', '2020-02-01', NULL),
+('MDEV007', 'NPI087', 'Garnier', 'Philippe', 'A2', 'A', NULL, '2021-03-10', '2021-04-01', NULL),
+('MDEV008', 'NPI088', 'Faure', 'Nathalie', 'B1', 'B', NULL, '2022-05-20', '2022-06-01', NULL),
+('MDEV009', 'NPI089', 'Perez', 'Olivier', 'B2', 'B', NULL, '2023-07-18', '2023-08-01', NULL),
+('MDEV010', 'NPI090', 'Fernandez', 'Camille', 'C1', 'C', NULL, '2024-09-22', '2024-10-01', NULL);
+
+INSERT INTO agents (matricule, num_NPI, nom, prenom, grade, categorie, historique_poste, date_recrutement, date_debut_service, user_id) VALUES
+('MCT001', 'NPI091', 'Thomas', 'Paul', 'A1', 'A', NULL, '2020-01-15', '2020-02-01', NULL),
+('MCT002', 'NPI092', 'Girard', 'Marie', 'A2', 'A', NULL, '2021-03-10', '2021-04-01', NULL),
+('MCT003', 'NPI093', 'Clement', 'Pierre', 'B1', 'B', NULL, '2022-05-20', '2022-06-01', NULL),
+('MCT004', 'NPI094', 'Morel', 'Sophie', 'B2', 'B', NULL, '2023-07-18', '2023-08-01', NULL),
+('MCT005', 'NPI095', 'Chevalier', 'Antoine', 'C1', 'C', NULL, '2024-09-22', '2024-10-01', NULL),
+('MCT006', 'NPI096', 'Roy', 'Isabelle', 'A1', 'A', NULL, '2020-01-15', '2020-02-01', NULL),
+('MCT007', 'NPI097', 'Garnier', 'Philippe', 'A2', 'A', NULL, '2021-03-10', '2021-04-01', NULL),
+('MCT008', 'NPI098', 'Faure', 'Nathalie', 'B1', 'B', NULL, '2022-05-20', '2022-06-01', NULL),
+('MCT009', 'NPI099', 'Perez', 'Olivier', 'B2', 'B', NULL, '2023-07-18', '2023-08-01', NULL),
+('MCT010', 'NPI100', 'Fernandez', 'Camille', 'C1', 'C', NULL, '2024-09-22', '2024-10-01', NULL);
+
+
+-- Insertion des types de mobilité
+INSERT INTO type_mobilites (intitule_mobilite) VALUES
+('Détachement'),
+('Disponibilité'),
+('Disposition');
+
+-- Insertion des dossiers
+-- Exemple pour le MEF
+INSERT INTO dossiers (code_dossier, titre, ministere_id, type_mobilite_id, agent_id, annee, type_acte, signataire, `référence dossier`, contenu_acte) VALUES
+('MEFDE20250001', 'Demande de détachement de Dupont Jean', (SELECT id FROM ministeres WHERE code_ministere = 'MEF'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Détachement'), (SELECT id FROM agents WHERE matricule = 'MEF001'), 2025, 'Arrêté', 'Ministre MEF', 'REF-2025-001', 'Contenu de l\'acte de détachement...'),
+('MEFDNB20250002', 'Demande de disponibilité de Durand Marie', (SELECT id FROM ministeres WHERE code_ministere = 'MEF'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disponibilité'), (SELECT id FROM agents WHERE matricule = 'MEF002'), 2025, 'Décret', 'Président', 'REF-2025-002', 'Contenu du décret de disponibilité...'),
+('MEFDSP20250003', 'Demande de disposition de Martin Pierre', (SELECT id FROM ministeres WHERE code_ministere = 'MEF'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disposition'), (SELECT id FROM agents WHERE matricule = 'MEF003'), 2025, 'Note de Service', 'DRH', 'REF-2025-003', 'Contenu de la note de service de disposition...');
+
+-- Exemple pour le MS
+INSERT INTO dossiers (code_dossier, titre, ministere_id, type_mobilite_id, agent_id, annee, type_acte, signataire, `référence dossier`, contenu_acte) VALUES
+('MSDE20250004', 'Demande de détachement de Dubois Paul', (SELECT id FROM ministeres WHERE code_ministere = 'MS'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Détachement'), (SELECT id FROM agents WHERE matricule = 'MS001'), 2025, 'Arrêté', 'Ministre MS', 'REF-2025-004', 'Contenu de l\'acte de détachement...'),
+('MSDNB20250005', 'Demande de disponibilité de Leroy Claire', (SELECT id FROM ministeres WHERE code_ministere = 'MS'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disponibilité'), (SELECT id FROM agents WHERE matricule = 'MS002'), 2025, 'Décret', 'Président', 'REF-2025-005', 'Contenu du décret de disponibilité...'),
+('MSDSP20250006', 'Demande de disposition de Gomez Julien', (SELECT id FROM ministeres WHERE code_ministere = 'MS'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disposition'), (SELECT id FROM agents WHERE matricule = 'MS003'), 2025, 'Note de Service', 'DRH', 'REF-2025-006', 'Contenu de la note de service de disposition...');
+
+-- Exemple pour le MAEC
+INSERT INTO dossiers (code_dossier, titre, ministere_id, type_mobilite_id, agent_id, annee, type_acte, signataire, `référence dossier`, contenu_acte) VALUES
+('MAECDE20250007', 'Demande de détachement de Thomas Paul', (SELECT id FROM ministeres WHERE code_ministere = 'MAEC'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Détachement'), (SELECT id FROM agents WHERE matricule = 'MAEC001'), 2025, 'Arrêté', 'Ministre MAEC', 'REF-2025-007', 'Contenu de l\'acte de détachement...'),
+('MAECDNB20250008', 'Demande de disponibilité de Girard Marie', (SELECT id FROM ministeres WHERE code_ministere = 'MAEC'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disponibilité'), (SELECT id FROM agents WHERE matricule = 'MAEC002'), 2025, 'Décret', 'Président', 'REF-2025-008', 'Contenu du décret de disponibilité...'),
+('MAECDSP20250009', 'Demande de disposition de Clement Pierre', (SELECT id FROM ministeres WHERE code_ministere = 'MAEC'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disposition'), (SELECT id FROM agents WHERE matricule = 'MAEC003'), 2025, 'Note de Service', 'DRH', 'REF-2025-009', 'Contenu de la note de service de disposition...');
+
+INSERT INTO dossiers (code_dossier, titre, ministere_id, type_mobilite_id, agent_id, annee, type_acte, signataire, `référence dossier`, contenu_acte) VALUES
+('MJDE20250010', 'Demande de détachement de Meyer Jean', (SELECT id FROM ministeres WHERE code_ministere = 'MJ'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Détachement'), (SELECT id FROM agents WHERE matricule = 'MJ001'), 2025, 'Arrêté', 'Ministre MJ', 'REF-2025-010', 'Contenu de l\'acte...'),
+('MJDNB20250011', 'Demande de disponibilité de Weber Marie', (SELECT id FROM ministeres WHERE code_ministere = 'MJ'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disponibilité'), (SELECT id FROM agents WHERE matricule = 'MJ002'), 2025, 'Décret', 'Président', 'REF-2025-011', 'Contenu de l\'acte...'),
+('MJDSP20250012', 'Demande de disposition de Schneider Pierre', (SELECT id FROM ministeres WHERE code_ministere = 'MJ'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disposition'), (SELECT id FROM agents WHERE matricule = 'MJ003'), 2025, 'Note de Service', 'DRH', 'REF-2025-012', 'Contenu de la note...', NULL);
+
+INSERT INTO dossiers (code_dossier, titre, ministere_id, type_mobilite_id, agent_id, annee, type_acte, signataire, `référence dossier`, contenu_acte) VALUES
+('MENDE20250013', 'Demande de détachement de Legrand Jean', (SELECT id FROM ministeres WHERE code_ministere = 'MEN'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Détachement'), (SELECT id FROM agents WHERE matricule = 'MEN001'), 2025, 'Arrêté', 'Ministre MEN', 'REF-2025-013', 'Contenu...'),
+('MENDNB20250014', 'Demande de disponibilité de Lemaire Marie', (SELECT id FROM ministeres WHERE code_ministere = 'MEN'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disponibilité'), (SELECT id FROM agents WHERE matricule = 'MEN002'), 2025, 'Décret', 'Président', 'REF-2025-014', 'Contenu...'),
+('MENDSP20250015', 'Demande de disposition de Mercier Pierre', (SELECT id FROM ministeres WHERE code_ministere = 'MEN'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disposition'), (SELECT id FROM agents WHERE matricule = 'MEN003'), 2025, 'Note de Service', 'DRH', 'REF-2025-015', 'Contenu...'),
+INSERT INTO dossiers (code_dossier, titre, ministere_id, type_mobilite_id, agent_id, annee, type_acte, signataire, `référence dossier`, contenu_acte) VALUES
+('MDNDE20250016', 'Demande de détachement de Lambert Jean', (SELECT id FROM ministeres WHERE code_ministere = 'MDN'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Détachement'), (SELECT id FROM agents WHERE matricule = 'MDN001'), 2025, 'Arrêté', 'Ministre MDN', 'REF-2025-016', 'Contenu...'),
+('MDNDNB20250017', 'Demande de disponibilité de Bernard Marie', (SELECT id FROM ministeres WHERE code_ministere = 'MDN'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disponibilité'), (SELECT id FROM agents WHERE matricule = 'MDN002'), 2025, 'Décret', 'Président', 'REF-2025-017', 'Contenu...'),
+('MDNDSP20250018', 'Demande de disposition de Moreau Pierre', (SELECT id FROM ministeres WHERE code_ministere = 'MDN'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disposition'), (SELECT id FROM agents WHERE matricule = 'MDN003'), 2025, 'Note de Service', 'DRH', 'REF-2025-018', 'Contenu...'),
+
+INSERT INTO dossiers (code_dossier, titre, ministere_id, type_mobilite_id, agent_id, annee, type_acte, signataire, `référence dossier`, contenu_acte) VALUES
+('MTPTDE20250019', 'Demande de détachement de Michel Jean', (SELECT id FROM ministeres WHERE code_ministere = 'MTPT'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Détachement'), (SELECT id FROM agents WHERE matricule = 'MTPT001'), 2025, 'Arrêté', 'Ministre MTPT', 'REF-2025-019', 'Contenu...'),
+('MTPTDNB20250020', 'Demande de disponibilité de Simon Marie', (SELECT id FROM ministeres WHERE code_ministere = 'MTPT'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disponibilité'), (SELECT id FROM agents WHERE matricule = 'MTPT002'), 2025, 'Décret', 'Président', 'REF-2025-020', 'Contenu...'),
+('MTPTDSP20250021', 'Demande de disposition de Laurent Pierre', (SELECT id FROM ministeres WHERE code_ministere = 'MTPT'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disposition'), (SELECT id FROM agents WHERE matricule = 'MTPT003'), 2025, 'Note de Service', 'DRH', 'REF-2025-021', 'Contenu...', NULL);
+
+INSERT INTO dossiers (code_dossier, titre, ministere_id, type_mobilite_id, agent_id, annee, type_acte, signataire, `référence dossier`, contenu_acte) VALUES
+('MAEPDE20250022', 'Demande de détachement de Dubois Paul', (SELECT id FROM ministeres WHERE code_ministere = 'MAEP'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Détachement'), (SELECT id FROM agents WHERE matricule = 'MAEP001'), 2025, 'Arrêté', 'Ministre MAEP', 'REF-2025-022', 'Contenu...'),
+('MAEPDNB20250023', 'Demande de disponibilité de Leroy Claire', (SELECT id FROM ministeres WHERE code_ministere = 'MAEP'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disponibilité'), (SELECT id FROM agents WHERE matricule = 'MAEP002'), 2025, 'Décret', 'Président', 'REF-2025-023', 'Contenu...'),
+('MAEPDSP20250024', 'Demande de disposition de Gomez Julien', (SELECT id FROM ministeres WHERE code_ministere = 'MAEP'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disposition'), (SELECT id FROM agents WHERE matricule = 'MAEP003'), 2025, 'Note de Service', 'DRH', 'REF-2025-024', 'Contenu...', NULL);
+
+INSERT INTO dossiers (code_dossier, titre, ministere_id, type_mobilite_id, agent_id, annee, type_acte, signataire, `référence dossier`, contenu_acte) VALUES
+('MDEVDE20250025', 'Demande de détachement de Thomas Paul', (SELECT id FROM ministeres WHERE code_ministere = 'MDEV'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Détachement'), (SELECT id FROM agents WHERE matricule = 'MDEV001'), 2025, 'Arrêté', 'Ministre MDEV', 'REF-2025-025', 'Contenu...'),
+('MDEVDNB20250026', 'Demande de disponibilité de Girard Marie', (SELECT id FROM ministeres WHERE code_ministere = 'MDEV'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disponibilité'), (SELECT id FROM agents WHERE matricule = 'MDEV002'), 2025, 'Décret', 'Président', 'REF-2025-026', 'Contenu...'),
+('MDEVDS20250027', 'Demande de disposition de Clement Pierre', (SELECT id FROM ministeres WHERE code_ministere = 'MDEV'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disposition'), (SELECT id FROM agents WHERE matricule = 'MDEV003'), 2025, 'Note de Service', 'DRH', 'REF-2025-027', 'Contenu...', NULL);
+
+INSERT INTO dossiers (code_dossier, titre, ministere_id, type_mobilite_id, agent_id, annee, type_acte, signataire, `référence dossier`, contenu_acte) VALUES
+('MCTDE20250028', 'Demande de détachement de Thomas Paul', (SELECT id FROM ministeres WHERE code_ministere = 'MCT'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Détachement'), (SELECT id FROM agents WHERE matricule = 'MCT001'), 2025, 'Arrêté', 'Ministre MCT', 'REF-2025-028', 'Contenu...'),
+('MCTDNB20250029', 'Demande de disponibilité de Girard Marie', (SELECT id FROM ministeres WHERE code_ministere = 'MCT'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disponibilité'), (SELECT id FROM agents WHERE matricule = 'MCT002'), 2025, 'Décret', 'Président', 'REF-2025-029', 'Contenu...'),
+('MCTDSP20250030', 'Demande de disposition de Clement Pierre', (SELECT id FROM ministeres WHERE code_ministere = 'MCT'), (SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disposition'), (SELECT id FROM agents WHERE matricule = 'MCT003'), 2025, 'Note de Service', 'DRH', 'REF-2025-030', 'Contenu...', NULL);
+
+
+
+-- Insertion des étapes
+INSERT INTO etapes (nom, ordre, delai_max) VALUES
+('Soumission de la demande', '1', '7 jours'),
+('Instruction du dossier', '2', '14 jours'),
+('Validation par la hiérarchie', '3', '10 jours'),
+('Signature de l\'acte', '4', '7 jours'),
+('Notification à l\'agent', '5', '3 jours');
+
+-- Insertion du suivi des dossiers
+-- Exemple pour le premier dossier
+INSERT INTO suivi_dossiers (etape_id, dossier_id, user_id, motif) VALUES
+((SELECT id FROM etapes WHERE nom = 'Soumission de la demande'), (SELECT id FROM dossiers WHERE code_dossier = 'MEFDE20250001'), (SELECT id FROM users WHERE email = 'john.doe@example.com'), NULL),
+((SELECT id FROM etapes WHERE nom = 'Instruction du dossier'), (SELECT id FROM dossiers WHERE code_dossier = 'MEFDE20250001'), (SELECT id FROM users WHERE email = 'jane.smith@example.com'), 'Dossier en cours d\'instruction...');
+
+
+-- Insertion destypes de pièces
+INSERT INTO type_pieces (nom, modeltype) VALUES
+('Demande manuscrite', NULL),
+('Copie de la pièce d\'identité', NULL),
+('Arrêté de nomination', NULL),
+('Certificat de prise de service', NULL);
+
+-- Insertion des pièces requises pour chaque type de mobilité
+INSERT INTO piece_requises (type_mobilite_id, type_piece_id, intitule_piece) VALUES
+((SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Détachement'), (SELECT id FROM type_pieces WHERE nom = 'Demande manuscrite'), 'Demande de détachement'),
+((SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Détachement'), (SELECT id FROM type_pieces WHERE nom = 'Copie de la pièce d\'identité'), 'Copie CNI'),
+((SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disponibilité'), (SELECT id FROM type_pieces WHERE nom = 'Demande manuscrite'), 'Demande de disponibilité'),
+((SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disponibilité'), (SELECT id FROM type_pieces WHERE nom = 'Arrêté de nomination'), 'Copie Arrêté de nomination'),
+((SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disposition'), (SELECT id FROM type_pieces WHERE nom = 'Demande manuscrite'), 'Demande de disposition'),
+((SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Disposition'), (SELECT id FROM type_pieces WHERE nom = 'Certificat de prise de service'), 'Copie Certificat de prise de service');
+
+
+-- Insertion des pièces justificatives pour un dossier
+INSERT INTO piece_justificatives (type_mobilite_id, type_piece_id, titre, `reference`, `date`, signataire, lien, nom_du_fichier) VALUES
+((SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Détachement'), (SELECT id FROM type_pieces WHERE nom = 'Demande manuscrite'), 'Demande de détachement de Dupont Jean', 'REF-2025-001-PJ1', '2025-01-10', 'Dupont Jean', '/chemin/vers/le/fichier1.pdf', 'demande_detachement_dupont.pdf'),
+((SELECT id FROM type_mobilites WHERE intitule_mobilite = 'Détachement'), (SELECT id FROM type_pieces WHERE nom = 'Copie de la pièce d\'identité'), 'Copie de la CNI de Dupont Jean', 'REF-2025-001-PJ2', '2025-01-10', 'Dupont Jean', '/chemin/vers/le/fichier2.pdf', 'cni_dupont.pdf');
+
+
+-- Insertion des profils
+INSERT INTO profils (intitule_profil) VALUES
+('Administrateur'),
+('Agent de saisie'),
+('Consultant');
+
+-- Insertion des utilisateurs et leurs profils
+INSERT INTO users (name, email, password, usertype) VALUES
+('John Doe', 'john.doe@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin'),
+('Jane Smith', 'jane.smith@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'agent');
+
+INSERT INTO user_profils (user_id, profil_id, statut) VALUES
+((SELECT id FROM users WHERE email = 'john.doe@example.com'), (SELECT id FROM profils WHERE intitule_profil = 'Administrateur'), 'actif'),
+((SELECT id FROM users WHERE email = 'jane.smith@example.com'), (SELECT id FROM profils WHERE intitule_profil = 'Agent de saisie'), 'actif');
+
+Explications et considérations importantes :Schéma de la base de données : Les requêtes sont basées sur le schéma de base de données fourni par vos migrations. Il est crucial que votre base de données soit configurée avec ces tables et colonnes.Clés étrangères : J'ai utilisé des sous-requêtes (SELECT id FROM ... WHERE ...) pour insérer correctement les valeurs des clés étrangères. Cela garantit que les enregistrements sont liés aux bonnes tables.Valeurs uniques: J'ai respecté les contraintes d'unicité (unique) définies dans vos migrations (par exemple, pour code_ministere, nom_ministere, code_structure, nom_structure, matricule, num_NPI, etc.).Code_dossier, Code_postes, Code_fonctions: J'ai suivi les formats que vous avez spécifiés pour ces codes (par exemple, MEFDE20250001, MEFDGB0001).  La partie auto-incrémentée (0001, 0002, etc.) devra être gérée par votre application (Laravel) pour assurer l'unicité.  Vous pouvez utiliser la fonctionnalité d'auto-incrémentation de la base de données pour une partie du code, ou le gérer en PHP.Dates : Les dates sont au format AAAA-MM-JJ (par exemple, '2020-01-15').historique_statut et contenu_acte: Ces champs sont définis comme json et longtext dans vos migrations. J'ai inséré des valeurs d'exemple. Vous devrez adapter le format JSON de historique_statut selon vos besoins.user_id dans agents et dossiers: J'ai inséré NULL pour l'instant, car il est possible que tous les agents et tous les dossiers ne soient pas immédiatement liés à un utilisateur. Vous devrez mettre à jour ces valeurs lorsque les agents seront liés aux comptes utilisateurs.Chemins de fichiers : Les champs lien dans piece_justificatives contiennent des exemples de chemins de fichiers. Vous devrez les remplacer par les chemins réels de vos fichiers.Données manquantes : J'ai inséré des valeurs par défaut ou NULL pour certains champs qui peuvent être vides (par exemple, historique_poste, reference pour les pièces justificatives). Vous devrez les mettre à jour avec les données réelles.Auto-incrémentation : La partie numérique des codes code_dossier, code_poste et code_fonction devra être gérée par votre application pour garantir l'unicité.  Vous pouvez utiliser l'auto-incrémentation de la base de données ou un mécanisme dans votre code Laravel.Noms de tables et de colonnes: Assurez-vous que les noms de tables et de colonnes dans votre base de données correspondent exactement à ceux utilisés dans ces requêtes.Transactions: Pour garantir la cohérence des données, il est recommandé d'exécuter ces requêtes dans une transaction.  Si une erreur se produit pendant l'insertion, toutes les modifications seront annulées.  Dans Laravel, vous pouvez utiliser la méthode DB::transaction().N'oubliez pas d'adapter ces requêtes à vos besoins spécifiques et à votre application Laravel.

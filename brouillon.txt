@@ -1,0 +1,1236 @@
+sys_gm/database/migrations/0001_01_01_000000_create_users_table.php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('phone_number')->nullable();
+            $table->string('usertype')->default('user');
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->rememberToken();
+            $table->timestamps();
+        });
+
+        Schema::create('password_reset_tokens', function (Blueprint $table) {
+            $table->string('email')->primary();
+            $table->string('token');
+            $table->timestamp('created_at')->nullable();
+        });
+
+        Schema::create('sessions', function (Blueprint $table) {
+            $table->string('id')->primary();
+            $table->foreignId('user_id')->nullable()->index();
+            $table->string('ip_address', 45)->nullable();
+            $table->text('user_agent')->nullable();
+            $table->longText('payload');
+            $table->integer('last_activity')->index();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('users');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('sessions');
+    }
+};
+
+
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('ministeres', function (Blueprint $table) {
+            $table->id();
+            $table->string('code_ministere', 10)->unique();
+            $table->string('nom_ministere')->unique();
+            $table->string('site_ministere');
+            $table->timestamps();
+        });
+
+        Schema::create('structures', function (Blueprint $table) {
+            $table->id();
+            $table->string('code_structure', 10)->unique();
+            $table->string('nom_structure')->unique();
+            $table->foreignId('ministere_id')->constrained()->onDelete('cascade');
+            $table->timestamps();
+        });
+
+        Schema::create('postes', function (Blueprint $table) {
+            $table->id();
+            $table->string('code_poste', 20)->unique();
+            $table->string('intitule_poste');
+            $table->string('service');
+            $table->string('direction');
+            $table->foreignId('structure_id')->constrained()->onDelete('cascade');
+            $table->timestamps();
+        });
+
+        Schema::create('fonctions', function (Blueprint $table) {
+            $table->id();
+            $table->string('code_fonction', 20)->unique();
+            $table->string('intitule_fonction');
+            $table->timestamps();
+        });
+        
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('structures');
+        Schema::dropIfExists('postes');
+        Schema::dropIfExists('fonctions');
+        Schema::dropIfExists('ministeres');
+    }
+};
+
+
+
+
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('agents', function (Blueprint $table) {
+            $table->id();
+            $table->string('matricule')->unique();
+            $table->string('num_NPI')->unique();
+            $table->string('nom');
+            $table->string('prenom');
+            $table->string('grade');
+            $table->string('categorie');
+            $table->string('historique_poste')->nullable();
+            $table->date('date_recrutement');
+            $table->date('date_debut_service');
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+            $table->timestamps();
+        });
+
+        Schema::create('occuper', function (Blueprint $table) {
+            $table->foreignId('poste_id')->constrained()->onDelete('cascade');
+            $table->foreignId('agent_id')->constrained()->onDelete('cascade');
+            $table->foreignId('fonction_id')->constrained()->onDelete('restrict');
+            $table->date('date_recrutement')->nullable();
+            $table->date('date_debut_service')->nullable();
+            $table->primary(['poste_id', 'fonction_id', 'agent_id']);
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('occuper');
+        Schema::dropIfExists('agents');
+    }
+};
+
+
+
+
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('type_mobilites', function (Blueprint $table) {
+            $table->id();
+            $table->string('intitule_mobilite')->unique();
+            $table->timestamps();
+        });
+
+        Schema::create('dossiers', function (Blueprint $table) {
+            $table->id();
+            $table->string('code_dossier')->unique();
+            $table->string('titre');
+            $table->foreignId('ministere_id')->constrained();
+            $table->foreignId('type_mobilite_id')->constrained();
+            $table->foreignId('agent_id')->constrained();
+            $table->string('statut')->default('en_attente');
+            $table->year('annee');
+            $table->json('historique_statut')->nullable();
+            $table->string('type_acte');
+            $table->string('signataire');
+            $table->string('référence dossier');
+            $table->string('contenu_acte');
+            $table->timestamps();
+        });
+
+        Schema::create('etapes', function (Blueprint $table) {
+            $table->id();
+            $table->string('nom');
+            $table->string('ordre');
+            $table->string('delai_max');
+            $table->timestamps();
+        });
+
+
+        Schema::create('suivi_dossiers', function (Blueprint $table) {
+            $table->foreignId('etape_id')->constrained();
+            $table->foreignId('dossier_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained();
+            $table->string('motif')->nullable();
+            $table->primary(['etape_id', 'dossier_id', 'user_id']);
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('suivi_dossiers');
+        Schema::dropIfExists('etapes');
+        Schema::dropIfExists('dossiers');
+        Schema::dropIfExists('types_mobilites');
+    }
+};
+
+
+
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('type_pieces', function (Blueprint $table) {
+            $table->id();
+            $table->string('nom');
+            $table->string('modeltype')->nullable(); // Ajout de ->nullable() car ce champ pourrait être optionnel
+            $table->timestamps();
+        });
+
+        Schema::create('piece_requises', function (Blueprint $table) {
+            $table->foreignId('type_mobilite_id')->constrained()->onDelete('cascade');
+            $table->foreignId('type_piece_id')->constrained()->onDelete('cascade'); // Ajout de la contrainte de clé étrangère et de l'action en cas de suppression
+            $table->string('intitule_piece');
+            // La ligne suivante est incorrecte. Une clé étrangère ne peut pas être la clé primaire unique.
+            // Si 'type_mobilite_id' doit être la clé primaire, la structure de la table doit être différente (relation un-à-un potentielle).
+            // Si vous voulez une clé primaire composite, vous devez inclure l'id de la table.
+            $table->primary(['type_mobilite_id', 'type_piece_id']);
+            $table->timestamps();
+        });
+
+        Schema::create('piece_justificatives', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('type_mobilite_id')->constrained()->onDelete('cascade'); // Ajout de la contrainte de clé étrangère et de l'action en cas de suppression
+            $table->foreignId('type_piece_id')->constrained()->onDelete('cascade'); // Ajout de la contrainte de clé étrangère et de l'action en cas de suppression
+            $table->string('titre');
+            $table->string('reference')->nullable(); // Ajout de ->nullable() car ce champ pourrait être optionnel
+            $table->date('date')->nullable(); // Ajout de ->nullable() car ce champ pourrait être optionnel
+            $table->string('signataire')->nullable(); // Ajout de ->nullable() car ce champ pourrait être optionnel
+            $table->string('lien')->nullable(); // Ajout de ->nullable() car ce champ pourrait être optionnel
+            $table->string('nom_du_fichier');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('piece_justificatives');
+        Schema::dropIfExists('piece_requises');
+        Schema::dropIfExists('type_pieces');
+    }
+};
+
+
+
+
+
+
+
+
+<?php
+
+namespace App\Livewire\Ministeres;
+
+use Livewire\Component;
+
+class Ministeres extends Component
+{
+    public function render()
+    {
+        return view('livewire.ministeres.ministeres');
+    }
+}
+
+
+
+<?php
+
+namespace App\Livewire\Ministeres;
+
+use Livewire\Component;
+
+class EditMinistere extends Component
+{
+    public function render()
+    {
+        return view('livewire.ministeres.edit-ministere');
+    }
+}
+
+
+
+<?php
+
+namespace App\Livewire\Ministeres;
+
+use Livewire\Component;
+
+class CreateMinistere extends Component
+{
+    public function render()
+    {
+        return view('livewire.ministeres.create-ministere');
+    }
+}
+
+
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('profils', function (Blueprint $table) {
+            $table->id();
+            $table->string('intitule_profil');
+            $table->timestamps();
+        });
+
+        Schema::create('user_profils', function (Blueprint $table) {
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('profil_id')->constrained()->onDelete('cascade');
+            $table->string('statut');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('user_profils');
+        Schema::dropIfExists('profils');
+    }
+};
+
+
+Cher ami, J'aimerais que tu m'aides à faire des enregistrements avec sql directement dans la base de données. 
+Je veux que tu te serves des informations sur le net. Il s'agit d'un système de gestions de la
+mobilité (déplacement ou changement de positions ou postes au sein d'une structure ) des agents dans l'administration publique béninoise.
+Je doit enregistrer : 10 ministères (le code ministère Ex:"MEF" pour le ministère de l'économie et des finances), leurs structures par ministères, 
+les postes d'une structures, les fonctions et 10 agents par ministère. Tu peux faire les enregistrements pour les autres tables en tenant compte du contexte.
+NB: 
+Code_dossier pour identifier le dossier+ministère qui l'a éditer
+CodeMinistere+TypeMobilité+ANNEE+numéroAutoIncremente
+Ex: MEFDE20250001  (max 25) 
+Detachement => DE
+Disponibilite => DNB
+Disposition => DSP
+
+Code_postes = CodeMinistere+CodeStructure+numéroAutoIncremente
+Ex: MEFDGB0001  (max 25)  DGB = Direction Générale du Budget
+
+Code_fonctions = CodeMinistere+CodeStructure+numéroAutoIncremente
+Ex: MEFDGB0001  (max 25)  DGB = Direction Générale du Budget
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+J'ai un problème avec mon composant Livewire. En effet, Lorsque je clique sur le lien qui m'affiche la page ministere.blade.php
+au lieu de rester sur l'interface avec le contenu admin ça me renvoie vers le dashboard (user/index.blade.php) du user 
+avec le contenu de ministere.blade.php, normalement grâce au middleware il ne devrait pas pouvoir accéder à cette page. 
+Je vais te fournir des informations supplémentaires: 
+
+web.php
+
+<?php
+
+use App\Livewire\Ministeres\Ministeres;
+use App\Livewire\Settings\Profile;
+use App\Livewire\Settings\Password;
+use App\Livewire\Settings\Appearance;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
+
+Route::get('/', function () {
+    return view('welcome');
+})->name('home');
+
+Route::get('/dashboard', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware(['auth', 'verified', 'admin'])->prefix('/admin')->group(function () {
+    Route::get('/', function () { return view('admin.index');})->name('admindashboard');
+
+    Route::prefix('/ministere')->name('ministere.')->group(function () {
+        Route::get('/', Ministeres::class)->name('index');
+        Route::get('/create', function () { return view('admin.ministeres.create');})->name('create');
+        Route::get('/edit', function () { return view('admin.ministeres.edit');})->name('edit');
+    });
+
+});
+
+// Route::get('/admin', function () {
+//     return view('admin.index');
+// })->name('admindashboard')->middleware(['auth', 'verified', 'admin']);
+
+// Route::get('/users', function () {
+//     return view('users.index');
+// })->middleware(['auth', 'verified'])->name('user');
+
+
+Route::get('/userhome', function () {
+    return view('users.user');
+})->middleware(['auth', 'verified'])->name('userUser');
+
+
+
+//route vers dashboard
+
+// Route::view('/user', 'users.index')
+//     ->middleware(['auth', 'verified'])
+//     ->name('dashboard');
+
+// Route::middleware(['auth', 'verified', 'profilAccess'])->group(function () {
+// });
+
+
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::redirect('settings', 'settings/profile');
+
+    Route::get('settings/profile', Profile::class)->name('settings.profile');
+    Route::get('settings/password', Password::class)->name('settings.password');
+    Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
+});
+
+require __DIR__.'/auth.php';
+
+
+auth.php
+
+<?php
+
+use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Livewire\Auth\ConfirmPassword;
+use App\Livewire\Auth\ForgotPassword;
+use App\Livewire\Auth\Login;
+use App\Livewire\Auth\Register;
+use App\Livewire\Auth\ResetPassword;
+use App\Livewire\Auth\VerifyEmail;
+use Illuminate\Support\Facades\Route;
+
+Route::middleware('guest')->group(function () {
+    Route::get('login', Login::class)->name('login');
+    Route::get('register', Register::class)->name('register');
+    Route::get('forgot-password', ForgotPassword::class)->name('password.request');
+    Route::get('reset-password/{token}', ResetPassword::class)->name('password.reset');
+});
+
+Route::middleware('auth')->group(function () {
+
+    Route::get('verify-email', VerifyEmail::class)
+        ->name('verification.notice');
+
+    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
+        ->middleware(['signed', 'throttle:6,1'])
+        ->name('verification.verify');
+
+    Route::get('confirm-password', ConfirmPassword::class)
+        ->name('password.confirm');
+});
+
+Route::post('logout', App\Livewire\Actions\Logout::class)
+    ->name('logout');
+
+
+bootstrap/app.php
+
+<?php
+
+use App\Http\Middleware\AdminAccess;
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Configuration\Exceptions;
+use Illuminate\Foundation\Configuration\Middleware;
+
+return Application::configure(basePath: dirname(__DIR__))
+    ->withRouting(
+        web: __DIR__.'/../routes/web.php',
+        commands: __DIR__.'/../routes/console.php',
+        health: '/up',
+    )
+    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->alias([
+            'admin' => AdminAccess::class,
+        ]);
+    })
+    ->withExceptions(function (Exceptions $exceptions) {
+        //
+    })->create();
+
+AdminAccess.blade.php
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+class AdminAccess
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     */
+    public function handle(Request $request, Closure $next): Response
+    {
+        if (auth()->user()->usertype=='admin') {
+            return $next($request);
+        }
+        abort(403, 'Unauthorized');
+        // return response()->json(['message' => 'Unauthorized'], 401);
+    }
+}
+
+
+
+Mon composant Livewire 
+
+livewire/ministeres/ministeres.blade.pnp
+<div class="relative mb-6 w-full">
+    <flux:heading size="xl" level="1">{{ __('Ministères') }}</flux:heading>
+    <div class="flex justify-between items-center">
+        <flux:subheading size="lg" class="mb-6">{{ __('Gestion des mininistères et de leurs structures') }}</flux:subheading>
+        <livewire:ministeres.create-ministere />
+    </div>
+
+    <flux:separator variant="subtle" />
+
+</div>
+
+
+
+livewire/ministeres/create-ministere.blade.pnp
+
+<div>
+    <flux:modal.trigger name="create-ministere">
+        <flux:button variant="primary">
+            {{ __('Creer un ministere') }}
+        </flux:button>
+    </flux:modal.trigger>
+
+    <flux:modal name="create-ministere" class="max-w-lg">
+        <form class="space-y-6">
+            <div>
+                <flux:heading size="lg">{{ __('Enregistrement') }}</flux:heading>
+
+                <flux:subheading>
+                    {{ __('Ministère') }}
+                </flux:subheading>
+            </div>
+
+            <flux:input :label="__('Code')" type="text" />
+            <flux:input :label="__('nom')" type="text" />
+            <flux:input :label="__('sites')" type="text" />
+
+            <div class="flex justify-end space-x-2 rtl:space-x-reverse">
+                <flux:modal.close>
+                    <flux:button variant="filled">{{ __('Annuler') }}</flux:button>
+                </flux:modal.close>
+
+                <flux:button variant="primary" type="submit">{{ __('Enregistrer') }}</flux:button>
+            </div>
+        </form>
+    </flux:modal>
+</div>
+
+
+
+Vérifie moi aussi chaque interfaces
+
+                Interfaces Utilisateur
+
+components/layouts/app/sidebar.blade.php
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+    <head>
+        @include('partials.head')
+    </head>
+    <body class="min-h-screen bg-white dark:bg-zinc-800">
+        <flux:sidebar sticky stashable class="border-r border-zinc-200 text-white! bg-blue-900 dark:border-zinc-700 dark:bg-zinc-900">
+            <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
+
+            <div class="flex items-center justify-between px-4 py-5 border-b border-b-blue-800">
+                <a class="flex items-center space-x-2" href="{{ route('dashboard') }}" wire:navigate>
+                    <div class="bg-white p-1.5 rounded">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart2 text-blue-900">
+                            <line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line>
+                            <line x1="6" x2="6" y1="20" y2="14"></line>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-white">
+                        SysGeMob
+                    </span>
+                </a>
+                <button class="md:hidden text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x ">
+                        <path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                </button>
+            </div>
+
+            {{-- <a href="{{ route('dashboard') }}" class="me-5 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
+                <x-app-logo />
+            </a> --}}
+
+            {{-- <flux:navlist variant="outline">
+                <flux:navlist.group :heading="__('Platform')" class="grid">
+                    <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
+                </flux:navlist.group>
+            </flux:navlist> --}}
+
+            <div class="flex items-center space-x-2 p-2 rounded-md">
+                <div class="h-10 w-10 rounded-full bg-[#4CB9E7] flex items-center justify-center">
+                    <span class="font-semibold text-lg">A</span>
+                </div>
+                <div class="flex-1 overflow-hidden">
+                    <p class="font-medium truncate">Admin Système</p>
+                    <p class="text-xs text-gray-300 truncate">admin</p>
+                </div>
+            </div>
+
+            <flux:separator variant="subtle" />
+
+            <flux:navlist variant="outline">
+                <flux:navlist.item icon="home" class="hover:bg-blue-50! hover:text-blue-700! text-white!   {{ request()->routeIs('dashboard') ? 'bg-blue-800! text-white!' : '' }}" :href="route('dashboard')" wire:navigate>Tableau de bord</flux:navlist.item>
+                <flux:navlist.item icon="folder" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Dossier à traiter</flux:navlist.item>
+                <flux:navlist.item icon="folder-plus" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Faire une Demande</flux:navlist.item>
+                <flux:navlist.item icon="document" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Générer un Document</flux:navlist.item>
+                <flux:navlist.item icon="users" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Liste des Agents</flux:navlist.item>
+                <flux:navlist.item icon="inbox" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Affectations</flux:navlist.item>
+                <flux:navlist.item icon="document-text" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Historiques</flux:navlist.item>
+            </flux:navlist>
+
+            <flux:spacer />
+
+            <flux:navlist variant="outline" class="border-t border-blue-800 py-1">
+                <form method="POST" action="{{ route('logout') }}" class="w-full">
+                    @csrf
+                    {{-- <flux:navlist.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full text-white! px-4! py-4!">
+                        {{ __('Log Out') }}
+                    </flux:navlist.item> --}}
+                    <button class="flex items-center px-3 py-3 text-sm font-medium rounded-md text-blue-200 hover:bg-blue-800 hover:text-white w-full transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out mr-3">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" x2="9" y1="12" y2="12"></line>
+                        </svg>Se déconnecter
+                    </button>
+                </form>
+            </flux:navlist>
+        </flux:sidebar>
+
+        <!-- Mobile User Menu -->
+        <flux:header class="lg:hidden">
+            <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
+
+            <flux:spacer />
+
+            <flux:dropdown position="top" align="end">
+                <flux:profile
+                    :initials="auth()->user()->initials()"
+                    icon-trailing="chevron-down"
+                />
+
+                <flux:menu>
+                    <flux:menu.radio.group>
+                        <div class="p-0 text-sm font-normal">
+                            <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
+                                <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
+                                    <span
+                                        class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white"
+                                    >
+                                        {{ auth()->user()->initials() }}
+                                    </span>
+                                </span>
+
+                                <div class="grid flex-1 text-start text-sm leading-tight">
+                                    <span class="truncate font-semibold">{{ auth()->user()->name }}</span>
+                                    <span class="truncate text-xs">{{ auth()->user()->email }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </flux:menu.radio.group>
+
+                    <flux:menu.separator />
+
+                    <flux:menu.radio.group>
+                        <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
+                    </flux:menu.radio.group>
+
+                    <flux:menu.separator />
+
+                    <form method="POST" action="{{ route('logout') }}" class="w-full">
+                        @csrf
+                        <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">
+                            {{ __('Log Out') }}
+                        </flux:menu.item>
+                    </form>
+                </flux:menu>
+            </flux:dropdown>
+        </flux:header>
+
+        {{ $slot }}
+
+        @fluxScripts
+    </body>
+</html>
+
+
+components/layouts/app.blade.php
+
+<x-layouts.app.sidebar :title="$title ?? null">
+    @include('components.layouts.app.navbar')
+
+    <flux:main class="overflow-y-auto h-[calc(100vh-4rem)]">
+        <div class="container mx-auto h-full">
+            {{ $slot }}
+        </div>
+    </flux:main>
+</x-layouts.app.sidebar>
+
+
+dashboard.blade.php
+
+<x-layouts.app :title="__('Dashboard')">
+    @yield('content')
+</x-layouts.app>
+
+
+user/index.blade.php
+@extends('dashboard')
+
+@section('title', '| Acceuil')
+
+@section('content')
+
+<div class="container mx-auto px-4 py-8">
+  <div>
+      <h2 class="text-xl font-semibold mb-4">
+          Bienvenue, {{auth()->user()->name}}
+      </h2>
+      <p class="text-muted-foreground mb-6">
+          Voici un aperçu de votre activité dans le système de gestion des
+          mobilités
+      </p>
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+              <div class="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
+                  <h3 class="tracking-tight text-sm font-medium">
+                      Dossiers à traiter
+                  </h3>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round" class="lucide lucide-folder-open h-5 w-5 text-blue-500">
+                      <path
+                          d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2">
+                      </path>
+                  </svg>
+              </div>
+              <div class="p-6 pt-0">
+                  <div class="text-2xl font-bold">
+                      5
+                  </div>
+                  <p class="text-xs text-muted-foreground">
+                      Dossiers en attente de validation
+                  </p>
+                  <div class="flex items-center mt-2 text-xs">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                          stroke-linejoin="round" class="lucide lucide-arrow-up h-3 w-3 text-green-600 mr-1">
+                          <path d="m5 12 7-7 7 7"></path>
+                          <path d="M12 19V5"></path>
+                      </svg><span class="text-green-600">2 nouveaux aujourd'hui</span>
+                  </div>
+              </div>
+          </div>
+          <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+              <div class="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
+                  <h3 class="tracking-tight text-sm font-medium">
+                      Dossiers traités
+                  </h3>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round" class="lucide lucide-file-check h-5 w-5 text-green-500">
+                      <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                      <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
+                      <path d="m9 15 2 2 4-4"></path>
+                  </svg>
+              </div>
+              <div class="p-6 pt-0">
+                  <div class="text-2xl font-bold">
+                      12
+                  </div>
+                  <p class="text-xs text-muted-foreground">
+                      Ce mois-ci
+                  </p>
+                  <div class="flex items-center mt-2 text-xs">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                          stroke-linejoin="round" class="lucide lucide-arrow-up h-3 w-3 text-green-600 mr-1">
+                          <path d="m5 12 7-7 7 7"></path>
+                          <path d="M12 19V5"></path>
+                      </svg><span class="text-green-600">5 de plus que le mois dernier</span>
+                  </div>
+              </div>
+          </div>
+          <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+              <div class="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
+                  <h3 class="tracking-tight text-sm font-medium">
+                      Retours à faire
+                  </h3>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round" class="lucide lucide-circle-alert h-5 w-5 text-red-500">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" x2="12" y1="8" y2="12"></line>
+                      <line x1="12" x2="12.01" y1="16" y2="16"></line>
+                  </svg>
+              </div>
+              <div class="p-6 pt-0">
+                  <div class="text-2xl font-bold">
+                      2
+                  </div>
+                  <p class="text-xs text-muted-foreground">
+                      Dossiers nécessitant corrections
+                  </p>
+                  <div class="flex items-center mt-2 text-xs">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                          stroke-linejoin="round" class="lucide lucide-arrow-down h-3 w-3 text-red-600 mr-1">
+                          <path d="M12 5v14"></path>
+                          <path d="m19 12-7 7-7-7"></path>
+                      </svg><span class="text-red-600">1 de moins qu'hier</span>
+                  </div>
+              </div>
+          </div>
+      </div>
+      <div class="mt-6">
+          <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+              <div class="flex flex-col space-y-1.5 p-6">
+                  <h3 class="text-2xl font-semibold leading-none tracking-tight">
+                      Dossiers à traiter en priorité
+                  </h3>
+                  <p class="text-sm text-muted-foreground">
+                      Liste des dossiers nécessitant une attention immédiate
+                  </p>
+              </div>
+              <div class="p-6 pt-0">
+                  <div class="space-y-4">
+                      <div
+                          class="flex items-center justify-between p-4 border rounded-lg border-l-4 border-l-red-500">
+                          <div class="flex flex-col">
+                              <span class="font-medium">Détachement - Jean Koffi</span><span
+                                  class="text-sm text-muted-foreground">Ref: DGFP-2023-045</span>
+                          </div>
+                          <div class="flex items-center gap-2">
+                              <span class="text-sm text-red-600">En attente depuis 3 jours</span><button
+                                  class="px-3 py-1 text-xs bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                                  Traiter
+                              </button>
+                          </div>
+                      </div>
+                      <div
+                          class="flex items-center justify-between p-4 border rounded-lg border-l-4 border-l-amber-500">
+                          <div class="flex flex-col">
+                              <span class="font-medium">Mise à disposition - Marie Sossou</span><span
+                                  class="text-sm text-muted-foreground">Ref: DGFP-2023-046</span>
+                          </div>
+                          <div class="flex items-center gap-2">
+                              <span class="text-sm text-amber-600">En attente depuis 2 jours</span><button
+                                  class="px-3 py-1 text-xs bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                                  Traiter
+                              </button>
+                          </div>
+                      </div>
+                      <div
+                          class="flex items-center justify-between p-4 border rounded-lg border-l-4 border-l-blue-500">
+                          <div class="flex flex-col">
+                              <span class="font-medium">Disponibilité - Paul Gbaguidi</span><span
+                                  class="text-sm text-muted-foreground">Ref: DGFP-2023-047</span>
+                          </div>
+                          <div class="flex items-center gap-2">
+                              <span class="text-sm text-blue-600">Nouveau dossier</span><button
+                                  class="px-3 py-1 text-xs bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                                  Traiter
+                              </button>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+@endsection
+
+
+
+                Interfaces Admin
+
+components/layouts/admindashboard/sidebar.blade.php
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<head>
+    @include('partials.head')
+</head>
+<body class="min-h-screen bg-white dark:bg-zinc-800">
+
+    <flux:sidebar sticky stashable class="bg-zinc-50 dark:bg-zinc-900 border-r rtl:border-r-0 rtl:border-l border-zinc-200 dark:border-zinc-700">
+        
+        <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
+        
+        <flux:brand href="#" logo="https://fluxui.dev/img/demo/logo.png" name="Acme Inc." class="px-2 dark:hidden" />
+        
+        <flux:brand href="#" logo="https://fluxui.dev/img/demo/dark-mode-logo.png" name="Acme Inc." class="px-2 hidden dark:flex" />
+        <flux:input as="button" variant="filled" placeholder="Search..." icon="magnifying-glass" />
+        
+        <flux:navlist variant="outline">
+            <flux:navlist.item icon="home" :href="route('admindashboard')" class="hover:bg-blue-50! hover:text-blue-700! {{ request()->routeIs('admindashboard') ? 'bg-blue-900 text-white!' : '' }}" wire:navigate>Tableau de bord</flux:navlist.item>
+            <flux:navlist.item icon="document" href="#" class="hover:bg-blue-50! hover:text-blue-700!">Générer un Document</flux:navlist.item>
+            <flux:navlist.item icon="inbox" href="#" class="hover:bg-blue-50! hover:text-blue-700!">Liste des Agents</flux:navlist.item>
+            <flux:navlist.item icon="inbox" href="#" class="hover:bg-blue-50! hover:text-blue-700!">Rôles et permissions</flux:navlist.item>
+            <flux:navlist.group expandable heading="Pramètres" class="hidden lg:grid">
+                <flux:navlist.item :href="route('ministere.index')" class="hover:bg-blue-50! hover:text-blue-700! {{ request()->routeIs('ministere.index') ? 'bg-blue-900 text-white!' : '' }} " wire:navigate>Gestion des Ministères</flux:navlist.item>
+                <flux:navlist.item href="#" class="hover:bg-blue-50! hover:text-blue-700!">Gestion des structures</flux:navlist.item>
+                <flux:navlist.item href="#" class="hover:bg-blue-50! hover:text-blue-700!">Gestion des Postes</flux:navlist.item>
+                <flux:navlist.item href="#" class="hover:bg-blue-50! hover:text-blue-700!">Gestion des Fonctions</flux:navlist.item>
+                <flux:navlist.item href="#" class="hover:bg-blue-50! hover:text-blue-700!">Gestion des Mobilités</flux:navlist.item>
+            </flux:navlist.group>
+            <flux:navlist.item icon="document-text" href="#" class="hover:bg-blue-50! hover:text-blue-700!">Historiques</flux:navlist.item>
+        </flux:navlist>
+        
+        <flux:spacer />
+        
+    </flux:sidebar>
+
+    
+    {{ $slot }}
+
+    @fluxScripts
+</body>
+</html>
+
+
+
+
+
+components/layouts/index.blade.php
+<x-layouts.admindashboard.sidebar :title="$title ?? null" >
+    @include('components.layouts.admindashboard.header')
+
+    <flux:main class="overflow-y-auto h-[calc(100vh-4rem)]">
+        <div class="container mx-auto h-full">
+            {{ $slot }}
+        </div>
+    </flux:main>
+</x-layouts.admindashboard.sidebar>
+
+
+
+admin.blade.php
+<x-layouts.index :title="__('Home')">
+    @yield('content')
+</x-layouts.index>
+
+
+
+admin/index.blade.php
+
+@extends('admin')
+
+@section('title', '| Admin')
+
+@section('content')
+    <!-- Tableau de bord -->
+    <div class="container mx-auto px-4 py-8">
+        <div>
+            <h2 class="text-xl font-semibold mb-4">
+                Bienvenue, Jean Dupont
+            </h2>
+            <p class="text-muted-foreground mb-6">
+                Voici un aperçu de votre activité dans le système de gestion des
+                mobilités
+            </p>
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+                    <div class="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
+                        <h3 class="tracking-tight text-sm font-medium">
+                            Dossiers à traiter
+                        </h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="lucide lucide-folder-open h-5 w-5 text-blue-500">
+                            <path
+                                d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2">
+                            </path>
+                        </svg>
+                    </div>
+                    <div class="p-6 pt-0">
+                        <div class="text-2xl font-bold">
+                            5
+                        </div>
+                        <p class="text-xs text-muted-foreground">
+                            Dossiers en attente de validation
+                        </p>
+                        <div class="flex items-center mt-2 text-xs">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="lucide lucide-arrow-up h-3 w-3 text-green-600 mr-1">
+                                <path d="m5 12 7-7 7 7"></path>
+                                <path d="M12 19V5"></path>
+                            </svg><span class="text-green-600">2 nouveaux aujourd'hui</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+                    <div class="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
+                        <h3 class="tracking-tight text-sm font-medium">
+                            Dossiers traités
+                        </h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="lucide lucide-file-check h-5 w-5 text-green-500">
+                            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                            <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
+                            <path d="m9 15 2 2 4-4"></path>
+                        </svg>
+                    </div>
+                    <div class="p-6 pt-0">
+                        <div class="text-2xl font-bold">
+                            12
+                        </div>
+                        <p class="text-xs text-muted-foreground">
+                            Ce mois-ci
+                        </p>
+                        <div class="flex items-center mt-2 text-xs">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="lucide lucide-arrow-up h-3 w-3 text-green-600 mr-1">
+                                <path d="m5 12 7-7 7 7"></path>
+                                <path d="M12 19V5"></path>
+                            </svg><span class="text-green-600">5 de plus que le mois dernier</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+                    <div class="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
+                        <h3 class="tracking-tight text-sm font-medium">
+                            Retours à faire
+                        </h3>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" class="lucide lucide-circle-alert h-5 w-5 text-red-500">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" x2="12" y1="8" y2="12"></line>
+                            <line x1="12" x2="12.01" y1="16" y2="16"></line>
+                        </svg>
+                    </div>
+                    <div class="p-6 pt-0">
+                        <div class="text-2xl font-bold">
+                            2
+                        </div>
+                        <p class="text-xs text-muted-foreground">
+                            Dossiers nécessitant corrections
+                        </p>
+                        <div class="flex items-center mt-2 text-xs">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="lucide lucide-arrow-down h-3 w-3 text-red-600 mr-1">
+                                <path d="M12 5v14"></path>
+                                <path d="m19 12-7 7-7-7"></path>
+                            </svg><span class="text-red-600">1 de moins qu'hier</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6">
+                <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
+                    <div class="flex flex-col space-y-1.5 p-6">
+                        <h3 class="text-2xl font-semibold leading-none tracking-tight">
+                            Dossiers à traiter en priorité
+                        </h3>
+                        <p class="text-sm text-muted-foreground">
+                            Liste des dossiers nécessitant une attention immédiate
+                        </p>
+                    </div>
+                    <div class="p-6 pt-0">
+                        <div class="space-y-4">
+                            <div
+                                class="flex items-center justify-between p-4 border rounded-lg border-l-4 border-l-red-500">
+                                <div class="flex flex-col">
+                                    <span class="font-medium">Détachement - Jean Koffi</span><span
+                                        class="text-sm text-muted-foreground">Ref: DGFP-2023-045</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm text-red-600">En attente depuis 3 jours</span><button
+                                        class="px-3 py-1 text-xs bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                                        Traiter
+                                    </button>
+                                </div>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-4 border rounded-lg border-l-4 border-l-amber-500">
+                                <div class="flex flex-col">
+                                    <span class="font-medium">Mise à disposition - Marie Sossou</span><span
+                                        class="text-sm text-muted-foreground">Ref: DGFP-2023-046</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm text-amber-600">En attente depuis 2 jours</span><button
+                                        class="px-3 py-1 text-xs bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                                        Traiter
+                                    </button>
+                                </div>
+                            </div>
+                            <div
+                                class="flex items-center justify-between p-4 border rounded-lg border-l-4 border-l-blue-500">
+                                <div class="flex flex-col">
+                                    <span class="font-medium">Disponibilité - Paul Gbaguidi</span><span
+                                        class="text-sm text-muted-foreground">Ref: DGFP-2023-047</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm text-blue-600">Nouveau dossier</span><button
+                                        class="px-3 py-1 text-xs bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                                        Traiter
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+@endsection
+
+
+
+
+Gérer les interfaces pour chaque profil utilisateur(4h)
+Demande, suivi dossiers et interventions de chaque acteur
+Gestions des fichiers(Piecesjustificatives) et génération de documents(TypePiece) 
+
+
+Sert toi des modèles que tu m'as fourni plus haut. Je voudrais que lorsqu'un utilisateur  se connecte avec son profil(ex DPAF) il puisse accéder au dossier de son ministère afin de pouvoir effectuer une action. De plus une fois sa tâche accompli il soumet le dossier à l'acteur suivant. Ce serait similaire à une application de gestion des tâches pour un projet sauf que dans notre cas le projet c'est le dossier et les étapes sont les tâches auxquels sont assigner les différents profil.
+
+
+

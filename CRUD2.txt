@@ -1,0 +1,815 @@
+Voici les contrôleurs Laravel et les composants Livewire pour gérer le CRUD de chaque table, en tenant compte des relations et de la gestion des fichiers.Contrôleurs Laravel<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Agent;
+use App\Http\Requests\StoreAgentRequest; // Pour la validation
+use App\Http\Requests\UpdateAgentRequest;
+
+class AgentController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        $agents = Agent::with(['user', 'postes', 'fonctions'])->get(); // Eager loading des relations
+        return view('agents.index', compact('agents')); // Vue pour l'affichage de la liste
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        // Logique pour afficher le formulaire de création d'un agent
+        return view('agents.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \App\Http\Requests\StoreAgentRequest  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(StoreAgentRequest $request) // Utilisation de la request de validation
+    {
+        $agent = Agent::create($request->validated());
+
+        // Gérer les relations Many-to-Many (postes et fonctions)
+        $agent->postes()->attach($request->input('poste_id'), [
+            'fonction_id' => $request->input('fonction_id'),
+            'date_recrutement' => $request->input('date_recrutement'),
+            'date_debut_service' => $request->input('date_debut_service')
+        ]);
+
+        return redirect()->route('agents.index')->with('success', 'Agent créé avec succès.');
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\Agent  $agent
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Agent $agent)
+    {
+        return view('agents.show', compact('agent'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Models\Agent  $agent
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Agent $agent)
+    {
+        // Logique pour afficher le formulaire d'édition d'un agent
+        return view('agents.edit', compact('agent'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \App\Http\Requests\UpdateAgentRequest  $request
+     * @param  \App\Models\Agent  $agent
+     * @return \Illuminate\Http\Response
+     */
+    public function update(UpdateAgentRequest $request, Agent $agent)
+    {
+        $agent->update($request->validated());
+
+         // Gérer les relations Many-to-Many (postes et fonctions)
+         $agent->postes()->sync([
+            $request->input('poste_id') => [
+                'fonction_id' => $request->input('fonction_id'),
+                'date_recrutement' => $request->input('date_recrutement'),
+                'date_debut_service' => $request->input('date_debut_service')
+            ]
+        ]);
+
+        return redirect()->route('agents.index')->with('success', 'Agent mis à jour avec succès.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Agent  $agent
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Agent $agent)
+    {
+        $agent->delete();
+        return redirect()->route('agents.index')->with('success', 'Agent supprimé avec succès.');
+    }
+}
+?>
+```php
+<?php
+namespace App\Http\Controllers;
+
+use App\Models\Dossier;
+use App\Http\Requests\StoreDossierRequest;
+use App\Http\Requests\UpdateDossierRequest;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+
+class DossierController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $dossiers = Dossier::with(['ministere', 'typeMobilite', 'agent'])->get();
+        return view('dossiers.index', compact('dossiers'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return view('dossiers.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreDossierRequest $request)
+    {
+        // Créer le dossier
+        $dossier = Dossier::create($request->validated());
+
+        // Gérer les pièces justificatives
+        if ($request->hasFile('pieces_justificatives')) {
+            foreach ($request->file('pieces_justificatives') as $file) {
+                // Logique d'enregistrement du fichier (comme dans le modèle PieceJustificative)
+                $path = $file->store('pieces_justificatives'); // Choisissez votre dossier de stockage
+                $nomDuFichier = $file->getClientOriginalName();
+
+                // Créer une nouvelle instance de PieceJustificative et l'associer au dossier
+                $dossier->piecesJustificatives()->create([
+                    'type_mobilite_id' => $request->input('type_mobilite_id'), // Assurez-vous que cela est inclus dans la requête
+                    'type_piece_id' => $request->input('type_piece_id'),       // Assurez-vous que cela est inclus dans la requête
+                    'titre' => $request->input('titre_piece'), // Vous devrez peut-être adapter cela
+                    'lien' => $path,
+                    'nom_du_fichier' => $nomDuFichier,
+                    // Ajoutez d'autres champs si nécessaire
+                ]);
+            }
+        }
+        // Gérer la création du suivi initial du dossier
+        DB::table('suivi_dossiers')->insert([
+            'dossier_id' => $dossier->id,
+            'etape_id' => 1, // L'ID de votre étape initiale
+            'user_id' => auth()->id(), // L'utilisateur actuellement authentifié
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->route('dossiers.index')->with('success', 'Dossier créé.');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Dossier $dossier)
+    {
+        $dossier->load(['ministere', 'typeMobilite', 'agent', 'piecesJustificatives', 'suiviDossiers.etape', 'suiviDossiers.user']);
+        return view('dossiers.show', compact('dossier'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Dossier $dossier)
+    {
+        $dossier->load(['piecesJustificatives']);
+        return view('dossiers.edit', compact('dossier'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateDossierRequest $request, Dossier $dossier)
+    {
+        $dossier->update($request->validated());
+
+        // Gérer la mise à jour des pièces justificatives (similaire à la logique de store)
+         if ($request->hasFile('pieces_justificatives')) {
+            foreach ($request->file('pieces_justificatives') as $file) {
+                // Logique d'enregistrement du fichier
+                $path = $file->store('pieces_justificatives');
+                $nomDuFichier = $file->getClientOriginalName();
+
+                // Créer une nouvelle instance de PieceJustificative et l'associer au dossier
+                $dossier->piecesJustificatives()->create([
+                    'type_mobilite_id' => $request->input('type_mobilite_id'),
+                    'type_piece_id' => $request->input('type_piece_id'),
+                    'titre' => $request->input('titre_piece'),
+                    'lien' => $path,
+                    'nom_du_fichier' => $nomDuFichier,
+                ]);
+            }
+        }
+
+        return redirect()->route('dossiers.index')->with('success', 'Dossier mis à jour.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Dossier $dossier)
+    {
+        $dossier->delete();
+        return redirect()->route('dossiers.index')->with('success', 'Dossier supprimé.');
+    }
+}
+?>
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Etape;
+use App\Http\Requests\StoreEtapeRequest;
+use App\Http\Requests\UpdateEtapeRequest;
+
+class EtapeController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $etapes = Etape::all();
+        return view('etapes.index', compact('etapes'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return view('etapes.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreEtapeRequest $request)
+    {
+        Etape::create($request->validated());
+        return redirect()->route('etapes.index')->with('success', 'Etape créée.');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Etape $etape)
+    {
+        return view('etapes.show', compact('etape'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Etape $etape)
+    {
+        return view('etapes.edit', compact('etape'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateEtapeRequest $request, Etape $etape)
+    {
+        $etape->update($request->validated());
+        return redirect()->route('etapes.index')->with('success', 'Etape mise à jour.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Etape $etape)
+    {
+        $etape->delete();
+        return redirect()->route('etapes.index')->with('success', 'Etape supprimée.');
+    }
+}
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Fonction;
+use App\Http\Requests\StoreFonctionRequest;
+use App\Http\Requests\UpdateFonctionRequest;
+
+class FonctionController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $fonctions = Fonction::all();
+        return view('fonctions.index', compact('fonctions'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return view('fonctions.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreFonctionRequest $request)
+    {
+        Fonction::create($request->validated());
+        return redirect()->route('fonctions.index')->with('success', 'Fonction créée.');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Fonction $fonction)
+    {
+        return view('fonctions.show', compact('fonction'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Fonction $fonction)
+    {
+        return view('fonctions.edit', compact('fonction'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateFonctionRequest $request, Fonction $fonction)
+    {
+        $fonction->update($request->validated());
+        return redirect()->route('fonctions.index')->with('success', 'Fonction mise à jour.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Fonction $fonction)
+    {
+        $fonction->delete();
+        return redirect()->route('fonctions.index')->with('success', 'Fonction supprimée.');
+    }
+}
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Ministere;
+use App\Http\Requests\StoreMinistereRequest;
+use App\Http\Requests\UpdateMinistereRequest;
+
+class MinistereController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $ministeres = Ministere::all();
+        return view('ministeres.index', compact('ministeres'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return view('ministeres.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreMinistereRequest $request)
+    {
+        Ministere::create($request->validated());
+        return redirect()->route('ministeres.index')->with('success', 'Ministère créé.');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Ministere $ministere)
+    {
+        return view('ministeres.show', compact('ministere'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Ministere $ministere)
+    {
+        return view('ministeres.edit', compact('ministere'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateMinistereRequest $request, Ministere $ministere)
+    {
+        $ministere->update($request->validated());
+        return redirect()->route('ministeres.index')->with('success', 'Ministère mis à jour.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Ministere $ministere)
+    {
+        $ministere->delete();
+        return redirect()->route('ministeres.index')->with('success', 'Ministère supprimé.');
+    }
+}
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\PieceJustificative;
+use App\Http\Requests\StorePieceJustificativeRequest;
+use App\Http\Requests\UpdatePieceJustificativeRequest;
+use Illuminate\Support\Facades\Storage;
+
+class PieceJustificativeController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $piecesJustificatives = PieceJustificative::all();
+        return view('pieces_justificatives.index', compact('piecesJustificatives'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return view('pieces_justificatives.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StorePieceJustificativeRequest $request)
+    {
+        $data = $request->validated();
+
+        // Gestion de l'upload du fichier
+        if ($request->hasFile('lien')) {
+            $path = $request->file('lien')->store('pieces_justificatives'); // Dossier de stockage
+            $data['lien'] = $path;
+            $data['nom_du_fichier'] = $request->file('lien')->getClientOriginalName();
+        }
+
+        PieceJustificative::create($data);
+        return redirect()->route('pieces_justificatives.index')->with('success', 'Pièce justificative créée.');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(PieceJustificative $pieceJustificative)
+    {
+        return view('pieces_justificatives.show', compact('pieceJustificative'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(PieceJustificative $pieceJustificative)
+    {
+        return view('pieces_justificatives.edit', compact('pieceJustificative'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdatePieceJustificativeRequest $request, PieceJustificative $pieceJustificative)
+    {
+        $data = $request->validated();
+
+         // Gestion de l'upload du fichier
+        if ($request->hasFile('lien')) {
+            // Supprimer l'ancien fichier si un nouveau est uploadé
+            if ($pieceJustificative->lien) {
+                Storage::delete($pieceJustificative->lien);
+            }
+            $path = $request->file('lien')->store('pieces_justificatives');
+            $data['lien'] = $path;
+            $data['nom_du_fichier'] = $request->file('lien')->getClientOriginalName();
+        }
+
+        $pieceJustificative->update($data);
+        return redirect()->route('pieces_justificatives.index')->with('success', 'Pièce justificative mise à jour.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(PieceJustificative $pieceJustificative)
+    {
+        // Supprimer le fichier associé avant de supprimer l'enregistrement
+        if ($pieceJustificative->lien) {
+            Storage::delete($pieceJustificative->lien);
+        }
+        $pieceJustificative->delete();
+        return redirect()->route('pieces_justificatives.index')->with('success', 'Pièce justificative supprimée.');
+    }
+}
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\PieceRequise;
+use App\Http\Requests\StorePieceRequiseRequest;
+use App\Http\Requests\UpdatePieceRequiseRequest;
+
+class PieceRequiseController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $piecesRequises = PieceRequise::all();
+        return view('pieces_requises.index', compact('piecesRequises'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return view('pieces_requises.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StorePieceRequiseRequest $request)
+    {
+        PieceRequise::create($request->validated());
+        return redirect()->route('pieces_requises.index')->with('success', 'Pièce requise créée.');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(PieceRequise $pieceRequise)
+    {
+        return view('pieces_requises.show', compact('pieceRequise'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(PieceRequise $pieceRequise)
+    {
+        return view('pieces_requises.edit', compact('pieceRequise'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdatePieceRequiseRequest $request, PieceRequise $pieceRequise)
+    {
+        $pieceRequise->update($request->validated());
+        return redirect()->route('pieces_requises.index')->with('success', 'Pièce requise mise à jour.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(PieceRequise $pieceRequise)
+    {
+        $pieceRequise->delete();
+        return redirect()->route('pieces_requises.index')->with('success', 'Pièce requise supprimée.');
+    }
+}
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Poste;
+use App\Http\Requests\StorePosteRequest;
+use App\Http\Requests\UpdatePosteRequest;
+
+class PosteController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $postes = Poste::with('structure')->get();
+        return view('postes.index', compact('postes'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return view('postes.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StorePosteRequest $request)
+    {
+        Poste::create($request->validated());
+        return redirect()->route('postes.index')->with('success', 'Poste créé.');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Poste $poste)
+    {
+        $poste->load('structure');
+        return view('postes.show', compact('poste'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Poste $poste)
+    {
+        return view('postes.edit', compact('poste'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdatePosteRequest $request, Poste $poste)
+    {
+        $poste->update($request->validated());
+        return redirect()->route('postes.index')->with('success', 'Poste mis à jour.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Poste $poste)
+    {
+        $poste->delete();
+        return redirect()->route('postes.index')->with('success', 'Poste supprimé.');
+    }
+}
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Profil;
+use App\Http\Requests\StoreProfilRequest;
+use App\Http\Requests\UpdateProfilRequest;
+
+class ProfilController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $profils = Profil::all();
+        return view('profils.index', compact('profils'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return view('profils.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreProfilRequest $request)
+    {
+        Profil::create($request->validated());
+        return redirect()->route('profils.index')->with('success', 'Profil créé.');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Profil $profil)
+    {
+        return view('profils.show', compact('profil'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Profil $profil)
+    {
+        return view('profils.edit', compact('profil'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateProfilRequest $request, Profil $profil)
+    {
+        $profil->update($request->validated());
+        return redirect()->route('profils.index')->with('success', 'Profil mis à jour.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Profil $profil)
+    {
+        $profil->delete();
+        return redirect()->route('profils.index')->with('success', 'Profil supprimé.');
+    }
+}
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Structure;
+use App\Http\Requests\StoreStructureRequest;
+use App\Http\Requests\UpdateStructureRequest;
+
+class StructureController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $structures = Structure::with('ministere')->get();
+        return view('structures.index', compact('structures'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return view('structures.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreStructureRequest $request)
+    {
+        Structure::create($request->validated());
+        return redirect()->route('structures.index')->with('success', 'Structure créée.');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Structure $structure)
+    {
+        $structure->load('ministere');
+        return view('structures.show', compact('structure'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Structure $structure)
+    {
+        return view('structures.edit', compact('structure'));
+    }
+
+    /**
+     * Update

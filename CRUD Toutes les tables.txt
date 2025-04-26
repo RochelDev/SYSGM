@@ -1,0 +1,1904 @@
+CRUD pour Toutes les TablesJ'ai généré le CRUD pour toutes les tables de votre base de données. Vous trouverez ci-dessous les Controllers Laravel et les composants Livewire avec FluxUI.Agents1. Controller AgentController<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Agent;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Validation\Rule;
+
+class AgentController extends Controller
+{
+    /**
+     * Affiche la liste de tous les agents.
+     */
+    public function index(): Response
+    {
+        $agents = Agent::with('user')->get();
+        return response([
+            'agents' => $agents,
+            'message' => 'Liste des agents récupérée avec succès',
+        ], 200);
+    }
+
+    /**
+     * Enregistre un nouvel agent.
+     */
+    public function store(Request $request): Response
+    {
+        $validatedData = $request->validate([
+            'matricule' => ['required', 'string', 'max:20', 'unique:agents,matricule'],
+            'num_NPI' => ['required', 'string', 'max:20', 'unique:agents,num_NPI'],
+            'nom' => ['required', 'string', 'max:255'],
+            'prenom' => ['required', 'string', 'max:255'],
+            'grade' => ['required', 'string', 'max:50'],
+            'categorie' => ['required', 'string', 'max:50'],
+            'historique_poste' => ['nullable', 'array'], // Vous devrez peut-être traiter cela différemment
+            'date_recrutement' => ['required', 'date'],
+            'date_debut_service' => ['required', 'date'],
+            'user_id' => ['nullable', 'exists:users,id'],
+        ]);
+
+        $agent = Agent::create($validatedData);
+
+        return response([
+            'agent' => $agent,
+            'message' => 'Agent créé avec succès',
+        ], 201);
+    }
+
+    /**
+     * Affiche les détails d'un agent spécifique.
+     */
+    public function show(Agent $agent): Response
+    {
+        $agent->load('user');
+        return response([
+            'agent' => $agent,
+            'message' => 'Détails de l\'agent récupérés avec succès',
+        ], 200);
+    }
+
+    /**
+     * Met à jour les informations d'un agent.
+     */
+    public function update(Request $request, Agent $agent): Response
+    {
+        $validatedData = $request->validate([
+             'matricule' => ['required', 'string', 'max:20', Rule::unique('agents', 'matricule')->ignore($agent)],
+            'num_NPI' => ['required', 'string', 'max:20', Rule::unique('agents', 'num_NPI')->ignore($agent)],
+            'nom' => ['required', 'string', 'max:255'],
+            'prenom' => ['required', 'string', 'max:255'],
+            'grade' => ['required', 'string', 'max:50'],
+            'categorie' => ['required', 'string', 'max:50'],
+            'historique_poste' => ['nullable', 'array'],
+            'date_recrutement' => ['required', 'date'],
+            'date_debut_service' => ['required', 'date'],
+            'user_id' => ['nullable', 'exists:users,id'],
+        ]);
+
+        $agent->update($validatedData);
+
+        return response([
+            'agent' => $agent,
+            'message' => 'Agent mis à jour avec succès',
+        ], 200);
+    }
+
+    /**
+     * Supprime un agent.
+     */
+    public function destroy(Agent $agent): Response
+    {
+        $agent->delete();
+
+        return response([
+            'message' => 'Agent supprimé avec succès',
+        ], 200);
+    }
+}
+2. Livewire Component: AgentsComponent<?php
+
+namespace App\Http\Livewire;
+
+use App\Models\Agent;
+use App\Models\User; // Pour la liste des utilisateurs
+use Livewire\Component;
+use Livewire\WithPagination;
+use WireUi\Traits\Actions;
+use Illuminate\Validation\Rule;
+
+class AgentsComponent extends Component
+{
+    use WithPagination;
+    use Actions;
+
+    public $search = '';
+    public $sortField = 'nom';
+    public $sortDirection = 'asc';
+    public $perPage = 10;
+
+    public $matricule;
+    public $num_NPI;
+    public $nom;
+    public $prenom;
+    public $grade;
+    public $categorie;
+    public $historique_poste;
+    public $date_recrutement;
+    public $date_debut_service;
+    public $user_id;
+    public $agentId;
+
+    public $isCreating = false;
+    public $isEditing = false;
+    public $isDeleting = false;
+
+    public $users; // Pour la liste déroulante des utilisateurs
+
+    protected $listeners = ['refresh' => '$refresh'];
+
+    protected function rules()
+    {
+        return [
+            'matricule' => ['required', 'string', 'max:20', Rule::unique('agents', 'matricule')->ignore($this->agentId)],
+            'num_NPI' => ['required', 'string', 'max:20', Rule::unique('agents', 'num_NPI')->ignore($this->agentId)],
+            'nom' => ['required', 'string', 'max:255'],
+            'prenom' => ['required', 'string', 'max:255'],
+            'grade' => ['required', 'string', 'max:50'],
+            'categorie' => ['required', 'string', 'max:50'],
+            'historique_poste' => ['nullable', 'array'],
+            'date_recrutement' => ['required', 'date'],
+            'date_debut_service' => ['required', 'date'],
+            'user_id' => ['nullable', 'exists:users,id'],
+        ];
+    }
+
+    public function mount()
+    {
+        $this->users = User::all(); // Récupérer la liste des utilisateurs pour la dropdown
+    }
+
+    public function render()
+    {
+        $agents = Agent::search($this->search)
+            ->with('user')
+            ->orderBy($this->sortField, $this->sortDirection)
+            ->paginate($this->perPage);
+
+        return view('livewire.agents.index', [
+            'agents' => $agents,
+        ]);
+    }
+
+    public function create()
+    {
+        $this->isCreating = true;
+        $this->resetInputFields();
+        $this->dispatchBrowserEvent('open-modal', ['id' => 'createAgentModal']);
+    }
+
+    public function store()
+    {
+        $this->validate();
+
+        Agent::create([
+            'matricule' => $this->matricule,
+            'num_NPI' => $this->num_NPI,
+            'nom' => $this->nom,
+            'prenom' => $this->prenom,
+            'grade' => $this->grade,
+            'categorie' => $this->categorie,
+            'historique_poste' => $this->historique_poste,
+            'date_recrutement' => $this->date_recrutement,
+            'date_debut_service' => $this->date_debut_service,
+            'user_id' => $this->user_id,
+        ]);
+
+        $this->notification()->success(
+            $title = 'Succès',
+            $description = 'Agent créé avec succès.'
+        );
+
+        $this->isCreating = false;
+        $this->resetInputFields();
+        $this->emit('refresh');
+        $this->dispatchBrowserEvent('close-modal');
+    }
+
+    public function edit(Agent $agent)
+    {
+        $this->isEditing = true;
+        $this->agentId = $agent->id;
+        $this->matricule = $agent->matricule;
+        $this->num_NPI = $agent->num_NPI;
+        $this->nom = $agent->nom;
+        $this->prenom = $agent->prenom;
+        $this->grade = $agent->grade;
+        $this->categorie = $agent->categorie;
+        $this->historique_poste = $agent->historique_poste;
+        $this->date_recrutement = $agent->date_recrutement;
+        $this->date_debut_service = $agent->date_debut_service;
+        $this->user_id = $agent->user_id;
+        $this->dispatchBrowserEvent('open-modal', ['id' => 'editAgentModal']);
+    }
+
+    public function update()
+    {
+        $this->validate();
+
+        $agent = Agent::find($this->agentId);
+        $agent->update([
+            'matricule' => $this->matricule,
+            'num_NPI' => $this->num_NPI,
+            'nom' => $this->nom,
+            'prenom' => $this->prenom,
+            'grade' => $this->grade,
+            'categorie' => $this->categorie,
+            'historique_poste' => $this->historique_poste,
+            'date_recrutement' => $this->date_recrutement,
+            'date_debut_service' => $this->date_debut_service,
+            'user_id' => $this->user_id,
+        ]);
+
+        $this->notification()->success(
+            $title = 'Succès',
+            $description = 'Agent mis à jour avec succès.'
+        );
+
+        $this->isEditing = false;
+        $this->resetInputFields();
+        $this->emit('refresh');
+        $this->dispatchBrowserEvent('close-modal');
+    }
+
+    public function delete(Agent $agent)
+    {
+        $this->isDeleting = true;
+        $this->agentId = $agent->id;
+        $this->dispatchBrowserEvent('open-modal', ['id' => 'deleteAgentModal']);
+    }
+
+    public function destroy()
+    {
+        $agent = Agent::find($this->agentId);
+        $agent->delete();
+
+        $this->notification()->success(
+            $title = 'Succès',
+            $description = 'Agent supprimé avec succès.'
+        );
+
+        $this->isDeleting = false;
+        $this->resetInputFields();
+        $this->emit('refresh');
+        $this->dispatchBrowserEvent('close-modal');
+    }
+
+    public function cancel()
+    {
+        $this->isCreating = false;
+        $this->isEditing = false;
+        $this->isDeleting = false;
+        $this->resetInputFields();
+        $this->dispatchBrowserEvent('close-modal');
+    }
+
+    public function resetInputFields()
+    {
+        $this->matricule = '';
+        $this->num_NPI = '';
+        $this->nom = '';
+        $this->prenom = '';
+        $this->grade = '';
+        $this->categorie = '';
+        $this->historique_poste = null;
+        $this->date_recrutement = null;
+        $this->date_debut_service = null;
+        $this->user_id = null;
+        $this->agentId = null;
+    }
+
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+    }
+}
+
+3. Livewire View: resources/views/livewire/agents/index.blade.php<div>
+    <x-notifications />
+
+    <div class="md:flex md:justify-between md:items-center mb-4">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Agents</h1>
+        <div class="mt-4 md:mt-0 flex gap-2">
+            <x-input
+                type="text"
+                placeholder="Rechercher..."
+                wire:model="search"
+                class="w-full md:w-64"
+            />
+            <x-button wire:click="create">
+                <x-icon name="plus" class="mr-2" />
+                Créer
+            </x-button>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <x-table>
+            <x-slot name="head">
+                <x-table.heading><button wire:click="sortBy('matricule')">Matricule</button></x-table.heading>
+                <x-table.heading><button wire:click="sortBy('nom')">Nom</button></x-table.heading>
+                <x-table.heading><button wire:click="sortBy('prenom')">Prénom</button></x-table.heading>
+                <x-table.heading>Grade</x-table.heading>
+                <x-table.heading>Catégorie</x-table.heading>
+                <x-table.heading>Date Recrutement</x-table.heading>
+                <x-table.heading>Date Début Service</x-table.heading>
+                <x-table.heading>Utilisateur</x-table.heading>
+                <x-table.heading>Actions</x-table.heading>
+            </x-slot>
+            <x-slot name="body">
+                @foreach ($agents as $agent)
+                    <x-table.row>
+                        <x-table.cell>{{ $agent->matricule }}</x-table.cell>
+                        <x-table.cell>{{ $agent->nom }}</x-table.cell>
+                        <x-table.cell>{{ $agent->prenom }}</x-table.cell>
+                        <x-table.cell>{{ $agent->grade }}</x-table.cell>
+                        <x-table.cell>{{ $agent->categorie }}</x-table.cell>
+                        <x-table.cell>{{ $agent->date_recrutement->format('d/m/Y') }}</x-table.cell>
+                        <x-table.cell>{{ $agent->date_debut_service->format('d/m/Y') }}</x-table.cell>
+                        <x-table.cell>{{ $agent->user ? $agent->user->name : 'N/A' }}</x-table.cell>
+                        <x-table.cell>
+                            <div class="flex gap-2">
+                                <x-button wire:click="edit({{ $agent->id }})" size="sm"><x-icon name="pencil" /></x-button>
+                                <x-button wire:click="delete({{ $agent->id }})" size="sm" variant="danger"><x-icon name="trash" /></x-button>
+                            </div>
+                        </x-table.cell>
+                    </x-table.row>
+                @endforeach
+            </x-slot>
+            <x-slot name="footer">
+                {{ $agents->links() }}
+            </x-slot>
+        </x-table>
+    </div>
+
+    <x-modal id="createAgentModal">
+        <x-slot name="title">Créer un agent</x-slot>
+        <x-slot name="content">
+            <div class="space-y-4">
+                <x-input label="Matricule" wire:model="matricule" />
+                <x-input label="Numéro NPI" wire:model="num_NPI" />
+                <x-input label="Nom" wire:model="nom" />
+                <x-input label="Prénom" wire:model="prenom" />
+                <x-input label="Grade" wire:model="grade" />
+                <x-input label="Catégorie" wire:model="categorie" />
+                <x-input type="date" label="Date de Recrutement" wire:model="date_recrutement" />
+                <x-input type="date" label="Date de Début de Service" wire:model="date_debut_service" />
+                <x-select
+                    label="Utilisateur"
+                    placeholder="Sélectionner un utilisateur"
+                    wire:model="user_id"
+                    :options="$users"
+                    option-label="name"
+                    option-value="id"
+                />
+            </div>
+        </x-slot>
+        <x-slot name="footer">
+            <x-button wire:click="cancel" variant="secondary">Annuler</x-button>
+            <x-button wire:click="store">Créer</x-button>
+        </x-slot>
+    </x-modal>
+
+    <x-modal id="editAgentModal">
+        <x-slot name="title">Modifier l'agent</x-slot>
+        <x-slot name="content">
+            <div class="space-y-4">
+                <x-input label="Matricule" wire:model="matricule" />
+                <x-input label="Numéro NPI" wire:model="num_NPI" />
+                <x-input label="Nom" wire:model="nom" />
+                <x-input label="Prénom" wire:model="prenom" />
+                <x-input label="Grade" wire:model="grade" />
+                <x-input label="Catégorie" wire:model="categorie" />
+                 <x-input type="date" label="Date de Recrutement" wire:model="date_recrutement" />
+                <x-input type="date" label="Date de Début de Service" wire:model="date_debut_service" />
+                <x-select
+                    label="Utilisateur"
+                    placeholder="Sélectionner un utilisateur"
+                    wire:model="user_id"
+                    :options="$users"
+                    option-label="name"
+                    option-value="id"
+                />
+            </div>
+        </x-slot>
+        <x-slot name="footer">
+            <x-button wire:click="cancel" variant="secondary">Annuler</x-button>
+            <x-button wire:click="update">Modifier</x-button>
+        </x-slot>
+    </x-modal>
+
+    <x-modal id="deleteAgentModal">
+        <x-slot name="title">Supprimer l'agent</x-slot>
+        <x-slot name="content">
+            <p>Êtes-vous sûr de vouloir supprimer cet agent ?</p>
+        </x-slot>
+        <x-slot name="footer">
+            <x-button wire:click="cancel" variant="secondary">Annuler</x-button>
+            <x-button wire:click="destroy" variant="danger">Supprimer</x-button>
+        </x-slot>
+    </x-modal>
+</div>
+
+Dossiers1. Controller: DossierController<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Dossier;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Validation\Rule;
+
+class DossierController extends Controller
+{
+    /**
+     * Affiche la liste de tous les dossiers.
+     */
+    public function index(): Response
+    {
+        $dossiers = Dossier::with(['ministere', 'typeMobilite', 'agent'])->get();
+        return response([
+            'dossiers' => $dossiers,
+            'message' => 'Liste des dossiers récupérée avec succès',
+        ], 200);
+    }
+
+    /**
+     * Enregistre un nouveau dossier.
+     */
+    public function store(Request $request): Response
+    {
+        $validatedData = $request->validate([
+            'code_dossier' => ['required', 'string', 'max:20', 'unique:dossiers,code_dossier'],
+            'titre' => ['required', 'string', 'max:255'],
+            'ministere_id' => ['required', 'exists:ministeres,id'],
+            'type_mobilite_id' => ['required', 'exists:type_mobilites,id'],
+            'agent_id' => ['required', 'exists:agents,id'],
+            'statut' => ['required', 'string', 'max:50'],
+            'annee' => ['required', 'integer'],
+            'historique_statut' => ['nullable', 'array'],
+             'type_acte' => ['nullable', 'string', 'max:255'],
+            'signataire' => ['nullable', 'string', 'max:255'],
+            'reference_dossier' => ['nullable', 'string', 'max:255'],
+            'contenu_acte' => ['nullable', 'string'],
+        ]);
+
+        $dossier = Dossier::create($validatedData);
+
+        return response([
+            'dossier' => $dossier,
+            'message' => 'Dossier créé avec succès',
+        ], 201);
+    }
+
+    /**
+     * Affiche les détails d'un dossier spécifique.
+     */
+    public function show(Dossier $dossier): Response
+    {
+        $dossier->load(['ministere', 'typeMobilite', 'agent']);
+        return response([
+            'dossier' => $dossier,
+            'message' => 'Détails du dossier récupérés avec succès',
+        ], 200);
+    }
+
+    /**
+     * Met à jour les informations d'un dossier.
+     */
+    public function update(Request $request, Dossier $dossier): Response
+    {
+        $validatedData = $request->validate([
+            'code_dossier' => ['required', 'string', 'max:20', Rule::unique('dossiers', 'code_dossier')->ignore($dossier)],
+            'titre' => ['required', 'string', 'max:255'],
+            'ministere_id' => ['required', 'exists:ministeres,id'],
+            'type_mobilite_id' => ['required', 'exists:type_mobilites,id'],
+            'agent_id' => ['required', 'exists:agents,id'],
+            'statut' => ['required', 'string', 'max:50'],
+            'annee' => ['required', 'integer'],
+            'historique_statut' => ['nullable', 'array'],
+            'type_acte' => ['nullable', 'string', 'max:255'],
+            'signataire' => ['nullable', 'string', 'max:255'],
+            'reference_dossier' => ['nullable', 'string', 'max:255'],
+            'contenu_acte' => ['nullable', 'string'],
+        ]);
+
+        $dossier->update($validatedData);
+
+        return response([
+            'dossier' => $dossier,
+            'message' => 'Dossier mis à jour avec succès',
+        ], 200);
+    }
+
+    /**
+     * Supprime un dossier.
+     */
+    public function destroy(Dossier $dossier): Response
+    {
+        $dossier->delete();
+
+        return response([
+            'message' => 'Dossier supprimé avec succès',
+        ], 200);
+    }
+}
+2. Livewire Component: DossiersComponent<?php
+
+namespace App\Http\Livewire;
+
+use App\Models\Dossier;
+use App\Models\Ministere;
+use App\Models\TypeMobilite;
+use App\Models\Agent;
+use Livewire\Component;
+use Livewire\WithPagination;
+use WireUi\Traits\Actions;
+use Illuminate\Validation\Rule;
+
+class DossiersComponent extends Component
+{
+    use WithPagination;
+    use Actions;
+
+    public $search = '';
+    public $sortField = 'code_dossier';
+    public $sortDirection = 'asc';
+    public $perPage = 10;
+
+    public $code_dossier;
+    public $titre;
+    public $ministere_id;
+    public $type_mobilite_id;
+    public $agent_id;
+    public $statut;
+    public $annee;
+    public $historique_statut;
+    public $type_acte;
+    public $signataire;
+    public $reference_dossier;
+    public $contenu_acte;
+    public $dossierId;
+
+    public $isCreating = false;
+    public $isEditing = false;
+    public $isDeleting = false;
+
+    public $ministeres;
+    public $typesMobilite;
+    public $agents;
+
+    protected $listeners = ['refresh' => '$refresh'];
+
+    protected function rules()
+    {
+        return [
+            'code_dossier' => ['required', 'string', 'max:20', Rule::unique('dossiers', 'code_dossier')->ignore($this->dossierId)],
+            'titre' => ['required', 'string', 'max:255'],
+            'ministere_id' => ['required', 'exists:ministeres,id'],
+            'type_mobilite_id' => ['required', 'exists:type_mobilites,id'],
+            'agent_id' => ['required', 'exists:agents,id'],
+            'statut' => ['required', 'string', 'max:50'],
+            'annee' => ['required', 'integer'],
+            'historique_statut' => ['nullable', 'array'],
+            'type_acte' => ['nullable', 'string', 'max:255'],
+            'signataire' => ['nullable', 'string', 'max:255'],
+            'reference_dossier' => ['nullable', 'string', 'max:255'],
+            'contenu_acte' => ['nullable', 'string'],
+        ];
+    }
+
+    public function mount()
+    {
+        $this->ministeres = Ministere::all();
+        $this->typesMobilite = TypeMobilite::all();
+        $this->agents = Agent::all();
+    }
+
+    public function render()
+    {
+        $dossiers = Dossier::search($this->search)
+            ->with(['ministere', 'typeMobilite', 'agent'])
+            ->orderBy($this->sortField, $this->sortDirection)
+            ->paginate($this->perPage);
+
+        return view('livewire.dossiers.index', [
+            'dossiers' => $dossiers,
+        ]);
+    }
+
+    public function create()
+    {
+        $this->isCreating = true;
+        $this->resetInputFields();
+        $this->dispatchBrowserEvent('open-modal', ['id' => 'createDossierModal']);
+    }
+
+    public function store()
+    {
+        $this->validate();
+
+        Dossier::create([
+            'code_dossier' => $this->code_dossier,
+            'titre' => $this->titre,
+            'ministere_id' => $this->ministere_id,
+            'type_mobilite_id' => $this->type_mobilite_id,
+            'agent_id' => $this->agent_id,
+            'statut' => $this->statut,
+            'annee' => $this->annee,
+            'historique_statut' => $this->historique_statut,
+            'type_acte' => $this->type_acte,
+            'signataire' => $this->signataire,
+            'reference_dossier' => $this->reference_dossier,
+            'contenu_acte' => $this->contenu_acte,
+        ]);
+
+        $this->notification()->success(
+            $title = 'Succès',
+            $description = 'Dossier créé avec succès.'
+        );
+
+        $this->isCreating = false;
+        $this->resetInputFields();
+        $this->emit('refresh');
+        $this->dispatchBrowserEvent('close-modal');
+    }
+
+    public function edit(Dossier $dossier)
+    {
+        $this->isEditing = true;
+        $this->dossierId = $dossier->id;
+        $this->code_dossier = $dossier->code_dossier;
+        $this->titre = $dossier->titre;
+        $this->ministere_id = $dossier->ministere_id;
+        $this->type_mobilite_id = $dossier->type_mobilite_id;
+        $this->agent_id = $dossier->agent_id;
+        $this->statut = $dossier->statut;
+        $this->annee = $dossier->annee;
+        $this->historique_statut = $dossier->historique_statut;
+        $this->type_acte = $dossier->type_acte;
+        $this->signataire = $dossier->signataire;
+        $this->reference_dossier = $dossier->reference_dossier;
+        $this->contenu_acte = $dossier->contenu_acte;
+        $this->dispatchBrowserEvent('open-modal', ['id' => 'editDossierModal']);
+    }
+
+    public function update()
+    {
+        $this->validate();
+
+        $dossier = Dossier::find($this->dossierId);
+        $dossier->update([
+            'code_dossier' => $this->code_dossier,
+            'titre' => $this->titre,
+            'ministere_id' => $this->ministere_id,
+            'type_mobilite_id' => $this->type_mobilite_id,
+            'agent_id' => $this->agent_id,
+            'statut' => $this->statut,
+            'annee' => $this->annee,
+            'historique_statut' => $this->historique_statut,
+            'type_acte' => $this->type_acte,
+            'signataire' => $this->signataire,
+            'reference_dossier' => $this->reference_dossier,
+            'contenu_acte' => $this->contenu_acte,
+        ]);
+
+        $this->notification()->success(
+            $title = 'Succès',
+            $description = 'Dossier mis à jour avec succès.'
+        );
+
+        $this->isEditing = false;
+        $this->resetInputFields();
+        $this->emit('refresh');
+        $this->dispatchBrowserEvent('close-modal');
+    }
+
+    public function delete(Dossier $dossier)
+    {
+        $this->isDeleting = true;
+        $this->dossierId = $dossier->id;
+        $this->dispatchBrowserEvent('open-modal', ['id' => 'deleteDossierModal']);
+    }
+
+    public function destroy()
+    {
+        $dossier = Dossier::find($this->dossierId);
+        $dossier->delete();
+
+        $this->notification()->success(
+            $title = 'Succès',
+            $description = 'Dossier supprimé avec succès.'
+        );
+
+        $this->isDeleting = false;
+        $this->resetInputFields();
+        $this->emit('refresh');
+        $this->dispatchBrowserEvent('close-modal');
+    }
+
+    public function cancel()
+    {
+        $this->isCreating = false;
+        $this->isEditing = false;
+        $this->isDeleting = false;
+        $this->resetInputFields();
+        $this->dispatchBrowserEvent('close-modal');
+    }
+
+    public function resetInputFields()
+    {
+        $this->code_dossier = '';
+        $this->titre = '';
+        $this->ministere_id = null;
+        $this->type_mobilite_id = null;
+        $this->agent_id = null;
+        $this->statut = '';
+        $this->annee = null;
+        $this->historique_statut = null;
+        $this->type_acte = '';
+        $this->signataire = '';
+        $this->reference_dossier='';
+        $this->contenu_acte = '';
+        $this->dossierId = null;
+    }
+
+     public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+    }
+}
+
+3. Livewire View: resources/views/livewire/dossiers/index.blade.php<div>
+    <x-notifications />
+
+    <div class="md:flex md:justify-between md:items-center mb-4">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Dossiers</h1>
+        <div class="mt-4 md:mt-0 flex gap-2">
+            <x-input
+                type="text"
+                placeholder="Rechercher..."
+                wire:model="search"
+                class="w-full md:w-64"
+            />
+            <x-button wire:click="create">
+                <x-icon name="plus" class="mr-2" />
+                Créer
+            </x-button>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <x-table>
+            <x-slot name="head">
+                <x-table.heading><button wire:click="sortBy('code_dossier')">Code Dossier</button></x-table.heading>
+                <x-table.heading><button wire:click="sortBy('titre')">Titre</button></x-table.heading>
+                <x-table.heading>Ministère</x-table.heading>
+                <x-table.heading>Type Mobilité</x-table.heading>
+                <x-table.heading>Agent</x-table.heading>
+                <x-table.heading>Statut</x-table.heading>
+                <x-table.heading>Année</x-table.heading>
+                <x-table.heading>Actions</x-table.heading>
+            </x-slot>
+            <x-slot name="body">
+                @foreach ($dossiers as $dossier)
+                    <x-table.row>
+                        <x-table.cell>{{ $dossier->code_dossier }}</x-table.cell>
+                        <x-table.cell>{{ $dossier->titre }}</x-table.cell>
+                        <x-table.cell>{{ $dossier->ministere->nom_ministere }}</x-table.cell>
+                        <x-table.cell>{{ $dossier->typeMobilite->intitule_mobilite }}</x-table.cell>
+                        <x-table.cell>{{ $dossier->agent->nom }} {{ $dossier->agent->prenom }}</x-table.cell>
+                        <x-table.cell>{{ $dossier->statut }}</x-table.cell>
+                         <x-table.cell>{{ $dossier->annee }}</x-table.cell>
+                        <x-table.cell>
+                            <div class="flex gap-2">
+                                <x-button wire:click="edit({{ $dossier->id }})" size="sm"><x-icon name="pencil" /></x-button>
+                                <x-button wire:click="delete({{ $dossier->id }})" size="sm" variant="danger"><x-icon name="trash" /></x-button>
+                            </div>
+                        </x-table.cell>
+                    </x-table.row>
+                @endforeach
+            </x-slot>
+            <x-slot name="footer">
+                {{ $dossiers->links() }}
+            </x-slot>
+        </x-table>
+    </div>
+
+    <x-modal id="createDossierModal">
+        <x-slot name="title">Créer un dossier</x-slot>
+        <x-slot name="content">
+            <div class="space-y-4">
+                <x-input label="Code Dossier" wire:model="code_dossier" />
+                <x-input label="Titre" wire:model="titre" />
+                <x-select
+                    label="Ministère"
+                    placeholder="Sélectionner un ministère"
+                    wire:model="ministere_id"
+                    :options="$ministeres"
+                    option-label="nom_ministere"
+                    option-value="id"
+                />
+                <x-select
+                    label="Type Mobilité"
+                    placeholder="Sélectionner un type de mobilité"
+                    wire:model="type_mobilite_id"
+                    :options="$typesMobilite"
+                    option-label="intitule_mobilite"
+                    option-value="id"
+                />
+                <x-select
+                    label="Agent"
+                    placeholder="Sélectionner un agent"
+                    wire:model="agent_id"
+                    :options="$agents"
+                    option-label="nom" // Vous devrez peut-être concaténer nom et prénom
+                    option-value="id"
+                />
+                <x-input label="Statut" wire:model="statut" />
+                <x-input type="number" label="Année" wire:model="annee" />
+                <x-input label="Type Acte" wire:model="type_acte" />
+                <x-input label="Signataire" wire:model="signataire" />
+                <x-input label="Reference Dossier" wire:model="reference_dossier" />
+                <x-textarea label="Contenu Acte" wire:model="contenu_acte" />
+            </div>
+        </x-slot>
+        <x-slot name="footer">
+            <x-button wire:click="cancel" variant="secondary">Annuler</x-button>
+            <x-button wire:click="store">Créer</x-button>
+        </x-slot>
+    </x-modal>
+
+    <x-modal id="editDossierModal">
+        <x-slot name="title">Modifier le dossier</x-slot>
+        <x-slot name="content">
+            <div class="space-y-4">
+                <x-input label="Code Dossier" wire:model="code_dossier" />
+                <x-input label="Titre" wire:model="titre" />
+                <x-select
+                    label="Ministère"
+                    placeholder="Sélectionner un ministère"
+                    wire:model="ministere_id"
+                    :options="$ministeres"
+                    option-label="nom_ministere"
+                    option-value="id"
+                />
+                <x-select
+                    label="Type Mobilité"
+                    placeholder="Sélectionner un type de mobilité"
+                    wire:model="type_mobilite_id"
+                    :options="$typesMobilite"
+                    option-label="intitule_mobilite"
+                    option-value="id"
+                />
+                <x-select
+                    label="Agent"
+                    placeholder="Sélectionner un agent"
+                    wire:model="agent_id"
+                    :options="$agents"
+                    option-label="nom" // Vous devrez peut-être concaténer nom et prénom
+                    option-value="id"
+                />
+                <x-input label="Statut" wire:model="statut" />
+                <x-input type="number" label="Année" wire:model="annee" />
+                <x-input label="Type Acte" wire:model="type_acte" />
+                <x-input label="Signataire" wire:model="signataire" />
+                <x-input label="Reference Dossier" wire:model="reference_dossier" />
+                <x-textarea label="Contenu Acte" wire:model="contenu_acte" />
+            </div>
+        </x-slot>
+        <x-slot name="footer">
+            <x-button wire:click="cancel" variant="secondary">Annuler</x-button>
+            <x-button wire:click="update">Modifier</x-button>
+        </x-slot>
+    </x-modal>
+
+    <x-modal id="deleteDossierModal">
+        <x-slot name="title">Supprimer le dossier</x-slot>
+        <x-slot name="content">
+            <p>Êtes-vous sûr de vouloir supprimer ce dossier ?</p>
+        </x-slot>
+        <x-slot name="footer">
+            <x-button wire:click="cancel" variant="secondary">Annuler</x-button>
+            <x-button wire:click="destroy" variant="danger">Supprimer</x-button>
+        </x-slot>
+    </x-modal>
+</div>
+Fonctions1. Controller: FonctionController<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Fonction;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Validation\Rule;
+
+class FonctionController extends Controller
+{
+    /**
+     * Affiche la liste de toutes les fonctions.
+     */
+    public function index(): Response
+    {
+        $fonctions = Fonction::all();
+        return response([
+            'fonctions' => $fonctions,
+            'message' => 'Liste des fonctions récupérée avec succès',
+        ], 200);
+    }
+
+    /**
+     * Enregistre une nouvelle fonction.
+     */
+    public function store(Request $request): Response
+    {
+        $validatedData = $request->validate([
+            'code_fonction' => ['required', 'string', 'max:20', 'unique:fonctions,code_fonction'],
+            'intitule_fonction' => ['required', 'string', 'max:255', 'unique:fonctions,intitule_fonction'],
+        ]);
+
+        $fonction = Fonction::create($validatedData);
+
+        return response([
+            'fonction' => $fonction,
+            'message' => 'Fonction créée avec succès',
+        ], 201);
+    }
+
+    /**
+     * Affiche les détails d'une fonction spécifique.
+     */
+    public function show(Fonction $fonction): Response
+    {
+        return response([
+            'fonction' => $fonction,
+            'message' => 'Détails de la fonction récupérés avec succès',
+        ], 200);
+    }
+
+    /**
+     * Met à jour les informations d'une fonction.
+     */
+    public function update(Request $request, Fonction $fonction): Response
+    {
+        $validatedData = $request->validate([
+            'code_fonction' => ['required', 'string', 'max:20', Rule::unique('fonctions', 'code_fonction')->ignore($fonction)],
+            'intitule_fonction' => ['required', 'string', 'max:255', Rule::unique('fonctions', 'intitule_fonction')->ignore($fonction)],
+        ]);
+
+        $fonction->update($validatedData);
+
+        return response([
+            'fonction' => $fonction,
+            'message' => 'Fonction mise à jour avec succès',
+        ], 200);
+    }
+
+    /**
+     * Supprime une fonction.
+     */
+    public function destroy(Fonction $fonction): Response
+    {
+        $fonction->delete();
+
+        return response([
+            'message' => 'Fonction supprimée avec succès',
+        ], 200);
+    }
+}
+2. Livewire Component: FonctionsComponent<?php
+
+namespace App\Http\Livewire;
+
+use App\Models\Fonction;
+use Livewire\Component;
+use Livewire\WithPagination;
+use WireUi\Traits\Actions;
+use Illuminate\Validation\Rule;
+
+class FonctionsComponent extends Component
+{
+    use WithPagination;
+    use Actions;
+
+    public $search = '';
+    public $sortField = 'code_fonction';
+    public $sortDirection = 'asc';
+    public $perPage = 10;
+
+    public $code_fonction;
+    public $intitule_fonction;
+    public $fonctionId;
+
+    public $isCreating = false;
+    public $isEditing = false;
+    public $isDeleting = false;
+
+    protected $listeners = ['refresh' => '$refresh'];
+
+     protected function rules()
+    {
+        return [
+            'code_fonction' => ['required', 'string', 'max:20', Rule::unique('fonctions', 'code_fonction')->ignore($this->fonctionId)],
+            'intitule_fonction' => ['required', 'string', 'max:255', Rule::unique('fonctions', 'intitule_fonction')->ignore($this->fonctionId)],
+        ];
+    }
+
+    public function render()
+    {
+        $fonctions = Fonction::search($this->search)
+            ->orderBy($this->sortField, $this->sortDirection)
+            ->paginate($this->perPage);
+
+        return view('livewire.fonctions.index', [
+            'fonctions' => $fonctions,
+        ]);
+    }
+
+    public function create()
+    {
+        $this->isCreating = true;
+        $this->resetInputFields();
+        $this->dispatchBrowserEvent('open-modal', ['id' => 'createFonctionModal']);
+    }
+
+    public function store()
+    {
+        $this->validate();
+
+        Fonction::create([
+            'code_fonction' => $this->code_fonction,
+            'intitule_fonction' => $this->intitule_fonction,
+        ]);
+
+        $this->notification()->success(
+            $title = 'Succès',
+            $description = 'Fonction créée avec succès.'
+        );
+
+        $this->isCreating = false;
+        $this->resetInputFields();
+        $this->emit('refresh');
+        $this->dispatchBrowserEvent('close-modal');
+    }
+
+    public function edit(Fonction $fonction)
+    {
+        $this->isEditing = true;
+        $this->fonctionId = $fonction->id;
+        $this->code_fonction = $fonction->code_fonction;
+        $this->intitule_fonction = $fonction->intitule_fonction;
+        $this->dispatchBrowserEvent('open-modal', ['id' => 'editFonctionModal']);
+    }
+
+    public function update()
+    {
+        $this->validate();
+
+        $fonction = Fonction::find($this->fonctionId);
+        $fonction->update([
+            'code_fonction' => $this->code_fonction,
+            'intitule_fonction' => $this->intitule_fonction,
+        ]);
+
+        $this->notification()->success(
+            $title = 'Succès',
+            $description = 'Fonction mise à jour avec succès.'
+        );
+
+        $this->isEditing = false;
+        $this->resetInputFields();
+        $this->emit('refresh');
+        $this->dispatchBrowserEvent('close-modal');
+    }
+
+    public function delete(Fonction $fonction)
+    {
+        $this->isDeleting = true;
+        $this->fonctionId = $fonction->id;
+        $this->dispatchBrowserEvent('open-modal', ['id' => 'deleteFonctionModal']);
+    }
+
+    public function destroy()
+    {
+        $fonction = Fonction::find($this->fonctionId);
+        $fonction->delete();
+
+        $this->notification()->success(
+            $title = 'Succès',
+            $description = 'Fonction supprimée avec succès.'
+        );
+
+        $this->isDeleting = false;
+        $this->resetInputFields();
+        $this->emit('refresh');
+        $this->dispatchBrowserEvent('close-modal');
+    }
+
+    public function cancel()
+    {
+        $this->isCreating = false;
+        $this->isEditing = false;
+        $this->isDeleting = false;
+        $this->resetInputFields();
+        $this->dispatchBrowserEvent('close-modal');
+    }
+
+    public function resetInputFields()
+    {
+        $this->code_fonction = '';
+        $this->intitule_fonction = '';
+        $this->fonctionId = null;
+    }
+
+     public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+    }
+}
+3. Livewire View: resources/views/livewire/fonctions/index.blade.php<div>
+    <x-notifications />
+
+    <div class="md:flex md:justify-between md:items-center mb-4">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Fonctions</h1>
+        <div class="mt-4 md:mt-0 flex gap-2">
+            <x-input
+                type="text"
+                placeholder="Rechercher..."
+                wire:model="search"
+                class="w-full md:w-64"
+            />
+            <x-button wire:click="create">
+                <x-icon name="plus" class="mr-2" />
+                Créer
+            </x-button>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <x-table>
+            <x-slot name="head">
+                <x-table.heading><button wire:click="sortBy('code_fonction')">Code Fonction</button></x-table.heading>
+                <x-table.heading><button wire:click="sortBy('intitule_fonction')">Intitulé Fonction</button></x-table.heading>
+                <x-table.heading>Actions</x-table.heading>
+            </x-slot>
+            <x-slot name="body">
+                @foreach ($fonctions as $fonction)
+                    <x-table.row>
+                        <x-table.cell>{{ $fonction->code_fonction }}</x-table.cell>
+                        <x-table.cell>{{ $fonction->intitule_fonction }}</x-table.cell>
+                        <x-table.cell>
+                            <div class="flex gap-2">
+                                <x-button wire:click="edit({{ $fonction->id }})" size="sm"><x-icon name="pencil" /></x-button>
+                                <x-button wire:click="delete({{ $fonction->id }})" size="sm" variant="danger"><x-icon name="trash" /></x-button>
+                            </div>
+                        </x-table.cell>
+                    </x-table.row>
+                @endforeach
+            </x-slot>
+            <x-slot name="footer">
+                {{ $fonctions->links() }}
+            </x-slot>
+        </x-table>
+    </div>
+
+    <x-modal id="createFonctionModal">
+        <x-slot name="title">Créer une fonction</x-slot>
+        <x-slot name="content">
+            <div class="space-y-4">
+                <x-input label="Code Fonction" wire:model="code_fonction" />
+                <x-input label="Intitulé Fonction" wire:model="intitule_fonction" />
+            </div>
+        </x-slot>
+        <x-slot name="footer">
+            <x-button wire:click="cancel" variant="secondary">Annuler</x-button>
+            <x-button wire:click="store">Créer</x-button>
+        </x-slot>
+    </x-modal>
+
+    <x-modal id="editFonctionModal">
+        <x-slot name="title">Modifier la fonction</x-slot>
+        <x-slot name="content">
+            <div class="space-y-4">
+                <x-input label="Code Fonction" wire:model="code_fonction" />
+                <x-input label="Intitulé Fonction" wire:model="intitule_fonction" />
+            </div>
+        </x-slot>
+        <x-slot name="footer">
+            <x-button wire:click="cancel" variant="secondary">Annuler</x-button>
+            <x-button wire:click="update">Modifier</x-button>
+        </x-slot>
+    </x-modal>
+
+    <x-modal id="deleteFonctionModal">
+        <x-slot name="title">Supprimer la fonction</x-slot>
+        <x-slot name="content">
+            <p>Êtes-vous sûr de vouloir supprimer cette fonction ?</p>
+        </x-slot>
+        <x-slot name="footer">
+            <x-button wire:click="cancel" variant="secondary">Annuler</x-button>
+            <x-button wire:click="destroy" variant="danger">Supprimer</x-button>
+        </x-slot>
+    </x-modal>
+</div>
+Postes1. Controller: PosteController<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Poste;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Validation\Rule;
+
+class PosteController extends Controller
+{
+    /**
+     * Affiche la liste de tous les postes.
+     */
+    public function index(): Response
+    {
+        $postes = Poste::with('structure')->get();
+        return response([
+            'postes' => $postes,
+            'message' => 'Liste des postes récupérée avec succès',
+        ], 200);
+    }
+
+    /**
+     * Enregistre un nouveau poste.
+     */
+    public function store(Request $request): Response
+    {
+        $validatedData = $request->validate([
+            'code_poste' => ['required', 'string', 'max:20', 'unique:postes,code_poste'],
+            'intitule_poste' => ['required', 'string', 'max:255'],
+            'service' => ['required', 'string', 'max:255'],
+            'direction' => ['required', 'string', 'max:255'],
+            'structure_id' => ['required', 'exists:structures,id'],
+        ]);
+
+        $poste = Poste::create($validatedData);
+
+        return response([
+            'poste' => $poste,
+            'message' => 'Poste créé avec succès',
+        ], 201);
+    }
+
+    /**
+     * Affiche les détails d'un poste spécifique.
+     */
+    public function show(Poste $poste): Response
+    {
+        $poste->load('structure');
+        return response([
+            'poste' => $poste,
+            'message' => 'Détails du poste récupérés avec succès',
+        ], 200);
+    }
+
+    /**
+     * Met à jour les informations d'un poste.
+     */
+    public function update(Request $request, Poste $poste): Response
+    {
+        $validatedData = $request->validate([
+            'code_poste' => ['required', 'string', 'max:20', Rule::unique('postes', 'code_poste')->ignore($poste)],
+            'intitule_poste' => ['required', 'string', 'max:255'],
+            'service' => ['required', 'string', 'max:255'],
+            'direction' => ['required', 'string', 'max:255'],
+            'structure_id' => ['required', 'exists:structures,id'],
+        ]);
+
+        $poste->update($validatedData);
+
+        return response([
+            'poste' => $poste,
+            'message' => 'Poste mis à jour avec succès',
+        ], 200);
+    }
+
+    /**
+     * Supprime un poste.
+     */
+    public function destroy(Poste $poste): Response
+    {
+        $poste->delete();
+
+        return response([
+            'message' => 'Poste supprimé avec succès',
+        ], 200);
+    }
+}
+2. Livewire Component: PostesComponent<?php
+
+namespace App\Http\Livewire;
+
+use App\Models\Poste;
+use App\Models\Structure;
+use Livewire\Component;
+use Livewire\WithPagination;
+use WireUi\Traits\Actions;
+use Illuminate\Validation\Rule;
+
+class PostesComponent extends Component
+{
+    use WithPagination;
+    use Actions;
+
+    public $search = '';
+    public $sortField = 'code_poste';
+    public $sortDirection = 'asc';
+    public $perPage = 10;
+
+    public $code_poste;
+    public $intitule_poste;
+    public $service;
+    public $direction;
+    public $structure_id;
+    public $posteId;
+
+    public $isCreating = false;
+    public $isEditing = false;
+    public $isDeleting = false;
+
+    public $structures;
+
+    protected $listeners = ['refresh' => '$refresh'];
+
+     protected function rules()
+    {
+        return [
+            'code_poste' => ['required', 'string', 'max:20', Rule::unique('postes', 'code_poste')->ignore($this->posteId)],
+            'intitule_poste' => ['required', 'string', 'max:255'],
+            'service' => ['required', 'string', 'max:255'],
+            'direction' => ['required', 'string', 'max:255'],
+            'structure_id' => ['required', 'exists:structures,id'],
+        ];
+    }
+
+    public function mount()
+    {
+        $this->structures = Structure::all();
+    }
+
+    public function render()
+    {
+        $postes = Poste::search($this->search)
+            ->with('structure')
+            ->orderBy($this->sortField, $this->sortDirection)
+            ->paginate($this->perPage);
+
+        return view('livewire.postes.index', [
+            'postes' => $postes,
+        ]);
+    }
+
+    public function create()
+    {
+        $this->isCreating = true;
+        $this->resetInputFields();
+        $this->dispatchBrowserEvent('open-modal', ['id' => 'createPosteModal']);
+    }
+
+    public function store()
+    {
+        $this->validate();
+
+        Poste::create([
+            'code_poste' => $this->code_poste,
+            'intitule_poste' => $this->intitule_poste,
+            'service' => $this->service,
+            'direction' => $this->direction,
+            'structure_id' => $this->structure_id,
+        ]);
+
+        $this->notification()->success(
+            $title = 'Succès',
+            $description = 'Poste créé avec succès.'
+        );
+
+        $this->isCreating = false;
+        $this->resetInputFields();
+        $this->emit('refresh');
+        $this->dispatchBrowserEvent('close-modal');
+    }
+
+    public function edit(Poste $poste)
+    {
+        $this->isEditing = true;
+        $this->posteId = $poste->id;
+        $this->code_poste = $poste->code_poste;
+        $this->intitule_poste = $poste->intitule_poste;
+        $this->service = $poste->service;
+        $this->direction = $poste->direction;
+        $this->structure_id = $poste->structure_id;
+        $this->dispatchBrowserEvent('open-modal', ['id' => 'editPosteModal']);
+    }
+
+    public function update()
+    {
+        $this->validate();
+
+        $poste = Poste::find($this->posteId);
+        $poste->update([
+            'code_poste' => $this->code_poste,
+            'intitule_poste' => $this->intitule_poste,
+            'service' => $this->service,
+            'direction' => $this->direction,
+            'structure_id' => $this->structure_id,
+        ]);
+
+        $this->notification()->success(
+            $title = 'Succès',
+            $description = 'Poste mis à jour avec succès.'
+        );
+
+        $this->isEditing = false;
+        $this->resetInputFields();
+        $this->emit('refresh');
+        $this->dispatchBrowserEvent('close-modal');
+    }
+
+    public function delete(Poste $poste)
+    {
+        $this->isDeleting = true;
+        $this->posteId = $poste->id;
+        $this->dispatchBrowserEvent('open-modal', ['id' => 'deletePosteModal']);
+    }
+
+    public function destroy()
+    {
+        $poste = Poste::find($this->posteId);
+        $poste->delete();
+
+        $this->notification()->success(
+            $title = 'Succès',
+            $description = 'Poste supprimé avec succès.'
+        );
+
+        $this->isDeleting = false;
+        $this->resetInputFields();
+        $this->emit('refresh');
+        $this->dispatchBrowserEvent('close-modal');
+    }
+
+    public function cancel()
+    {
+        $this->isCreating = false;
+        $this->isEditing = false;
+        $this->isDeleting = false;
+        $this->resetInputFields();
+        $this->dispatchBrowserEvent('close-modal');
+    }
+
+    public function resetInputFields()
+    {
+        $this->code_poste = '';
+        $this->intitule_poste = '';
+        $this->service = '';
+        $this->direction = '';
+        $this->structure_id = null;
+        $this->posteId = null;
+    }
+
+     public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+    }
+}
+3. Livewire View: resources/views/livewire/postes/index.blade.php<div>
+    <x-notifications />
+
+    <div class="md:flex md:justify-between md:items-center mb-4">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Postes</h1>
+        <div class="mt-4 md:mt-0 flex gap-2">
+            <x-input
+                type="text"
+                placeholder="Rechercher..."
+                wire:model="search"
+                class="w-full md:w-64"
+            />
+            <x-button wire:click="create">
+                <x-icon name="plus" class="mr-2" />
+                Créer
+            </x-button>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+        <x-table>
+            <x-slot name="head">
+                <x-table.heading><button wire:click="sortBy('code_poste')">Code Poste</button></x-table.heading>
+                <x-table.heading><button wire:click="sortBy('intitule_poste')">Intitulé Poste</button></x-table.heading>
+                <x-table.heading>Service</x-table.heading>
+                <x-table.heading>Direction</x-table.heading>
+                <x-table.heading>Structure</x-table.heading>
+                <x-table.heading>Actions</x-table.heading>
+            </x-slot>
+            <x-slot name="body">
+                @foreach ($postes as $poste)
+                    <x-table.row>
+                        <x-table.cell>{{ $poste->code_poste }}</x-table.cell>
+                        <x-table.cell>{{ $poste->intitule_poste }}</x-table.cell>
+                        <x-table.cell>{{ $poste->service }}</x-table.cell>
+                        <x-table.cell>{{ $poste->direction }}</x-table.cell>
+                        <x-table.cell>{{ $poste->structure->nom_structure }}</x-table.cell>
+                        <x-table.cell>
+                            <div class="flex gap-2">
+                                <x-button wire:click="edit({{ $poste->id }})" size="sm"><x-icon name="pencil" /></x-button>
+                                <x-button wire:click="delete({{ $poste->id }})" size="sm" variant="danger"><x-icon name="trash" /></x-button>
+                            </div>
+                        </x-table.cell>
+                    </x-table.row>
+                @endforeach
+            </x-slot>
+            <x-slot name="footer">
+                {{ $postes->links() }}
+            </x-slot>
+        </x-table>
+    </div>
+
+    <x-modal id="createPosteModal">
+        <x-slot name="title">Créer un poste</x-slot>
+        <x-slot name="content">
+            <div class="space-y-4">
+                <x-input label="Code Poste" wire:model="code_poste" />
+                <x-input label="Intitulé Poste" wire:model="intitule_poste" />
+                <x-input label="Service" wire:model="service" />
+                <x-input label="Direction" wire:model="direction" />
+                <x-select
+                    label="Structure"
+                    placeholder="Sélectionner une structure"
+                    wire:model="structure_id"
+                    :options="$structures"
+                    option-label="nom_structure"
+                    option-value="id"
+                />
+            </div>
+        </x-slot>
+        <x-slot name="footer">
+            <x-button wire:click="cancel" variant="secondary">Annuler</x-button>
+            <x-button wire:click="store">Créer</x-button>
+        </x-slot>
+    </x-modal>
+
+    <x-modal id="editPosteModal">
+        <x-slot name="title">Modifier le poste</x-slot>
+        <x-slot name="content">
+            <div class="space-y-4">
+                <x-input label="Code Poste" wire:model="code_poste" />
+                <x-input label="Intitulé Poste" wire:model="intitule_poste" />
+                <x-input label="Service" wire:model="service" />
+                <x-input label="Direction" wire:model="direction" />
+                <x-select
+                    label="Structure"
+                    placeholder="Sélectionner une structure"
+                    wire:model="structure_id"
+                    :options="$structures"
+                    option-label="nom_structure"
+                    option-value="id"
+                />
+            </div>
+        </x-slot>
+        <x-slot name="footer">
+            <x-button wire:click="cancel" variant="secondary">Annuler</x-button>
+            <x-button wire:click="update">Modifier</x-button>
+        </x-slot>
+    </x-modal>
+
+    <x-modal id="deletePosteModal">
+        <x-slot name="title">Supprimer le poste</x-slot>
+        <x-slot name="content">
+            <p>Êtes-vous sûr de vouloir supprimer ce poste ?</p>
+        </x-slot>
+        <x-slot name="footer">
+            <x-button wire:click="cancel" variant="secondary">Annuler</x-button>
+            <x-button wire:click="destroy" variant="danger">Supprimer</x-button>
+        </x-slot>
+    </x-modal>
+</div>
+MinistèresJ'ai déjà inclus le CRUD pour les ministères dans ma réponse précédente. Si vous avez besoin de le revoir, faites-le moi savoir.Structures1. Controller: StructureController<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Structure;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Validation\Rule;
+
+class StructureController extends Controller
+{
+    /**
+     * Affiche la liste de toutes les structures.
+     */
+    public function index(): Response
+    {
+        $structures = Structure::with('ministere')->get();
+        return response([
+            'structures' => $structures,
+            'message' => 'Liste des structures récupérée avec succès',
+        ], 200);
+    }
+
+    /**
+     * Enregistre une nouvelle structure.
+     */
+    public function store(Request $request): Response
+    {
+        $validatedData = $request->validate([
+            'code_structure' => ['required', 'string', 'max:20', 'unique:structures,code_structure'],
+            'nom_structure' => ['required', 'string', 'max:255'],
+            'ministere_id' => ['required', 'exists:ministeres,id'],
+        ]);
+
+        $structure = Structure::create($validatedData);
+
+        return response([
+            'structure' => $structure,
+            'message' => 'Structure créée avec succès',
+        ], 201);
+    }
+
+    /**
+     * Affiche les détails d'une structure spécifique.
+     */
+    public function show(Structure $structure): Response
+    {
+        $structure->load('ministere');
+        return response([
+            'structure' => $structure,
+            'message' => 'Détails de la structure récupérés avec succès',
+        ], 200);
+    }
+
+    /**
+     * Met à jour les informations d'une structure.
+     */
+    public function update(Request $request, Structure $structure): Response
+    {
+        $validatedData = $request->validate([
+            'code_structure' => ['required', 'string', 'max:20', Rule::unique('structures', 'code_structure')->ignore($structure)],
+            'nom_structure' => ['required', 'string', 'max:255'],
+            'ministere_id' => ['required', 'exists:ministeres,id'],
+        ]);
+
+        $structure->update($validatedData);
+
+        return response([
+            'structure' => $structure,
+            'message' => 'Structure mise à jour avec succès',
+        ], 200);
+    }
+
+    /**
+     * Supprime une structure.
+     */
+    public function destroy(Structure $structure): Response
+    {
+        $structure->delete();
+
+        return response([
+            'message' => 'Structure supprimée avec succès',
+        ], 200);
+    }
+}
+2. Livewire Component: StructuresComponent<?php
+
+namespace App\Http\Livewire;
+
+use App\Models\Structure;
+use App\Models\Ministere;
+use Livewire\Component;
+use Livewire\WithPagination;
+use WireUi\Traits\Actions;
+use Illuminate\Validation\Rule;
+
+class StructuresComponent extends Component
+{
+    use WithPagination;
+    use Actions;
+
+    public $search = '';
+    public $sortField = 'code_structure';
+    public $sortDirection = 'asc';
+    public $perPage = 10;
+
+    public $code_structure;
+    public $nom_structure;
+    public $ministere_id;
+    public $structureId;
+
+    public $isCreating = false;
+    public $isEditing = false;
+    public $isDeleting = false;
+
+    public $ministeres;
+
+    protected $listeners = ['refresh' => '$refresh'];
+
+     protected function rules()
+    {
+        return [
+            'code_structure' => ['required', 'string', 'max:20', Rule::unique('structures', 'code_structure')->ignore($this->structureId)],
+            'nom_structure' => ['required', 'string', 'max:255'],
+            'ministere_id' => ['required', 'exists:ministeres,id'],
+        ];
+    }
+
+    public function mount()
+    {
+        $this->ministeres = Ministere::all();
+    }
+
+    public function render()
+    {
+        $structures = Structure::search($this->search)
+            ->with('ministere')
+            ->orderBy($this->sortField, $this->sortDirection)
+            ->paginate($this->perPage);
+
+        return view('livewire.structures.index', [
+            'structures' => $structures,
+        ]);
+    }
+
+    public function create()
+    {
+        $this->isCreating = true;
+        $this->resetInputFields();
+        $this->dispatchBrowserEvent('open-modal', ['id' => 'createStructureModal']);
+    }
+
+    public function store()
+    {
+        $this->validate();
+
+        Structure::create([
+            'code_structure' => $this->code_structure,
+            'nom_structure' => $this->nom_structure,
+            'ministere_id' => $this->ministere_id,
+        ]);
+
+        $this->notification()->success(
+            $title = 'Succès',
+            $description = 'Structure créée avec succès.'
+        );
+
+        $this->isCreating = false;
+        $this->resetInputFields();
+        $this->emit('refresh');
+        $this->dispatchBrowserEvent('close-modal');
+    }
+
+    public function edit(Structure $structure)
+    {
+        $this->isEditing = true;
+        $this->structureId = $structure->id;
+        $this->code_structure = $structure->code_structure;
+        $this->nom_structure = $structure->nom_structure;
+        $this->ministere_id = $structure->ministere_id;
+        $this->dispatchBrowserEvent('open-modal', ['id' => 'editStructureModal']);
+    }
+
+    public function update()
+    {
+        $this->validate();
+
+        $structure = Structure::find($this->structureId);
+        $structure->update([
+            'code_structure' => $this->code_structure,
+            'nom_structure' => $this->nom_structure,
+            'ministere_id' => $this->ministere_id,
+        ]);
+
+        $this->notification()->success(
+            $title = 'Succès',
+            $description = 'Structure mise à jour avec succès.'
+        );
+
+        $this->isEditing = false;
+        $this->resetInputFields();
+        $this->emit('refresh');
+        $this->dispatchBrowserEvent('close-modal');
+    }
+
+    public function delete(Structure $structure)
+    {
+        $this->isDeleting = true;
+        $this->structureId = $structure->id;
+        $this->dispatchBrowserEvent('open-modal', ['id' => 'deleteStructureModal']);
+    }
+
+    public function destroy()
+    {
+        $structure = Structure::find($this->structureId);
+        $structure->delete();
+
+        $this->notification()->success(
+            $title = 'Succès',
+            $description = 'Structure supprimée avec succès.'
+        );
+
+        $this->isDeleting = false;
+        $this->resetInputFields();
+        $this->emit('refresh');
+        $this->dispatchBrowserEvent('close-modal');
+    }
+
+    public function cancel()
+    {
+        $this->isCreating = false;
+        $this->isEditing = false;
+        $this->isDeleting = false;
+        $this->resetInputFields();
+        $this->dispatchBrowserEvent('close-modal');
+    }
+
+    public function resetInputFields()
+    {
+        $this->code_structure = '';
+        $this->nom_structure = '';
+        $this->ministere_id = null;
+        $this->structureId = null;
+    }
+
+     public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+    }
+}
+3. Livewire View: resources/views/livewire/structures/index.blade.php<div>
+    <x-notifications />
+
+    <div class="md:flex md:justify-between md:items-center mb-4">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Structures</h1>
+        <div class="mt-4 md:mt-0 flex gap-2">
+            <x-input
+                type="text"
+                placeholder="Rechercher..."
+                wire:model="search"
+                class="w-full md:w-64"
+            />
+            <x-button wire:click="create">
+                <x-icon name="plus" class="mr-2" />
+                Créer
+            </x-button>
+        </div>
+    </div>

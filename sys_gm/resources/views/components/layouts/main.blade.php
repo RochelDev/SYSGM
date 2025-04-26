@@ -1,5 +1,5 @@
-<x-layouts.dashboard.side :title="$title ?? null" >
+<x-layouts.admindashboard.side :title="$title ?? null" >
     <flux:main>
         {{ $slot }}
     </flux:main>
-</x-layouts.dashboard.side>
+</x-layouts.admindashboard.side>

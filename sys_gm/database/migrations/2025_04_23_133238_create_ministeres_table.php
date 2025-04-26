@@ -13,23 +13,23 @@ return new class extends Migration
     {
         Schema::create('ministeres', function (Blueprint $table) {
             $table->id();
-            $table->string('code_ministere', 10);
-            $table->string('nom_ministere');
+            $table->string('code_ministere', 10)->unique();
+            $table->string('nom_ministere')->unique();
             $table->string('site_ministere');
             $table->timestamps();
         });
 
         Schema::create('structures', function (Blueprint $table) {
             $table->id();
-            $table->string('code_structure');
-            $table->string('nom_structure');
+            $table->string('code_structure', 10)->unique();
+            $table->string('nom_structure')->unique();
             $table->foreignId('ministere_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
 
         Schema::create('postes', function (Blueprint $table) {
             $table->id();
-            $table->string('code_poste');
+            $table->string('code_poste', 20)->unique();
             $table->string('intitule_poste');
             $table->string('service');
             $table->string('direction');
@@ -39,7 +39,7 @@ return new class extends Migration
 
         Schema::create('fonctions', function (Blueprint $table) {
             $table->id();
-            $table->string('code_fonction');
+            $table->string('code_fonction', 20)->unique();
             $table->string('intitule_fonction');
             $table->timestamps();
         });

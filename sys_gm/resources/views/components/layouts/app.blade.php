@@ -1,5 +1,9 @@
 <x-layouts.app.sidebar :title="$title ?? null">
-    <flux:main>
-        {{ $slot }}
+    @include('components.layouts.app.navbar')
+
+    <flux:main class="overflow-y-auto h-[calc(100vh-4rem)]">
+        <div class="container mx-auto h-full">
+            {{ $slot }}
+        </div>
     </flux:main>
 </x-layouts.app.sidebar>
