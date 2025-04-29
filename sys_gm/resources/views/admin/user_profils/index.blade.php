@@ -5,7 +5,7 @@
 @section('content')
     <div class="flex justify-between items-center mb-3">
         <h1 class="text-2xl font-bold tracking-tight">Liste des utilisateurs</h1>
-        <a href="{{ route('admin.user.create') }}"
+        <a href="{{ route('admin.users.create') }}"
            class="inline-flex bg-blue-500 items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 gap-2">
             Nouveau utilisateur
         </a>
@@ -41,16 +41,25 @@
                     <td class="p-2 align-middle">{{ $user->name }}</td>
                     <td class="p-2 align-middle">{{ $user->email }}</td>
                     <td class="p-2 align-middle">
-                        @forelse ($user->profils as $profil)
+                        @forelse ($user->roles as $role)
                             <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-800">
-                                {{ $profil->intitule_profil }}
+                                {{ $role->name }}
                             </span>
                         @empty
                             <span class="text-gray-500">Aucun profil</span>
                         @endforelse
                     </td>
                     <td class="p-2 align-middle flex justify-end gap-2">
-                        <a href="{{ route('admin.user.edit', $user) }}"
+                        <a href="{{ route('admin.users.roles.edit', $user) }}"
+                           class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium border border-blue-400 hover:bg-blue-500 hover:text-accent-foreground h-9 rounded-md px-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-1">
+                                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z" />
+                                <path d="m7 16 4-4-4-4" />
+                                <path d="m13 8 4 4-4 4" />
+                            </svg>
+                            Assigner Profils
+                        </a>
+                        <a href="{{ route('admin.users.edit', $user) }}"
                            class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium border border-yellow-300 hover:bg-yellow-700 hover:text-accent-foreground h-9 rounded-md px-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -59,16 +68,7 @@
                             </svg>
                             Modifier
                         </a>
-                        {{-- <a href="{{ route('admin.user.roles.edit', $user) }}"
-                           class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium border border-blue-400 hover:bg-blue-500 hover:text-accent-foreground h-9 rounded-md px-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-1">
-                                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z" />
-                                <path d="m7 16 4-4-4-4" />
-                                <path d="m13 8 4 4-4 4" />
-                            </svg>
-                            Assigner Profils
-                        </a> --}}
-                        <form action="{{ route('admin.user.destroy', $user) }}" method="post">
+                        <form action="{{ route('admin.users.destroy', $user) }}" method="post">
                             @csrf
                             @method('delete')
                             <button type="submit"
@@ -81,7 +81,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="3" class="p-4 text-center">Aucun utilisateur trouvé.</td>
+                    <td colspan="4" class="p-4 text-center">Aucun utilisateur trouvé.</td>
                 </tr>
             @endforelse
             </tbody>

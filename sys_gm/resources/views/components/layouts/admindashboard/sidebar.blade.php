@@ -32,9 +32,8 @@
         
         <flux:navlist variant="outline">
             <flux:navlist.item icon="home" :href="route('admindashboard')" class="hover:bg-blue-50! hover:text-blue-700! {{ request()->routeIs('admindashboard') ? 'bg-blue-900 text-white!' : '' }}" wire:navigate>Tableau de bord</flux:navlist.item>
-            <flux:navlist.item icon="document" href="#" class="hover:bg-blue-50! hover:text-blue-700!">Générer un Document</flux:navlist.item>
-            <flux:navlist.item icon="inbox" href="#" class="hover:bg-blue-50! hover:text-blue-700!">Liste des Agents</flux:navlist.item>
-            <flux:navlist.item icon="inbox" href="#" class="hover:bg-blue-50! hover:text-blue-700!">Rôles et permissions</flux:navlist.item>
+            <flux:navlist.item icon="inbox" :href="route('admin.agent.index')" class="hover:bg-blue-50! hover:text-blue-700! {{ request()->routeIs('admin.agent.index') ? 'bg-blue-900 text-white!' : '' }} " wire:navigate>Liste des Agents</flux:navlist.item>
+            <flux:navlist.item icon="users" :href="route('admin.user.index')" class="hover:bg-blue-50! hover:text-blue-700! {{ request()->routeIs('admin.user.index') ? 'bg-blue-900 text-white!' : '' }} " wire:navigate>Gestion des utilisateurs</flux:navlist.item>
             <flux:navlist.group expandable heading="Pramètres" class="hidden lg:grid">
                 <flux:navlist.item :href="route('admin.ministere.index')" class="hover:bg-blue-50! hover:text-blue-700! {{ request()->routeIs('admin.ministere.index') ? 'bg-blue-900 text-white!' : '' }} " wire:navigate>Gestion des Ministères</flux:navlist.item>
                 <flux:navlist.item href="#" class="hover:bg-blue-50! hover:text-blue-700!">Gestion des structures</flux:navlist.item>

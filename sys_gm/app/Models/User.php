@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
@@ -57,4 +58,16 @@ class User extends Authenticatable
             ->map(fn (string $name) => Str::of($name)->substr(0, 1))
             ->implode('');
     }
+
+
+    /**
+     * The roles that belong to the user.
+     */
+    public function profils(): BelongsToMany
+    {
+        return $this->belongsToMany(Profil::class, 'user_profils')
+                    ->withPivot('statut')
+                    ->withTimestamps();
+    }
+    
 }

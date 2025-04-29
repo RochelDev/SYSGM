@@ -27,8 +27,15 @@ class PosteController extends Controller
 
     public function create()
     {
+        
         $poste = new Poste();
-        return view('admin.postes.create', compact('poste'));
+        if ($request->has('structure')) {
+            $structure = Structure::findOrFail($request->input('structure'));
+            return view('admin.postes.create', compact('poste', 'structure'));
+        } else {
+            $structures = Structure::all();
+            return view('admin.postes.create', compact('poste', 'structures'));
+        }
     }
 
     /**

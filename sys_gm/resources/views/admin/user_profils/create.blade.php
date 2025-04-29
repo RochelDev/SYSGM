@@ -5,7 +5,7 @@
 @section('content')
     <div class="">
         Enregistrer un nouvel utilisateur
-        <form class="space-y-8" action="{{ route('admin.user.store') }}" method="post">
+        <form class="space-y-8" action="{{ route('admin.users.store') }}" method="post">
             @csrf
 
             <div>
@@ -49,29 +49,8 @@
                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-dark-700 dark:text-white">
             </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Assigner des profils
-                </label>
-                <div class="space-y-2">
-                    @forelse ($profils as $profil)
-                        <div class="flex items-center">
-                            <input id="profil_{{ $profil->id }}" type="checkbox" name="profils[]" value="{{ $profil->id }}"
-                                   class="w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                            <label for="profil_{{ $profil->id }}" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
-                                {{ $profil->intitule_profil }}
-                            </label>
-                        </div>
-                    @empty
-                        <span class="text-gray-500">Aucun type de profil enregistré</span>
-                    @endforelse
-
-                   
-                </div>
-            </div>
-
             <div class="flex justify-end gap-4">
-                <a href="{{ route('admin.user.index') }}" type="button"
+                <a href="{{ route('admin.users.index') }}" type="button"
                    class="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     Abandonner
                 </a>
