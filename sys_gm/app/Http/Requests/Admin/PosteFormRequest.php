@@ -11,7 +11,7 @@ class PosteFormRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,11 @@ class PosteFormRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'code_poste' => ['required', 'string', 'max:20', 'unique::postes,code_poste'],
+            'intitule_poste' => ['required', 'string', 'max:255'],
+            'service' => ['required', 'string', 'max:255'],
+            'direction' => ['required', 'string', 'max:255'],
+            'structure_id' => ['required', 'integer', Rule::exists('structures', 'id')],
         ];
     }
 }

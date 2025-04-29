@@ -20,7 +20,7 @@ return new class extends Migration
         Schema::create('user_profils', function (Blueprint $table) {
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('profil_id')->constrained()->onDelete('cascade');
-            $table->string('statut');
+            $table->string('statut')->default('inactif');
             $table->timestamps();
         });
     }

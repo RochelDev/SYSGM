@@ -13,7 +13,7 @@
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Nom du ministère <span class="text-red-500">*</span>
                 </label>
-                <input type="text" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-dark-700 dark:text-white">
+                <input type="text" value="{{ $ministere->nom_ministere }}" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-dark-700 dark:text-white">
             </div>
 
 
@@ -22,13 +22,13 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Code du ministère <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-dark-700 dark:text-white">
+                    <input type="text" value="{{ $ministere->code_ministere  }}" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-dark-700 dark:text-white">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Sites ou localisation <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-dark-700 dark:text-white">
+                    <input type="text" value="{{ $ministere->code_ministere  }}" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-dark-700 dark:text-white">
                 </div>
             </div>
 

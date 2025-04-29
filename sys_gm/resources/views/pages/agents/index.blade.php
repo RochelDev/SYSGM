@@ -1,6 +1,6 @@
 @extends('admin')
 
-@section('title', '| Agents')
+@section('title', '| Agent')
 
 @section('content')
     @if(session('success'))
@@ -82,7 +82,7 @@
                     <td class="p-2 align-middle ">{{ $agent->date_debut_service }}</td>
                     <td class="p-2 align-middle ">@if (isset($agent->user->exists)) oui @else non @endif</td>
                     <td class="p-2 align-middle flex justify-end gap-2">
-                        <a class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium border border-yellow-300 hover:bg-yellow-700 hover:text-accent-foreground h-9 rounded-md px-3"
+                        {{-- <a class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium border border-yellow-300 hover:bg-yellow-700 hover:text-accent-foreground h-9 rounded-md px-3"
                            type="button">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24"
                                  height="24" viewBox="0 0 24 24" fill="none"
@@ -98,6 +98,16 @@
                                 <path d="M16 17H8"></path>
                             </svg>
                             Voir
+                        </a> --}}
+
+                        <a href="{{ route('admin.agent.edit', $agent) }}"
+                           class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium border border-yellow-300 hover:bg-yellow-700 hover:text-accent-foreground h-9 rounded-md px-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="h-4 w-4 mr-1">
+                                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                            </svg>
+                            Modifier
                         </a>
 
                         <form action="{{ route('admin.agent.destroy', $agent)}}" method="post">

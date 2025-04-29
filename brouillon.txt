@@ -1383,3 +1383,164 @@ structures/create.blade.php
 
 
 Je voudrais faire la même chose comme dans le create de ministère. Sauf que lorsque les données d'un ministère ne sont pas passée à la vue on affiche le tableau et un bouton qui va conduire à créer un poste. 
+
+
+
+
+Le Controlleur
+
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Models\Profil;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\MakeProfilFormRequest;
+
+class ProfilAccessController extends Controller
+{
+    /**
+     * Affiche la liste de tous les profils.
+     */
+    public function index()
+    {
+        $profils = Profil::orderBy('created_at', 'desc')->paginate(5);
+
+        return view('admin.profils.index', [
+            'profils' => $profils,
+        ]);
+    }
+
+    /**
+     * Créer les informations d'un profil.
+     */
+
+    public function create()
+    {
+        $profil = new Profil();
+        return view('admin.profils.create', compact('profil'));
+    }
+
+    /**
+     * Enregistre un nouveau profil.
+     */
+    public function store(MakeProfilFormRequest $request)
+    {
+        //$validatedData = $request->validate();
+
+        $profil = Profil::create($request->validated());
+        return to_route('admin.profil.index')->with('success', 'Enregistrement réussi!');
+    }
+
+    /**
+     * Met à jour les informations d'un profil.
+     */
+    public function edit(Profil $profil)
+    {
+        return view('admin.profils.create', compact('profil'));
+    }
+
+    /**
+     * Met à jour les informations d'un profil.
+     */
+    public function update(MakeProfilFormRequest $request, Profil $profil) // Use Response here
+    {
+        $profil->update($request->validated());
+        //dd($request->all());
+        // $profil->update($request->all());
+        return to_route('admin.profil.index')->with('success', 'Modification réussi!');
+    }
+
+    /**
+     * Supprime un profil.
+     */
+    public function destroy(Profil $profil)
+    {
+        $profil->delete();
+        return to_route('admin.profil.index')->with('success', 'Suppression réussi!');
+    }
+}
+
+
+
+Le MakeProfilFormRequest
+
+<?php
+
+namespace App\Http\Requests\Admin;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class MakeProfilFormRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return false;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'intitule_profil' => ['required', 'string', 'max:255'],
+        ];
+    }
+}
+
+la migration
+
+Schema::create('profils', function (Blueprint $table) {
+            $table->id();
+            $table->string('intitule_profil');
+            $table->timestamps();
+        });
+
+
+
+La page du formulaire
+
+@extends('admin')
+
+@section('title', '| Profil')
+
+@section('content')
+    <div class="">
+        Enregistrer un Profil
+        <form class="space-y-8" action="{{ route($profil->exists ? 'admin.profil.update':'admin.profil.store', $profil) }}" method="post">
+            @csrf
+            @method($profil->exists? 'put':'post')
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Intitulé <span class="text-red-500">*</span>
+                </label>
+                <input type="text" value="{{ $profil->intitule_profil  }}" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-dark-700 dark:text-white">
+            </div>
+
+
+
+
+            <div class="flex justify-end gap-4">
+                <a href="{{ route('admin.profil.index') }}" type="button"
+                    class="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    Abandonner
+                </a>
+                <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                    @if($profil->exists)
+                        Modifier
+                    @else
+                        Enregistrer
+                    @endif
+                </button>
+            </div>
+        </form>
+    </div>
+@endsection

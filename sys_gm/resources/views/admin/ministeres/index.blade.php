@@ -49,22 +49,14 @@
                     <td class="p-2 align-middle ">{{ $ministere->nom_ministere }}</td>
                     <td class="p-2 align-middle ">{{ $ministere->site_ministere }}</td>
                     <td class="p-2 align-middle flex justify-end gap-2">
-                        <a class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium border border-yellow-300 hover:bg-yellow-700 hover:text-accent-foreground h-9 rounded-md px-3"
-                            type="button">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                height="24" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round"
-                                class="h-4 w-4 mr-1">
-                                <path
-                                    d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z">
-                                </path>
-                                <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
-                                <path d="M10 9H8"></path>
-                                <path d="M16 13H8"></path>
-                                <path d="M16 17H8"></path>
+                        <a href="{{ route('admin.ministere.edit', $ministere) }}"
+                           class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium border border-yellow-300 hover:bg-yellow-700 hover:text-accent-foreground h-9 rounded-md px-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="h-4 w-4 mr-1">
+                                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
                             </svg>
-                            Voir
+                            Modifier
                         </a>
 
                         <form action="{{ route('admin.ministere.destroy', $ministere)}}" method="post">

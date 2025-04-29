@@ -1,6 +1,6 @@
 @extends('admin')
 
-@section('title', '| Profils')
+@section('title', '| Fonctions')
 
 @section('content')
     @if(session('success'))
@@ -10,9 +10,9 @@
     @endif
     <div class="flex justify-between items-center mb-3">
         <h1 class="text-2xl font-bold tracking-tight">Liste des Fonctions</h1>
-        <a href="{{ route('admin.profil.create') }}"
+        <a href="{{ route('admin.fonction.create') }}"
            class="inline-flex bg-blue-500 items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 gap-2">
-            Nouveau profil
+            Nouvel fonction
         </a>
     </div>
 
@@ -24,17 +24,21 @@
                     Intitulé
                 </th>
                 <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                    Code fonction
+                </th>
+                <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
                     Actions
                 </th>
                 
             </tr>
             </thead>
             <tbody>
-            @forelse ($profils as $profil)
+            @forelse ($fonctions as $fonction)
                 <tr class="border-b transition-colors hover:bg-muted/50">
-                    <td class="p-2 align-middle">{{ $profil->intitule_profil }}</td>
+                    <td class="p-2 align-middle">{{ $fonction->intitule_fonction }}</td>
+                    <td class="p-2 align-middle">{{ $fonction->code_fonction }}</td>
                     <td class="p-2 align-middle flex justify-end gap-2">
-                        <a href="{{ route('admin.profil.edit', $profil) }}"
+                        <a href="{{ route('admin.fonction.edit', $fonction) }}"
                            class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium border border-yellow-300 hover:bg-yellow-700 hover:text-accent-foreground h-9 rounded-md px-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -43,7 +47,7 @@
                             </svg>
                             Modifier
                         </a>
-                        <form action="{{ route('admin.profil.destroy', $profil) }}" method="post">
+                        <form action="{{ route('admin.fonction.destroy', $fonction) }}" method="post">
                             @csrf
                             @method('delete')
                             <button type="submit"
@@ -62,7 +66,7 @@
             </tbody>
         </table>
         <div class="px-6 py-4 flex items-center justify-end">
-            {{ $profils->links() }}
+            {{ $fonctions->links() }}
         </div>
     </div>
 @endsection

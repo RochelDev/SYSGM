@@ -54,7 +54,7 @@ class MinistereController extends Controller
     /**
      * Met à jour les informations d'un ministère.
      */
-    public function update(MinistereFormRequest $request, Ministere $ministere): Response // Use Response here
+    public function update(MinistereFormRequest $request, Ministere $ministere)// Use Response here
     {
         $ministere->update($request->validated());
         //dd($request->all());

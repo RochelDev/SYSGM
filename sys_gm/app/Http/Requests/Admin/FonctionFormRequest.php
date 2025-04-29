@@ -11,7 +11,7 @@ class FonctionFormRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,8 @@ class FonctionFormRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'code_fonction' => ['required', 'string', 'max:20', 'unique::fonctions,code_fonction'],
+            'intitule_fonction' => ['required', 'string', 'max:255'],
         ];
     }
 }

@@ -18,7 +18,10 @@ class AgentController extends Controller
         ]);
     }
 
-
+    public function edit(Agent $agent)
+    {
+        return view('pages.agents.create', compact('agent'));
+    }
 
 
     // public function index(): Response

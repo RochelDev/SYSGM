@@ -34,10 +34,10 @@ class ProfilAccessController extends Controller
     /**
      * Enregistre un nouveau profil.
      */
-    public function store(ProfilFormRequest $request)
+    public function store(MakeProfilFormRequest $request)
     {
         //$validatedData = $request->validate();
-
+        //dd($request->all());
         $profil = Profil::create($request->validated());
         return to_route('admin.profil.index')->with('success', 'Enregistrement réussi!');
     }
@@ -53,7 +53,7 @@ class ProfilAccessController extends Controller
     /**
      * Met à jour les informations d'un profil.
      */
-    public function update(MakeProfilFormRequest $request, Profil $profil): Response // Use Response here
+    public function update(MakeProfilFormRequest $request, Profil $profil) // Use Response here
     {
         $profil->update($request->validated());
         //dd($request->all());

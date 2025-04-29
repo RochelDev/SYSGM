@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Poste;
+use App\Models\Structure;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\PosteFormRequest;
@@ -12,20 +13,24 @@ class PosteController extends Controller
     /**
      * Affiche la liste de tous les postes.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $postes = Poste::orderBy('created_at', 'desc')->paginate(5);
+        $structures = Structure::orderBy('nom_structure')->get();
+        $postes = Poste::with('structure')
+            ->when($request->has('structure_filter') && $request->input('structure_filter') != '', function ($query) use ($request) {
+                $query->where('structure_id', $request->input('structure_filter'));
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(10); // Exemple de pagination de 10 éléments par page
 
-        return view('admin.postes.index', [
-            'postes' => $postes,
-        ]);
+        return view('admin.postes.index', compact('postes', 'structures'));
     }
 
     /**
      * Créer les informations d'un poste.
      */
 
-    public function create()
+    public function create(Request $request)
     {
         
         $poste = new Poste();
@@ -52,9 +57,16 @@ class PosteController extends Controller
     /**
      * Met à jour les informations d'un poste.
      */
-    public function edit(Poste $poste)
+    public function edit(Poste $poste, Request $request)
     {
-        return view('admin.postes.create', compact('poste'));
+        if ($request->has('structure')) {
+            $structure = Structure::findOrFail($request->input('structure'));
+            return view('admin.postes.create', compact('poste', 'structure'));
+        } else {
+            $structures = Structure::all();
+            return view('admin.postes.create', compact('poste' , 'structures'));
+        }
+        //return view('admin.postes.create', compact('poste'));
     }
 
     /**

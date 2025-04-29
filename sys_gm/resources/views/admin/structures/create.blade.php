@@ -10,7 +10,7 @@
             {{ $structure->exists ? 'Modifier' : 'Enregistrer' }} une Structure
         @endif
 
-        <form class="space-y-8 mt-4" action="{{ route($structure->exists ? 'admin.structures.update':'admin.structures.store', $structure) }}" method="post">
+        <form class="space-y-8 mt-4" action="{{ route($structure->exists ? 'admin.structure.update':'admin.structure.store', $structure) }}" method="post">
             @csrf
             @method($structure->exists ? 'put' : 'post')
 

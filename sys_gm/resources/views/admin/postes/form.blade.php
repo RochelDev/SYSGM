@@ -3,16 +3,8 @@
 @section('title', '| Poste')
 
 @section('content')
-
-@php
-
-if (request()->routeIs('admin.poste.edit')) {
-    $structure = $poste->structure;
-}
-    
-@endphp
     <div class="">
-        @if(isset($structure) || request()->routeIs('admin.poste.edit'))
+        @if(isset($structure))
             {{ $poste->exists ? 'Modifier' : 'Enregistrer' }} un Poste pour la Structure : <span class="font-semibold">{{ $structure->nom_structure }}</span>
             <form class="space-y-8 mt-4" action="{{ route($poste->exists ? 'admin.poste.update':'admin.poste.store', $poste) }}" method="post">
                 @csrf
