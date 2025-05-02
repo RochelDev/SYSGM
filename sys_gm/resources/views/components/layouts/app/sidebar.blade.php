@@ -49,12 +49,34 @@
 
             <flux:navlist variant="outline">
                 <flux:navlist.item icon="home" class="hover:bg-blue-50! hover:text-blue-700! text-white!   {{ request()->routeIs('dashboard') ? 'bg-blue-800! text-white!' : '' }}" :href="route('dashboard')" wire:navigate>Tableau de bord</flux:navlist.item>
+                @if(auth()->user()->profilActif())
                 <flux:navlist.item icon="folder" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Dossier à traiter</flux:navlist.item>
-                <flux:navlist.item icon="folder-plus" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Faire une Demande</flux:navlist.item>
-                <flux:navlist.item icon="document" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Générer un Document</flux:navlist.item>
-                <flux:navlist.item icon="users" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Liste des Agents</flux:navlist.item>
+                {{-- @if(auth()->user()->profilActif()->intitule_profil == 'Agent') Agent @endif
+                @if(auth()->user()->profilActif()->intitule_profil == 'Responsable Sectoriel') Responsable Sectoriel @endif
+                @if(auth()->user()->profilActif()->intitule_profil == 'Ordonnateur Sectoriel') Ordonnateur Sectoriel @endif
+                @if(auth()->user()->profilActif()->intitule_profil == 'Agent DRSC') Agent DRSC @endif
+                @if(auth()->user()->profilActif()->intitule_profil == 'DRSC') DRSC @endif
+                @if(auth()->user()->profilActif()->intitule_profil == 'Responsable MTFP') Responsable MTFP @endif
+                @if(auth()->user()->profilActif()->intitule_profil == 'Service RH') Service RH @endif
+                @if(auth()->user()->profilActif()->intitule_profil == 'DGFP') DGFP @endif --}}
+                @if(auth()->user()->profilActif()->intitule_profil == 'Agent' || auth()->user()->profilActif()->intitule_profil == 'Service RH' ) 
+                    <flux:navlist.item icon="folder-plus" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Faire une Demande</flux:navlist.item>
+                @endif
+
+                @if(auth()->user()->profilActif()->intitule_profil == 'Ordonnateur Sectoriel' || auth()->user()->profilActif()->intitule_profil == 'Service RH' || auth()->user()->profilActif()->intitule_profil == 'Agent DRSC' ) 
+                    <flux:navlist.item icon="users" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Liste des Agents</flux:navlist.item>
+                @endif
+
+                @if(!auth()->user()->profilActif()->intitule_profil == 'Agent') 
+                    <flux:navlist.item icon="users" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Dossiers en cours</flux:navlist.item>
+                @endif
+
+                @if(auth()->user()->profilActif()->intitule_profil == 'Ordonnateur Sectoriel')
+                    <flux:navlist.item icon="document" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Générer un Document</flux:navlist.item>
+                @endif
                 <flux:navlist.item icon="inbox" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Affectations</flux:navlist.item>
                 <flux:navlist.item icon="document-text" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Historiques</flux:navlist.item>
+                @endif
             </flux:navlist>
 
             <flux:spacer />

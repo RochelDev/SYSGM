@@ -1,0 +1,275 @@
+<?php // app/Http/Controllers/ChoixProfilController.php
+
+namespace App\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+
+class ChoixProfilController extends Controller
+{
+    public function index()
+    {
+        $user = Auth::user();
+        $profils = $user->profils;
+
+        return view('auth.choisir-profil', compact('profils'));
+    }
+
+    public function choisirProfil(Request $request)
+    {
+        $user = Auth::user();
+        $profilId = $request->input('profil_id');
+
+         // Validate the profile ID belongs to the user
+        if (!$user->profils->contains($profilId)) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $user->setProfilActif($profilId);
+
+        session(['profil_actif_id' => $profilId]);
+
+        $profil = Profil::find($profilId);
+        $redirectTo = '/home';
+
+        // Redirection personnalisée basée sur le profil
+        if ($profil->nom_profil == 'Agent') {
+            $redirectTo = '/agents'; // Exemple
+        } elseif ($profil->nom_profil == 'Ordonnateur') {
+            $redirectTo = '/ordonnateurs'; // Exemple
+        }
+        elseif ($profil->nom_profil == 'admin'){
+            $redirectTo = '/admin/dashboard';
+        }
+
+        return redirect($redirectTo); // Redirect to the appropriate dashboard
+    }
+}
+
+
+
+
+
+
+
+
+
+<?php // app/Models/User.php
+
+namespace App\Models;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
+
+
+class User extends Authenticatable
+{
+    use HasFactory, Notifiable;
+
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
+    public function initials(): string
+    {
+        return Str::of($this->name)
+            ->explode(' ')
+            ->map(fn (string $name) => Str::of($name)->substr(0, 1))
+            ->implode('');
+    }
+
+    public function profils(): BelongsToMany
+    {
+        return $this->belongsToMany(Profil::class, 'user_profils')
+            ->withPivot('statut')
+            ->withTimestamps();
+    }
+
+    public function profilActif()
+    {
+        return $this->profils()->wherePivot('statut', 'actif')->first();
+    }
+
+    public function setProfilActif(int $profilId): void
+    {
+        // Désactive tous les profils actifs précédents
+        $this->profils()->updateExistingPivot($this->id, ['statut' => 'inactif'], false);
+
+        // Active le nouveau profil
+        $this->profils()->updateExistingPivot($profilId, ['statut' => 'actif'], false);
+    }
+}
+```php
+<?php // app/Http/Middleware/CheckPermission.php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+
+class CheckPermission
+{
+    public function handle(Request $request, Closure $next)
+    {
+        // Check if the user is logged in
+        if (!Auth::check()) {
+            return redirect('/login'); // Or wherever your login route is
+        }
+
+        $user = Auth::user();
+        $profilActif = $user->profilActif();
+
+        // Check if the user has an active profile
+        if (!$profilActif) {
+            return redirect('/choisir-profil')->with('error', 'Veuillez choisir un profil actif.'); // Redirect to profile selection page
+        }
+
+        $routeNom = Route::currentRouteName();
+        $permissionRequise = $this->getPermissionForRoute($routeNom);
+
+        if ($permissionRequise && !$this->hasPermission($profilActif, $permissionRequise)) {
+            abort(403, 'Permission insuffisante.');
+        }
+
+        return $next($request);
+    }
+
+    private function hasPermission(Profil $profil, string $permissionNom): bool
+    {
+        foreach ($profil->permissions as $permission) {
+            if ($permission->nom_permission === $permissionNom) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //Pas nécéssaire
+
+    private function getPermissionForRoute(string $routeNom): ?string
+    {
+        // Define the mapping between route names and permissions
+        $routesPermissions = [
+            'dashboard' => 'voir_dashboard',
+            'admin.users.index' => 'gerer_utilisateurs',
+            'admin.users.create' => 'creer_utilisateurs',
+            // Add more routes and their corresponding permissions here
+        ];
+
+        return $routesPermissions[$routeNom] ?? null;
+    }
+}
+
+
+
+
+
+
+
+
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('profils', function (Blueprint $table) {
+            $table->id();
+            $table->string('nom_profil')->unique();
+            $table->timestamps();
+        });
+
+        Schema::create('permissions', function (Blueprint $table) {
+            $table->id();
+            $table->string('nom_permission')->unique();
+            $table->string('description')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('profil_permissions', function (Blueprint $table) {
+            $table->foreignId('profil_id')->constrained()->onDelete('cascade');
+            $table->foreignId('permission_id')->constrained()->onDelete('cascade');
+            $table->primary(['profil_id', 'permission_id']);
+            $table->timestamps();
+        });
+
+        Schema::create('user_profils', function (Blueprint $table) {
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('profil_id')->constrained()->onDelete('cascade');
+            $table->enum('statut', ['actif', 'inactif'])->default('inactif');
+            $table->primary(['user_id', 'profil_id']);
+            $table->timestamps();
+        });
+
+        Schema::table('users', function (Blueprint $table) {  //Dans ta migration users
+            $table->string('usertype')->default('user')->change();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('user_profils');
+        Schema::dropIfExists('profil_permissions');
+        Schema::dropIfExists('permissions');
+        Schema::dropIfExists('profils');
+    }
+};
+```php
+<?php // app/Models/Profil.php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
+class Profil extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'nom_profil',
+    ];
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_profils')
+            ->withPivot('statut')
+            ->withTimestamps();
+    }
+
+    //Ps nécessaire
+
+    //public function permissions(): BelongsToMany
+    //{
+      //  return $this->belongsToMany(Permission::class, 'profil_permissions');
+    //}
+}

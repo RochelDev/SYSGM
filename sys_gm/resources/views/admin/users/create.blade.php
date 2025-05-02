@@ -66,7 +66,7 @@
                         <span class="text-gray-500">Aucun type de profil enregistré</span>
                     @endforelse
 
-                   
+                    
                 </div>
             </div>
 

@@ -98,7 +98,12 @@ class UserController extends Controller
         }
         $user->save();
 
-        $user->profils()->sync($request->input('profils', [])); // Synchroniser les profils de l'utilisateur
+        // Synchroniser les profils de l'utilisateur simplement
+        //$user->profils()->sync($request->input('profils', []));
+
+        // Synchroniser les profils avec le statut
+        $profils = $request->input('profils', []);
+        $this->syncProfils($user, $profils);
 
         return redirect()->route('admin.user.index')->with('success', 'Utilisateur mis à jour avec succès.');
     }
@@ -111,4 +116,29 @@ class UserController extends Controller
         $user->delete();
         return redirect()->route('admin.users.index')->with('success', 'Utilisateur supprimé avec succès.');
     }
+
+    private function syncProfils(User $user, array $profils): void
+    {
+        $user->profils()->detach(); // Detach all existing profils first.
+
+        $profilsData = [];
+        $agentProfilId = Profil::where('intitule_profil', 'Agent')->value('id'); //get agent profil id
+
+        $hasAgentProfil = in_array($agentProfilId, $profils);
+        $firstProfilId = count($profils) > 0 ? $profils[0] : null;
+
+        foreach ($profils as $profilId) {
+            $statut = 'inactif';
+            if ($hasAgentProfil && $profilId == $agentProfilId) {
+                $statut = 'actif';
+            } elseif (!$hasAgentProfil && $profilId == $firstProfilId) {
+                $statut = 'actif';
+            } elseif (count($profils) == 1) {
+                $statut = 'actif';
+            }
+            $profilsData[$profilId] = ['statut' => $statut];
+        }
+        $user->profils()->attach($profilsData);
+    }
+
 }

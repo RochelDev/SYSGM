@@ -69,5 +69,19 @@ class User extends Authenticatable
                     ->withPivot('statut')
                     ->withTimestamps();
     }
+
+    public function profilActif()
+    {
+        return $this->profils()->wherePivot('statut', 'actif')->first();
+    }
+
+    public function setProfilActif(int $profilId): void
+    {
+        // Désactive tous les profils actifs précédents
+        $this->profils()->updateExistingPivot($this->id, ['statut' => 'inactif'], false);
+
+        // Active le nouveau profil
+        $this->profils()->updateExistingPivot($profilId, ['statut' => 'actif'], false);
+    }
     
 }
