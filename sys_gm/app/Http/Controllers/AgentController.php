@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Agent;
 use Illuminate\Http\Request;
 
 class AgentController extends Controller
@@ -9,14 +10,29 @@ class AgentController extends Controller
     /**
      * Affiche la liste de tous les agents.
      */
-    public function index(): Response
+    public function index()
     {
-        $agents = Agent::with('user')->get();
-        return response([
+        $agents = Agent::orderBy('created_at', 'desc')->with('user')->paginate(5);
+        return view('pages.agents.index', [
             'agents' => $agents,
-            'message' => 'Liste des agents récupérée avec succès',
-        ], 200);
+        ]);
     }
+
+    public function edit(Agent $agent)
+    {
+        return view('pages.agents.create', compact('agent'));
+    }
+
+
+    // public function index(): Response
+    // {
+    //     $agents = Agent::with('user')->get();
+    //     return response([
+    //         'agents' => $agents,
+    //         'message' => 'Liste des agents récupérée avec succès',
+    //     ], 200);
+        
+    // }
 
     /**
      * Enregistre un nouvel agent.

@@ -1233,4 +1233,330 @@ Gestions des fichiers(Piecesjustificatives) et génération de documents(TypePie
 Sert toi des modèles que tu m'as fourni plus haut. Je voudrais que lorsqu'un utilisateur  se connecte avec son profil(ex DPAF) il puisse accéder au dossier de son ministère afin de pouvoir effectuer une action. De plus une fois sa tâche accompli il soumet le dossier à l'acteur suivant. Ce serait similaire à une application de gestion des tâches pour un projet sauf que dans notre cas le projet c'est le dossier et les étapes sont les tâches auxquels sont assigner les différents profil.
 
 
+web.php
 
+<?php
+
+
+use App\Livewire\Settings\Appearance;
+use App\Livewire\Settings\Password;
+use App\Livewire\Settings\Profile;
+use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\Admin\FonctionController;
+use App\Http\Controllers\Admin\MinistereController;
+use App\Http\Controllers\Admin\PosteController;
+use App\Http\Controllers\Admin\ProfilAccessController;
+use App\Http\Controllers\Admin\StructureController;
+use App\Http\Controllers\Admin\TypeMobiliteController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\AgentController;
+use App\Http\Controllers\HomeController;
+
+
+Route::get('/', function () {
+    return view('welcome');
+})->name('home');
+
+Route::get('/dashboard', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware(['auth', 'verified', 'admin'])->prefix('/admin')->group(function () {
+    Route::get('/', function () { return view('admin.index');})->name('admindashboard');
+    Route::name('admin.')->group(function () {
+        Route::resource('user', UserController::class )->except(['show']);
+        Route::resource('ministere', MinistereController::class )->except(['show']);
+        Route::resource('structure', StructureController::class )->except(['show']);
+        Route::resource('poste', PosteController::class )->except(['show']);
+        Route::resource('fonction', FonctionController::class )->except(['show']);
+        Route::resource('agent', AgentController::class )->except(['show']);
+        Route::resource('profil', ProfilAccessController::class )->except(['show']);
+        Route::resource('type_mobilite', TypeMobiliteController::class )->except(['show']);
+    });
+    
+
+});
+
+// Route::get('/admin', function () {
+//     return view('admin.index');
+// })->name('admindashboard')->middleware(['auth', 'verified', 'admin']);
+
+// Route::get('/users', function () {
+//     return view('users.index');
+// })->middleware(['auth', 'verified'])->name('user');
+
+
+Route::get('/userhome', function () {
+    return view('users.user');
+})->middleware(['auth', 'verified'])->name('userUser');
+
+
+
+//route vers dashboard
+
+// Route::view('/user', 'users.index')
+//     ->middleware(['auth', 'verified'])
+//     ->name('dashboard');
+
+// Route::middleware(['auth', 'verified', 'profilAccess'])->group(function () {
+// });
+
+
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::redirect('settings', 'settings/profile');
+
+    Route::get('settings/profile', Profile::class)->name('settings.profile');
+    Route::get('settings/password', Password::class)->name('settings.password');
+    Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
+});
+
+require __DIR__.'/auth.php';
+
+
+bootstrap/app.php
+<?php
+
+use App\Http\Middleware\AdminAccess;
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Configuration\Exceptions;
+use Illuminate\Foundation\Configuration\Middleware;
+
+return Application::configure(basePath: dirname(__DIR__))
+    ->withRouting(
+        web: __DIR__.'/../routes/web.php',
+        commands: __DIR__.'/../routes/console.php',
+        health: '/up',
+    )
+    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->alias([
+            'admin' => AdminAccess::class,
+        ]);
+    })
+    ->withExceptions(function (Exceptions $exceptions) {
+        //
+    })->create();
+
+
+Te souviens tu que je t'ai dit l'architecture de mon projet laravel est légèrement différente des autres. Dans mon projet je n'ai pas le fichier auth.php dans le dossier middleware. 
+Pour pouvoir gérer les accès au différentes routes d'une manière similaire:
+
+ <?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Models\Utilisateur;
+
+class AuthController extends Controller
+{
+    // Fonction pour la connexion de l'utilisateur
+    public function login(Request $request)
+    {
+        // Validation des champs de connexion
+        $credentials = $request->validate([
+            'email-login' => ['required', 'email'],
+            'password-login' => ['required'],
+        ]);
+
+        // Recherche de l'utilisateur dans la base de données
+        $utilisateur = Utilisateur::where('EmailUti', $credentials['email-login'])->first();
+
+        // Si l'utilisateur existe et le mot de passe est correct
+        if ($utilisateur && Hash::check($credentials['password-login'], $utilisateur->MotDePasseUti)) {
+            session(['utilisateur' => $utilisateur]);
+        
+            $profil = $utilisateur->profil->Role; 
+        
+            // Redirection selon le rôle
+            switch ($profil) {
+                case 'Admin':
+                    return redirect()->route('admin.dashboard');
+                case 'Responsable DRA':
+                    return redirect()->route('dra.dashboard');
+                case 'Agent Unite Pretraitement':
+                    return redirect()->route('aut.dashboard');
+                case 'Agent Liquidateur':
+                    return redirect()->route('al.dashboard');
+                case 'Chef Service Liquidation':
+                    return redirect()->route('csl.dashboard');
+                case 'Ordonnateur':
+                    return redirect()->route('ordonnateur.dashboard');
+                case 'Controleur Financier':
+                    return redirect()->route('cf.dashboard');
+                case 'Confectionneur de livret':
+                    return redirect()->route('cl.dashboard');
+                case 'Agent Tresor':
+                    return redirect()->route('at.dashboard');
+                case 'Tresorier':
+                    return redirect()->route('tresorier.dashboard');
+                case 'Agent Guichet':
+                    return redirect()->route('ag.dashboard');
+                // Ajoute d'autres cas si nécessaire
+                default:
+                    return redirect()->route('dashboard');
+            }
+        }
+        
+    
+        return back()->withErrors(['email-login' => 'Identifiants invalides.']);
+    }
+}
+
+Je veux pouvoir gérer les permissions d'accès au différentes pages. Chaque utilisateur a accès selon son profil a sa page. Par exemple le responsable sectorielle a sa propre interface, même chose pour chaque profil. Un utilisateur peut avoir plusieurs profils, et peut se connecté selon son profil au différentes pages. Je veux pouvoir récupérer le profil ainsi que les informations de l'utilisateur lorsqu'il se connecte avec un profil.
+Si le profil n'est pas actif il n'a pas d'accès si dans user_profils le statut n'est pas actif. Par défaut si les utilisateurs ont le profil Agent ce profil sera actif par défaut par contre s'il souhaite changé de profil, le précédent devient inactif et le prochain actif.
+Voici en plus le modèle de User et de profil.
+
+<?php
+
+namespace App\Models;
+
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
+
+class User extends Authenticatable
+{
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory, Notifiable;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+
+    /**
+     * Get the user's initials
+     */
+    public function initials(): string
+    {
+        return Str::of($this->name)
+            ->explode(' ')
+            ->map(fn (string $name) => Str::of($name)->substr(0, 1))
+            ->implode('');
+    }
+
+
+    /**
+     * The roles that belong to the user.
+     */
+    public function profils(): BelongsToMany
+    {
+        return $this->belongsToMany(Profil::class, 'user_profils')
+                    ->withPivot('statut')
+                    ->withTimestamps();
+    }
+    
+}
+
+
+
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
+class Profil extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'intitule_profil',
+    ];
+
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_profils')
+                    ->withPivot('statut')
+                    ->withTimestamps();
+    }
+}
+
+
+
+
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
+
+
+class HomeController extends Controller
+{
+    //
+    public function index()
+    {
+        if(Auth::id())
+	    {
+		    $usertype=Auth()->user()->usertype;
+
+		    if($usertype=='user')
+		    {
+
+			    // if($profil=='Agent')
+		    	// {
+			    // 	return view('agents.index');
+    			// }
+		    	// else if($profil=='Ordonnateur')
+		    	// {
+			    // 	return view('Ordonnateurs.index');
+    			// }
+		    	// else
+		    	// {
+			    // 	return view('users.index');
+    	    	// }
+				return view('users.index');
+    		}
+		    else if($usertype=='admin')
+		    {
+			    return redirect()->route('admindashboard');
+    		}
+		    else
+		    {
+			    return redirect()->back();
+    	    }
+	    }
+    }
+
+}

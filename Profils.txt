@@ -1,0 +1,575 @@
+Parfait ! Nous allons modifier les vues `create.blade.php` et `edit.blade.php` pour inclure la possibilité d'assigner des profils lors de la création ou de la modification d'un utilisateur.
+
+**1. Modification de `resources/views/admin/users/create.blade.php` :**
+
+Ajoute la section de sélection des profils au formulaire de création :
+
+```blade
+@extends('admin')
+
+@section('title', '| Créer un utilisateur')
+
+@section('content')
+    <div class="">
+        Enregistrer un nouvel utilisateur
+        <form class="space-y-8" action="{{ route('admin.users.store') }}" method="post">
+            @csrf
+
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Nom <span class="text-red-500">*</span>
+                </label>
+                <input type="text" id="name" name="name" value="{{ old('name') }}"
+                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-dark-700 dark:text-white @error('name') border-red-500 @enderror">
+                @error('name')
+                <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Email <span class="text-red-500">*</span>
+                </label>
+                <input type="email" id="email" name="email" value="{{ old('email') }}"
+                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-dark-700 dark:text-white @error('email') border-red-500 @enderror">
+                @error('email')
+                <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Mot de passe <span class="text-red-500">*</span>
+                </label>
+                <input type="password" id="password" name="password"
+                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-dark-700 dark:text-white @error('password') border-red-500 @enderror">
+                @error('password')
+                <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Confirmation du mot de passe <span class="text-red-500">*</span>
+                </label>
+                <input type="password" id="password_confirmation" name="password_confirmation"
+                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-dark-700 dark:text-white">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Assigner des profils
+                </label>
+                <div class="space-y-2">
+                    @foreach ($profils as $profil)
+                        <div class="flex items-center">
+                            <input id="profil_{{ $profil->id }}" type="checkbox" name="profils[]" value="{{ $profil->id }}"
+                                   class="w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                            <label for="profil_{{ $profil->id }}" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                                {{ $profil->intitule_profil }}
+                            </label>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-4">
+                <a href="{{ route('admin.users.index') }}" type="button"
+                   class="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    Abandonner
+                </a>
+                <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                    Enregistrer
+                </button>
+            </div>
+        </form>
+    </div>
+@endsection
+```
+
+**2. Modification de `resources/views/admin/users/edit.blade.php` :**
+
+Ajoute la section de sélection des profils au formulaire de modification :
+
+```blade
+@extends('admin')
+
+@section('title', '| Modifier un utilisateur')
+
+@section('content')
+    <div class="">
+        Modifier l'utilisateur : {{ $user->name }}
+        <form class="space-y-8" action="{{ route('admin.users.update', $user) }}" method="post">
+            @csrf
+            @method('put')
+
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Nom <span class="text-red-500">*</span>
+                </label>
+                <input type="text" id="name" name="name" value="{{ old('name', $user->name) }}"
+                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-dark-700 dark:text-white @error('name') border-red-500 @enderror">
+                @error('name')
+                <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Email <span class="text-red-500">*</span>
+                </label>
+                <input type="email" id="email" name="email" value="{{ old('email', $user->email) }}"
+                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-dark-700 dark:text-white @error('email') border-red-500 @enderror">
+                @error('email')
+                <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Nouveau mot de passe
+                </label>
+                <input type="password" id="password" name="password"
+                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-dark-700 dark:text-white @error('password') border-red-500 @enderror">
+                @error('password')
+                <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                @enderror
+                <small class="text-gray-500 dark:text-gray-400">Laissez ce champ vide si vous ne souhaitez pas modifier le mot de passe.</small>
+            </div>
+
+            <div>
+                <label for="password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Confirmation du nouveau mot de passe
+                </label>
+                <input type="password" id="password_confirmation" name="password_confirmation"
+                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-dark-700 dark:text-white">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Assigner des profils
+                </label>
+                <div class="space-y-2">
+                    @foreach ($profils as $profil)
+                        <div class="flex items-center">
+                            <input id="profil_{{ $profil->id }}" type="checkbox" name="profils[]" value="{{ $profil->id }}"
+                                   class="w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                   @if(in_array($profil->id, $user->profils->pluck('id')->toArray())) checked @endif>
+                            <label for="profil_{{ $profil->id }}" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                                {{ $profil->intitule_profil }}
+                            </label>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-4">
+                <a href="{{ route('admin.users.index') }}" type="button"
+                   class="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    Abandonner
+                </a>
+                <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                    Modifier
+                </button>
+            </div>
+        </form>
+    </div>
+@endsection
+```
+
+**3. Modification du Contrôleur `UserController` :**
+
+Nous devons nous assurer que les profils sont récupérés et passés aux vues `create` et `edit`.
+
+```php
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Profil; // Importez le modèle Profil
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
+
+class UserController extends Controller
+{
+    /**
+     * Display a listing of the users.
+     */
+    public function index()
+    {
+        $users = User::paginate(10); // Paginer les utilisateurs
+        return view('admin.users.index', compact('users'));
+    }
+
+    /**
+     * Show the form for creating a new user.
+     */
+    public function create()
+    {
+        $user = new User(); // Créer une instance vide pour le formulaire
+        $profils = Profil::all(); // Récupérer tous les profils
+        return view('admin.users.create', compact('user', 'profils'));
+    }
+
+    /**
+     * Store a newly created user in storage.
+     */
+    public function store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'confirmed', Password::min(8)],
+            'profils' => ['nullable', 'array'], // Autoriser la sélection de plusieurs profils
+            'profils.*' => ['exists:profils,id'], // Vérifier que les IDs de profils existent
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        $user->profils()->attach($request->input('profils', [])); // Attacher les profils sélectionnés
+
+        return redirect()->route('admin.users.index')->with('success', 'Utilisateur créé avec succès.');
+    }
+
+    /**
+     * Show the form for editing the specified user.
+     */
+    public function edit(User $user)
+    {
+        $profils = Profil::all(); // Récupérer tous les profils
+        return view('admin.users.edit', compact('user', 'profils'));
+    }
+
+    /**
+     * Update the specified user in storage.
+     */
+    public function update(Request $request, User $user)
+    {
+        $rules = [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'profils' => ['nullable', 'array'],
+            'profils.*' => ['exists:profils,id'],
+        ];
+
+        if ($request->filled('password')) {
+            $rules['password'] = ['required', 'confirmed', Password::min(8)];
+        }
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+        $user->save();
+
+        $user->profils()->sync($request->input('profils', [])); // Synchroniser les profils de l'utilisateur
+
+        return redirect()->route('admin.users.index')->with('success', 'Utilisateur mis à jour avec succès.');
+    }
+
+    /**
+     * Remove the specified user from storage.
+     */
+    public function destroy(User $user)
+    {
+        $user->delete();
+        return redirect()->route('admin.users.index')->with('success', 'Utilisateur supprimé avec succès.');
+    }
+}
+```
+
+**Modifications importantes dans le contrôleur :**
+
+* **Import du modèle `Profil` :** `use App\Models\Profil;` a été ajouté en haut du fichier.
+* **Récupération des profils :** Dans les méthodes `create` et `edit`, `$profils = Profil::all();` récupère tous les profils de la base de données.
+* **Passage des profils aux vues :** Les profils sont passés aux vues via `compact('user', 'profils')`.
+* **Gestion des profils dans `store` :**
+    * La validation pour le champ `profils` a été ajoutée (`nullable`, `array`, `exists`).
+    * `$user->profils()->attach($request->input('profils', []));` attache les profils sélectionnés à l'utilisateur nouvellement créé.
+* **Gestion des profils dans `update` :**
+    * La validation pour le champ `profils` a été ajoutée.
+    * `$user->profils()->sync($request->input('profils', []));` synchronise les profils de l'utilisateur modifié. La méthode `sync` attachera les nouveaux profils et détachera les anciens qui ne sont plus sélectionnés.
+
+**Assurez-vous d'avoir la relation `profils` définie dans votre modèle `User
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Ah, je vois ! Ton modèle `User` actuel ne contient pas la relation avec les profils. Pour que l'assignation des profils fonctionne correctement, nous devons ajouter cette relation Many-to-Many dans ton modèle `User`.
+
+Voici le modèle `User.php` modifié avec la relation `profils` :
+
+```php
+<?php
+
+namespace App\Models;
+
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
+class User extends Authenticatable
+{
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory, Notifiable;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+
+    /**
+     * Get the user's initials
+     */
+    public function initials(): string
+    {
+        return Str::of($this->name)
+            ->explode(' ')
+            ->map(fn (string $name) => Str::of($name)->substr(0, 1))
+            ->implode('');
+    }
+
+    /**
+     * The roles that belong to the user.
+     */
+    public function profils(): BelongsToMany
+    {
+        return $this->belongsToMany(Profil::class, 'user_profils')
+                    ->withPivot('statut')
+                    ->withTimestamps();
+    }
+}
+```
+
+**Explication de la modification :**
+
+* **`use Illuminate\Database\Eloquent\Relations\BelongsToMany;`**: Nous avons importé la classe `BelongsToMany` qui est nécessaire pour définir les relations Many-to-Many.
+* **`public function profils(): BelongsToMany`**: Cette méthode définit la relation Many-to-Many avec le modèle `Profil`.
+    * **`Profil::class`**: Indique le modèle avec lequel la relation est établie.
+    * **`'user_profils'`**: Spécifie le nom de la table pivot (la table intermédiaire qui lie les utilisateurs aux profils).
+    * **`->withPivot('statut')`**: Inclut la colonne `'statut'` de la table pivot dans les objets de relation. Tu pourras accéder à cette colonne via `$user->profils->first()->pivot->statut`.
+    * **`->withTimestamps()`**: Gère automatiquement les colonnes `created_at` et `updated_at` dans la table pivot.
+
+**Après avoir mis à jour ton modèle `User.php`, le contrôleur et les vues que je t'ai fournis précédemment devraient fonctionner correctement pour l'assignation des profils.** Assure-toi que tu as bien le modèle `Profil.php` correspondant à ta table `profils`. Un modèle `Profil` de base pourrait ressembler à ceci :
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
+class Profil extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'intitule_profil',
+    ];
+
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_profils')
+                    ->withPivot('statut')
+                    ->withTimestamps();
+    }
+}
+```
+
+N'hésite pas si tu rencontres d'autres problèmes ou si tu as d'autres questions !
+
+
+
+
+
+
+
+Absolument ! Pour ajouter ou éditer le statut dans la table `user_profils` lors de l'assignation des profils à un utilisateur, nous allons apporter quelques modifications au formulaire d'édition des profils et à la logique de mise à jour dans le contrôleur.
+
+**1. Modification de la Vue `resources/views/admin/users/roles/edit.blade.php` (ouvre le fichier correspondant à l'édition des profils) :**
+
+Au lieu d'afficher une simple case à cocher pour chaque profil, nous allons afficher un sélecteur (dropdown) pour le statut de chaque profil associé à l'utilisateur.
+
+```blade
+@extends('admin')
+
+@section('title', '| Gérer les profils de l\'utilisateur : {{ $user->name }}')
+
+@section('content')
+    <div class="">
+        Gérer les profils de l'utilisateur : <span class="font-semibold">{{ $user->name }}</span>
+        <form class="space-y-8 mt-4" action="{{ route('admin.users.roles.update', $user) }}" method="post">
+            @csrf
+            @method('put')
+
+            <div class="space-y-4">
+                @forelse ($profils as $profil)
+                    <div class="flex items-center justify-between">
+                        <label for="profil_{{ $profil->id }}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {{ $profil->intitule_profil }}
+                        </label>
+                        <div>
+                            <select id="profil_{{ $profil->id }}" name="profils[{{ $profil->id }}][statut]"
+                                    class="w-40 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-dark-700 dark:text-white">
+                                <option value="">-- Choisir le statut --</option>
+                                <option value="actif" @if(isset($user->profils->find($profil->id)->pivot->statut) && $user->profils->find($profil->id)->pivot->statut === 'actif') selected @endif>Actif</option>
+                                <option value="inactif" @if(isset($user->profils->find($profil->id)->pivot->statut) && $user->profils->find($profil->id)->pivot->statut === 'inactif') selected @endif>Inactif</option>
+                                <option value="en_attente" @if(isset($user->profils->find($profil->id)->pivot->statut) && $user->profils->find($profil->id)->pivot->statut === 'en_attente') selected @endif>En attente</option>
+                                </select>
+                        </div>
+                    </div>
+                @empty
+                    <p class="text-gray-500">Aucun profil disponible.</p>
+                @endforelse
+            </div>
+
+            <div class="flex justify-end gap-4">
+                <a href="{{ route('admin.users.index') }}" type="button"
+                   class="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    Annuler
+                </a>
+                <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                    Mettre à jour les profils
+                </button>
+            </div>
+        </form>
+    </div>
+@endsection
+```
+
+**Explication des changements dans la vue :**
+
+* **Boucle sur les profils :** Nous bouclons toujours sur tous les profils disponibles (`$profils`).
+* **Sélecteur de statut :** Pour chaque profil, nous affichons un élément `<select>` nommé `profils[{{ $profil->id }}][statut]`.
+    * Le nom du sélecteur est un tableau associatif. L'ID du profil est la clé principale, et `statut` est la clé pour la valeur du statut. Cela nous permettra de récupérer facilement les statuts dans le contrôleur.
+    * Les options de statut (`actif`, `inactif`, `en\_attente`) sont fournies. Tu peux en ajouter d'autres selon tes besoins.
+    * La directive `@if` vérifie si l'utilisateur a déjà ce profil associé et sélectionne l'option de statut correspondante en utilisant la propriété `pivot` de la relation.
+* **Bouton de mise à jour :** Le texte du bouton a été changé pour refléter l'action de mise à jour des profils.
+
+**2. Modification du Contrôleur `Admin\UserController` (méthode `updateRoles`) :**
+
+Nous devons modifier la logique pour enregistrer les statuts lors de la synchronisation des profils.
+
+```php
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Profil;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
+
+class UserController extends Controller
+{
+    // ... (les autres méthodes : index, create, store, edit, destroy restent inchangées)
+
+    /**
+     * Show the form for editing the roles of the specified user.
+     */
+    public function editRoles(User $user)
+    {
+        $profils = Profil::all();
+        return view('admin.users.roles.edit', compact('user', 'profils'));
+    }
+
+    /**
+     * Update the roles of the specified user.
+     */
+    public function updateRoles(Request $request, User $user)
+    {
+        $profilsToSync = [];
+
+        foreach ($request->input('profils', []) as $profilId => $data) {
+            if (isset($data['statut'])) {
+                $profilsToSync[$profilId] = ['statut' => $data['statut']];
+            }
+        }
+
+        $user->profils()->sync($profilsToSync);
+
+        return redirect()->route('admin.users.index')->with('success', 'Profils de l\'utilisateur mis à jour.');
+    }
+}
+```
+
+**Explication des changements dans le contrôleur :**
+
+* **Récupération des statuts :** Dans la méthode `updateRoles`, nous parcourons le tableau `profils` envoyé par le formulaire. Pour chaque `profilId`, nous vérifions si la clé `statut` existe dans les données.
+* **Construction du tableau de synchronisation :** Nous créons un tableau `$profilsToSync` où les clés sont les IDs des profils et les valeurs sont des tableaux associatifs contenant le `statut`.
+* **Synchronisation avec les statuts :** Nous utilisons la méthode `sync` sur la relation `profils` de l'utilisateur, en passant le tableau `$profilsToSync`. La méthode `sync` est intelligente :
+    * Elle attachera les nouveaux profils.
+    * Elle mettra à jour le statut des profils existants.
+    * Elle détachera les profils qui ne sont plus présents dans le tableau.
+
+**Pour mettre à jour le statut d'un profil existant pour un utilisateur spécifique, il suffira de modifier le statut dans le sélecteur correspondant et de soumettre le formulaire.** Laravel s'occupera de mettre à jour la colonne `statut` dans la table pivot `user_profils` pour cette relation.
+
+N'hésite pas si tu as d'autres questions ou si tu souhaites affiner davantage cette fonctionnalité !
+
+

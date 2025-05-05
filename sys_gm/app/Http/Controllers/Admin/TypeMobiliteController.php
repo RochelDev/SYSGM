@@ -15,7 +15,6 @@ class TypeMobiliteController extends Controller
     public function index()
     {
         $type_mobilites = TypeMobilite::orderBy('created_at', 'desc')->paginate(5);
-
         return view('admin.type_mobilites.index', [
             'type_mobilites' => $type_mobilites,
         ]);
@@ -28,7 +27,7 @@ class TypeMobiliteController extends Controller
     public function create()
     {
         $type_mobilite = new TypeMobilite();
-        return view('admin.type_mobilites.create', compact('type_mobilite'));
+        return view('admin.type_mobilite.create', compact('type_mobilite'));
     }
 
     /**
@@ -47,7 +46,7 @@ class TypeMobiliteController extends Controller
      */
     public function edit(TypeMobilite $type_mobilite)
     {
-        return view('admin.type_mobilites.create', compact('type_mobilite'));
+        return view('admin.type_mobilite.create', compact('type_mobilite'));
     }
 
     /**

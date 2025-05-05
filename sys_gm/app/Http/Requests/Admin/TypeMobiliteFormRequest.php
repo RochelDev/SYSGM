@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class TypeMobiliteFormRequest extends FormRequest
@@ -11,7 +12,7 @@ class TypeMobiliteFormRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +23,7 @@ class TypeMobiliteFormRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'intitule_mobilite' => ['required', 'string', 'max:255', Rule::unique('type_mobilites')->ignore($this->type_mobilite)],
         ];
     }
 }

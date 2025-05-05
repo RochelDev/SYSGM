@@ -11,7 +11,7 @@ class TypePieceFormRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,8 @@ class TypePieceFormRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'nom' => ['required', 'string', 'max:255'],
+            'modeltype' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

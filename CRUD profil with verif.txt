@@ -1,0 +1,78 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Models\Profil;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\MakeProfilFormRequest;
+
+class ProfilAccessController extends Controller
+{
+    /**
+     * Affiche la liste des profils paginés.
+     */
+    public function index()
+    {
+        $profils = Profil::orderBy('created_at', 'desc')->paginate(5);
+
+        return view('admin.profils.index', compact('profils'));
+    }
+
+    /**
+     * Affiche le formulaire de création d'un profil.
+     */
+    public function create()
+    {
+        return view('admin.profils.create', [
+            'profil' => new Profil()
+        ]);
+    }
+
+    /**
+     * Enregistre un nouveau profil.
+     */
+    public function store(MakeProfilFormRequest $request)
+    {
+        try {
+            Profil::create($request->validated());
+            return to_route('admin.profils.index')->with('success', 'Profil créé avec succès!');
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Erreur lors de la création du profil');
+        }
+    }
+
+    /**
+     * Affiche le formulaire d'édition d'un profil.
+     */
+    public function edit(Profil $profil)
+    {
+        return view('admin.profils.create', compact('profil'));
+    }
+
+    /**
+     * Met à jour les informations d'un profil.
+     */
+    public function update(MakeProfilFormRequest $request, Profil $profil)
+    {
+        try {
+            $profil->update($request->validated());
+            return to_route('admin.profils.index')->with('success', 'Profil mis à jour avec succès!');
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Erreur lors de la mise à jour du profil');
+        }
+    }
+
+    /**
+     * Supprime un profil.
+     */
+    public function destroy(Profil $profil)
+    {
+        try {
+            $profil->delete();
+            return to_route('admin.profils.index')->with('success', 'Profil supprimé avec succès!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Erreur lors de la suppression du profil');
+        }
+    }
+}

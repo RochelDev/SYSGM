@@ -11,7 +11,7 @@ class StructureFormRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,9 @@ class StructureFormRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'code_structure' => ['required', 'string', 'max:10', 'unique::structures,code_structure' ],
+            'nom_structure' => ['required', 'string', 'max:255', 'unique::structures,nom_structure'],
+            'ministere_id' => ['required', 'integer', Rule::exists('ministeres', 'id')],
         ];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Structure;
+use App\Models\Ministere;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StructureFormRequest;
@@ -14,7 +15,7 @@ class StructureController extends Controller
      */
     public function index()
     {
-        $structures = Structure::orderBy('created_at', 'desc')->paginate(5);
+        $structures = Structure::with('ministere')->orderBy('created_at', 'desc')->paginate(10);
 
         return view('admin.structures.index', [
             'structures' => $structures,
@@ -28,7 +29,8 @@ class StructureController extends Controller
     public function create()
     {
         $structure = new Structure();
-        return view('admin.structures.create', compact('structure'));
+        $ministeres = Ministere::all(); // Ajoute cette ligne
+        return view('admin.structures.create', compact('structure', 'ministeres'));
     }
 
     /**
@@ -47,7 +49,8 @@ class StructureController extends Controller
      */
     public function edit(Structure $structure)
     {
-        return view('admin.structures.create', compact('structure'));
+        $ministeres = Ministere::all(); // Ajoute cette ligne
+        return view('admin.structures.create', compact('structure', 'ministeres'));
     }
 
     /**
