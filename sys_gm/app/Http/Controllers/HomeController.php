@@ -36,12 +36,12 @@ class HomeController extends Controller
     				}
 		    		else
 		    		{
-			    		return view('users.error'); //Ce profil n'est pas répertorié
+			    		return view('users.error'); // Erreur Ce profil n'est pas répertorié
     	    		}
 				}
 				else
 		    	{
-					return view('users.index'); //Ce profil n'est pas répertorié
+					return view('users.index'); // Vous n'avez pas encore de profil
     			}
 
     		}

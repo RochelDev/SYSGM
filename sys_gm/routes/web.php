@@ -21,6 +21,23 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+Route::get('/dossier', function () {
+    return view('pages.dossiers.index');
+})->name('dossier');
+
+
+Route::get('/home', function () {
+    return view('web.page');
+});
+
+// Route::get('/admin', function () {
+//     return view('admin.index');
+// })->name('admindashboard')->middleware(['auth', 'verified', 'admin']);
+
+// Route::get('/admin', function () {
+//     return view('admin.index');
+// })->name('admindashboard')->middleware(['auth', 'verified', 'admin']);
+
 Route::get('/dashboard', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth', 'verified', 'admin'])->prefix('/admin')->group(function () {

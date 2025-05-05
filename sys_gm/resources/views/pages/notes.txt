@@ -1,0 +1,735 @@
+
+Gestion des actions des utilisateurs et étape sur un dossier
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Dossier;
+use App\Models\User;
+use App\Models\Profil;
+use Illuminate\Support\Facades\DB;
+
+class DossierController extends Controller
+{
+    /**
+     * Ajoute un document au dossier d'un agent.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $dossierId
+     * @return \Illuminate\Http\Response
+     */
+    public function ajouterDocument(Request $request, $dossierId)
+    {
+        // Récupérer l'utilisateur actuellement authentifié
+        $user = Auth::user();
+
+        // Récupérer le profil actif de l'utilisateur
+        $profilActif = $user->profilActif();
+
+        // Récupérer le dossier
+        $dossier = Dossier::findOrFail($dossierId);
+
+        // Valider la requête
+        $request->validate([
+            'document' => 'required|file|mimes:pdf,doc,docx|max:2048', // Exemple de validation
+        ]);
+
+        // Enregistrer le document (exemple simplifié)
+        $cheminDocument = $request->file('document')->store('documents');
+
+        // Ajouter le document au dossier
+        $dossier->documents()->create([
+            'chemin' => $cheminDocument,
+            'nom' => $request->file('document')->getClientOriginalName(),
+            // Autres informations sur le document
+        ]);
+
+        // Enregistrer l'événement dans l'historique du dossier
+        $this->enregistrerEvenement($dossier, $user, $profilActif, "Document ajouté : " . $request->file('document')->getClientOriginalName());
+
+        // Passer le dossier à l'acteur suivant (exemple simplifié)
+        $this->passerDossierALacteurSuivant($dossier);
+
+        return redirect()->back()->with('success', 'Document ajouté avec succès.');
+    }
+
+    /**
+     * Met à jour le statut du dossier.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $dossierId
+     * @return \Illuminate\Http\Response
+     */
+    public function mettreAJourStatut(Request $request, $dossierId)
+    {
+        // Récupérer l'utilisateur actuellement authentifié
+        $user = Auth::user();
+
+        // Récupérer le profil actif de l'utilisateur
+        $profilActif = $user->profilActif();
+
+        // Récupérer le dossier
+        $dossier = Dossier::findOrFail($dossierId);
+
+        // Valider la requête
+        $request->validate([
+            'statut' => 'required|string|in:en_cours,traité,validé,rejeté', // Exemple de validation
+        ]);
+
+        // Mettre à jour le statut du dossier
+        $dossier->statut = $request->statut;
+        $dossier->save();
+
+        // Enregistrer l'événement dans l'historique du dossier
+        $this->enregistrerEvenement($dossier, $user, $profilActif, "Statut mis à jour : " . $request->statut);
+
+        // Passer le dossier à l'acteur suivant (exemple simplifié)
+        $this->passerDossierALacteurSuivant($dossier);
+
+        return redirect()->back()->with('success', 'Statut du dossier mis à jour.');
+    }
+
+    /**
+     * Valide une étape du dossier.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $dossierId
+     * @param  int  $etapeId
+     * @return \Illuminate\Http\Response
+     */
+    public function validerEtape(Request $request, $dossierId, $etapeId)
+    {
+        // Récupérer l'utilisateur actuellement authentifié
+        $user = Auth::user();
+
+        // Récupérer le profil actif de l'utilisateur
+        $profilActif = $user->profilActif();
+
+        // Récupérer le dossier
+        $dossier = Dossier::findOrFail($dossierId);
+
+        // Valider l'étape (exemple simplifié)
+        $etape = $dossier->etapes()->findOrFail($etapeId);
+        $etape->valide = true;
+        $etape->save();
+
+        // Enregistrer l'événement dans l'historique du dossier
+        $this->enregistrerEvenement($dossier, $user, $profilActif, "Étape validée : " . $etape->nom);
+
+        // Passer le dossier à l'acteur suivant (exemple simplifié)
+        $this->passerDossierALacteurSuivant($dossier);
+
+        return redirect()->back()->with('success', 'Étape validée.');
+    }
+
+    /**
+     * Enregistre un événement dans l'historique du dossier.
+     *
+     * @param  \App\Models\Dossier  $dossier
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Profil  $profilActif
+     * @param  string  $evenement
+     * @return void
+     */
+    private function enregistrerEvenement(Dossier $dossier, User $user, Profil $profilActif, string $evenement)
+    {
+        $dossier->historique()->create([
+            'utilisateur_id' => $user->id,
+            'nom_utilisateur' => $user->name, // ou nom et prénom
+            'profil_utilisateur' => $profilActif->nom_profil,
+            'evenement' => $evenement,
+            'date_evenement' => now(),
+        ]);
+    }
+
+    private function passerDossierALacteurSuivant(Dossier $dossier)
+    {
+        // Logique pour déterminer l'acteur suivant en fonction du workflow du dossier
+        // Ceci est un exemple très simplifié.  Vous devrez adapter ceci à votre logique métier.
+
+        $etapeActuelle = $dossier->etape_actuelle; // Supposons que votre modèle Dossier a une colonne etape_actuelle
+        $workflow = $dossier->workflow; // Supposons que votre modèle Dossier a une relation avec Workflow
+
+        if ($workflow) {
+            $etapes = $workflow->etapes()->orderBy('ordre')->get(); // Assurez-vous que les étapes ont un ordre
+            $indexEtapeActuelle = $etapes->search(function ($etape) use ($etapeActuelle) {
+                return $etape->id === $etapeActuelle;
+            });
+
+            if ($indexEtapeActuelle !== false && $indexEtapeActuelle < $etapes->count() - 1) {
+                $etapeSuivante = $etapes[$indexEtapeActuelle + 1];
+                $dossier->etape_actuelle = $etapeSuivante->id;
+                $dossier->save();
+
+                 // Notifier l'acteur suivant (exemple simplifié)
+                if ($etapeSuivante->acteur) { // Предположим, что у вас есть связь "acteur"
+                    $acteurSuivant = $etapeSuivante->acteur;
+                    // Envoyer une notification à l'acteur suivant
+                    // Например: Mail::to($acteurSuivant->email)->send(new NouveauDossier($dossier));
+                }
+            }
+        }
+    }
+}
+?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Gestion du suivi de dossier par l'agent.
+
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Dossier;
+use App\Models\User;
+use App\Models\Profil;
+use Illuminate\Support\Facades\DB;
+
+class DossierController extends Controller
+{
+    /**
+     * Ajoute un document au dossier d'un agent.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $dossierId
+     * @return \Illuminate\Http\Response
+     */
+    public function ajouterDocument(Request $request, $dossierId)
+    {
+        // Récupérer l'utilisateur actuellement authentifié
+        $user = Auth::user();
+
+        // Récupérer le profil actif de l'utilisateur
+        $profilActif = $user->profilActif();
+
+        // Récupérer le dossier
+        $dossier = Dossier::findOrFail($dossierId);
+
+        // Valider la requête
+        $request->validate([
+            'document' => 'required|file|mimes:pdf,doc,docx|max:2048', // Exemple de validation
+        ]);
+
+        // Enregistrer le document (exemple simplifié)
+        $cheminDocument = $request->file('document')->store('documents');
+
+        // Ajouter le document au dossier
+        $dossier->documents()->create([
+            'chemin' => $cheminDocument,
+            'nom' => $request->file('document')->getClientOriginalName(),
+            // Autres informations sur le document
+        ]);
+
+        // Enregistrer l'événement dans l'historique du dossier
+        $this->enregistrerEvenement($dossier, $user, $profilActif, "Document ajouté : " . $request->file('document')->getClientOriginalName());
+
+        // Passer le dossier à l'acteur suivant (exemple simplifié)
+        $this->passerDossierALacteurSuivant($dossier);
+
+        return redirect()->back()->with('success', 'Document ajouté avec succès.');
+    }
+
+    /**
+     * Met à jour le statut du dossier.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $dossierId
+     * @return \Illuminate\Http\Response
+     */
+    public function mettreAJourStatut(Request $request, $dossierId)
+    {
+        // Récupérer l'utilisateur actuellement authentifié
+        $user = Auth::user();
+
+        // Récupérer le profil actif de l'utilisateur
+        $profilActif = $user->profilActif();
+
+        // Récupérer le dossier
+        $dossier = Dossier::findOrFail($dossierId);
+
+        // Valider la requête
+        $request->validate([
+            'statut' => 'required|string|in:en_cours,traité,validé,rejeté', // Exemple de validation
+        ]);
+
+        // Mettre à jour le statut du dossier
+        $dossier->statut = $request->statut;
+        $dossier->save();
+
+        // Enregistrer l'événement dans l'historique du dossier
+        $this->enregistrerEvenement($dossier, $user, $profilActif, "Statut mis à jour : " . $request->statut);
+
+        // Passer le dossier à l'acteur suivant (exemple simplifié)
+        $this->passerDossierALacteurSuivant($dossier);
+
+        return redirect()->back()->with('success', 'Statut du dossier mis à jour.');
+    }
+
+    /**
+     * Valide une étape du dossier.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $dossierId
+     * @param  int  $etapeId
+     * @return \Illuminate\Http\Response
+     */
+    public function validerEtape(Request $request, $dossierId, $etapeId)
+    {
+        // Récupérer l'utilisateur actuellement authentifié
+        $user = Auth::user();
+
+        // Récupérer le profil actif de l'utilisateur
+        $profilActif = $user->profilActif();
+
+        // Récupérer le dossier
+        $dossier = Dossier::findOrFail($dossierId);
+
+        // Valider l'étape (exemple simplifié)
+        $etape = $dossier->etapes()->findOrFail($etapeId);
+        $etape->valide = true;
+        $etape->save();
+
+        // Enregistrer l'événement dans l'historique du dossier
+        $this->enregistrerEvenement($dossier, $user, $profilActif, "Étape validée : " . $etape->nom);
+
+        // Passer le dossier à l'acteur suivant (exemple simplifié)
+        $this->passerDossierALacteurSuivant($dossier);
+
+        return redirect()->back()->with('success', 'Étape validée.');
+    }
+
+    /**
+     * Enregistre un événement dans l'historique du dossier.
+     *
+     * @param  \App\Models\Dossier  $dossier
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Profil  $profilActif
+     * @param  string  $evenement
+     * @return void
+     */
+    private function enregistrerEvenement(Dossier $dossier, User $user, Profil $profilActif, string $evenement)
+    {
+        $dossier->historique()->create([
+            'utilisateur_id' => $user->id,
+            'nom_utilisateur' => $user->name, // ou nom et prénom
+            'profil_utilisateur' => $profilActif->nom_profil,
+            'evenement' => $evenement,
+            'date_evenement' => now(),
+        ]);
+    }
+
+    private function passerDossierALacteurSuivant(Dossier $dossier)
+    {
+        // Logique pour déterminer l'acteur suivant en fonction du workflow du dossier
+        // Ceci est un exemple très simplifié.  Vous devrez adapter ceci à votre logique métier.
+
+        $etapeActuelle = $dossier->etape_actuelle; // Supposons que votre modèle Dossier a une colonne etape_actuelle
+        $workflow = $dossier->workflow; // Supposons que votre modèle Dossier a une relation avec Workflow
+
+        if ($workflow) {
+            $etapes = $workflow->etapes()->orderBy('ordre')->get(); // Assurez-vous que les étapes ont un ordre
+            $indexEtapeActuelle = $etapes->search(function ($etape) use ($etapeActuelle) {
+                return $etape->id === $etapeActuelle;
+            });
+
+            if ($indexEtapeActuelle !== false && $indexEtapeActuelle < $etapes->count() - 1) {
+                $etapeSuivante = $etapes[$indexEtapeActuelle + 1];
+                $dossier->etape_actuelle = $etapeSuivante->id;
+                $dossier->save();
+
+                 // Notifier l'acteur suivant (exemple simplifié)
+                if ($etapeSuivante->acteur) { // Предположим, что у вас есть связь "acteur"
+                    $acteurSuivant = $etapeSuivante->acteur;
+                    // Envoyer une notification à l'acteur suivant
+                    // Например: Mail::to($acteurSuivant->email)->send(new NouveauDossier($dossier));
+                }
+            }
+        }
+    }
+
+     /**
+     * Affiche l'historique des événements d'un dossier spécifique.
+     *
+     * @param  int  $dossierId
+     * @return \Illuminate\Http\Response
+     */
+    public function voirHistoriqueDossier($dossierId)
+    {
+        // Récupérer le dossier avec son historique
+        $dossier = Dossier::with('historique')->findOrFail($dossierId);
+
+        // Vérifier si l'utilisateur a le droit de voir ce dossier
+        $user = Auth::user();
+        if (!$this->peutVoirDossier($user, $dossier)) {
+            abort(403, "Vous n'êtes pas autorisé à consulter ce dossier.");
+        }
+
+        // Passer l'historique à la vue
+        return view('dossiers.historique', compact('dossier'));
+    }
+
+    /**
+     * Vérifie si un utilisateur a le droit de voir un dossier.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Dossier  $dossier
+     * @return bool
+     */
+    private function peutVoirDossier(User $user, Dossier $dossier): bool
+    {
+        // Logique pour déterminer si l'utilisateur a le droit de voir le dossier
+        // Ceci est un exemple très simplifié.  Vous devrez adapter ceci à votre logique métier.
+        // Par exemple, vous pouvez vérifier si l'utilisateur est l'agent qui a créé le dossier,
+        // ou si le dossier est assigné à son service, ou si l'utilisateur a un rôle avec
+        // la permission de voir tous les dossiers.
+
+        // Exemple 1 : Seul l'agent qui a créé le dossier peut le voir
+        // return $dossier->utilisateur_id === $user->id;
+
+        // Exemple 2 : L'utilisateur peut voir le dossier si il est dans le meme service
+         if ($user->service_id && $dossier->service_id) {
+             return $user->service_id === $dossier->service_id;
+         }
+
+        // Exemple 3 : L'utilisateur a un rôle avec la permission de voir tous les dossiers
+        // return $user->hasPermissionTo('voir_tous_les_dossiers'); // Si vous utilisez un package de permissions
+
+        // Exemple 4: Si l'utilisateur est l'acteur courant du dossier
+        return $dossier->etape_actuelle->acteur_id === $user->id;
+
+        // Par défaut : Refuser l'accès
+        return false;
+    }
+}
+
+
+
+
+
+
+Gestion de l'accès au dossier par ministère
+
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Dossier;
+use App\Models\User;
+use App\Models\Profil;
+use Illuminate\Support\Facades\DB;
+
+class DossierController extends Controller
+{
+    /**
+     * Ajoute un document au dossier d'un agent.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $dossierId
+     * @return \Illuminate\Http\Response
+     */
+    public function ajouterDocument(Request $request, $dossierId)
+    {
+        // Récupérer l'utilisateur actuellement authentifié
+        $user = Auth::user();
+
+        // Récupérer le profil actif de l'utilisateur
+        $profilActif = $user->profilActif();
+
+        // Récupérer le dossier
+        $dossier = Dossier::findOrFail($dossierId);
+
+        // Valider la requête
+        $request->validate([
+            'document' => 'required|file|mimes:pdf,doc,docx|max:2048', // Exemple de validation
+        ]);
+
+        // Enregistrer le document (exemple simplifié)
+        $cheminDocument = $request->file('document')->store('documents');
+
+        // Ajouter le document au dossier
+        $dossier->documents()->create([
+            'chemin' => $cheminDocument,
+            'nom' => $request->file('document')->getClientOriginalName(),
+            // Autres informations sur le document
+        ]);
+
+        // Enregistrer l'événement dans l'historique du dossier
+        $this->enregistrerEvenement($dossier, $user, $profilActif, "Document ajouté : " . $request->file('document')->getClientOriginalName());
+
+        // Passer le dossier à l'acteur suivant (exemple simplifié)
+        $this->passerDossierALacteurSuivant($dossier);
+
+        return redirect()->back()->with('success', 'Document ajouté avec succès.');
+    }
+
+    /**
+     * Met à jour le statut du dossier.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $dossierId
+     * @return \Illuminate\Http\Response
+     */
+    public function mettreAJourStatut(Request $request, $dossierId)
+    {
+        // Récupérer l'utilisateur actuellement authentifié
+        $user = Auth::user();
+
+        // Récupérer le profil actif de l'utilisateur
+        $profilActif = $user->profilActif();
+
+        // Récupérer le dossier
+        $dossier = Dossier::findOrFail($dossierId);
+
+        // Valider la requête
+        $request->validate([
+            'statut' => 'required|string|in:en_cours,traité,validé,rejeté', // Exemple de validation
+        ]);
+
+        // Mettre à jour le statut du dossier
+        $dossier->statut = $request->statut;
+        $dossier->save();
+
+        // Enregistrer l'événement dans l'historique du dossier
+        $this->enregistrerEvenement($dossier, $user, $profilActif, "Statut mis à jour : " . $request->statut);
+
+        // Passer le dossier à l'acteur suivant (exemple simplifié)
+        $this->passerDossierALacteurSuivant($dossier);
+
+        return redirect()->back()->with('success', 'Statut du dossier mis à jour.');
+    }
+
+    /**
+     * Valide une étape du dossier.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $dossierId
+     * @param  int  $etapeId
+     * @return \Illuminate\Http\Response
+     */
+    public function validerEtape(Request $request, $dossierId, $etapeId)
+    {
+        // Récupérer l'utilisateur actuellement authentifié
+        $user = Auth::user();
+
+        // Récupérer le profil actif de l'utilisateur
+        $profilActif = $user->profilActif();
+
+        // Récupérer le dossier
+        $dossier = Dossier::findOrFail($dossierId);
+
+        // Valider l'étape (exemple simplifié)
+        $etape = $dossier->etapes()->findOrFail($etapeId);
+        $etape->valide = true;
+        $etape->save();
+
+        // Enregistrer l'événement dans l'historique du dossier
+        $this->enregistrerEvenement($dossier, $user, $profilActif, "Étape validée : " . $etape->nom);
+
+        // Passer le dossier à l'acteur suivant (exemple simplifié)
+        $this->passerDossierALacteurSuivant($dossier);
+
+        return redirect()->back()->with('success', 'Étape validée.');
+    }
+
+    /**
+     * Enregistre un événement dans l'historique du dossier.
+     *
+     * @param  \App\Models\Dossier  $dossier
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Profil  $profilActif
+     * @param  string  $evenement
+     * @return void
+     */
+    private function enregistrerEvenement(Dossier $dossier, User $user, Profil $profilActif, string $evenement)
+    {
+        $dossier->historique()->create([
+            'utilisateur_id' => $user->id,
+            'nom_utilisateur' => $user->name, // ou nom et prénom
+            'profil_utilisateur' => $profilActif->nom_profil,
+            'evenement' => $evenement,
+            'date_evenement' => now(),
+        ]);
+    }
+
+    private function passerDossierALacteurSuivant(Dossier $dossier)
+    {
+        // Logique pour déterminer l'acteur suivant en fonction du workflow du dossier
+        // Ceci est un exemple très simplifié.  Vous devrez adapter ceci à votre logique métier.
+
+        $etapeActuelle = $dossier->etape_actuelle; // Supposons que votre modèle Dossier a une colonne etape_actuelle
+        $workflow = $dossier->workflow; // Supposons que votre modèle Dossier a une relation avec Workflow
+
+        if ($workflow) {
+            $etapes = $workflow->etapes()->orderBy('ordre')->get(); // Assurez-vous que les étapes ont un ordre
+            $indexEtapeActuelle = $etapes->search(function ($etape) use ($etapeActuelle) {
+                return $etape->id === $etapeActuelle;
+            });
+
+            if ($indexEtapeActuelle !== false && $indexEtapeActuelle < $etapes->count() - 1) {
+                $etapeSuivante = $etapes[$indexEtapeActuelle + 1];
+                $dossier->etape_actuelle = $etapeSuivante->id;
+                $dossier->save();
+
+                 // Notifier l'acteur suivant (exemple simplifié)
+                if ($etapeSuivante->acteur) { // Предположим, что у вас есть связь "acteur"
+                    $acteurSuivant = $etapeSuivante->acteur;
+                    // Envoyer une notification à l'acteur suivant
+                    // Например: Mail::to($acteurSuivant->email)->send(new NouveauDossier($dossier));
+                }
+            }
+        }
+    }
+
+     /**
+     * Affiche l'historique des événements d'un dossier spécifique.
+     *
+     * @param  int  $dossierId
+     * @return \Illuminate\Http\Response
+     */
+    public function voirHistoriqueDossier($dossierId)
+    {
+        // Récupérer le dossier avec son historique
+        $dossier = Dossier::with('historique')->findOrFail($dossierId);
+
+        // Vérifier si l'utilisateur a le droit de voir ce dossier
+        $user = Auth::user();
+        if (!$this->peutVoirDossier($user, $dossier)) {
+            abort(403, "Vous n'êtes pas autorisé à consulter ce dossier.");
+        }
+
+        // Passer l'historique à la vue
+        return view('dossiers.historique', compact('dossier'));
+    }
+
+    /**
+     * Vérifie si un utilisateur a le droit de voir un dossier.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Dossier  $dossier
+     * @return bool
+     */
+    private function peutVoirDossier(User $user, Dossier $dossier): bool
+    {
+        // Logique pour déterminer si l'utilisateur a le droit de voir le dossier
+        // Ceci est un exemple qui prend en compte l'appartenance au ministère et les dossiers reçus.
+        // Vous devrez adapter ceci à votre logique métier.
+
+        // Récupérer l'ID du ministère de l'utilisateur
+        $userMinistereId = $user->ministere_id; // Assurez-vous que votre modèle User a une relation avec le ministère
+
+        // Récupérer l'ID du ministère du dossier
+        $dossierMinistereId = $dossier->ministere_id; // Assurez-vous que votre modèle Dossier a une relation avec le ministère
+
+        // Cas 1 : L'utilisateur et le dossier sont dans le même ministère
+        if ($userMinistereId === $dossierMinistereId) {
+            return true;
+        }
+
+        // Cas 2 : Le dossier a été envoyé au ministère de l'utilisateur depuis un autre ministère
+        // Pour cela, vous devez avoir un champ (ou une relation) qui indique le ministère d'origine du dossier
+        $dossierEnvoyeDeMinistereId = $dossier->envoye_de_ministere_id; // Exemple de champ
+
+        if ($dossierEnvoyeDeMinistereId === $userMinistereId) {
+            return true;
+        }
+
+        // Cas 3 : Cas particulier du Ministère de la fonction publique (à adapter)
+        if ($userMinistereId === 1) { // Supposons que l'ID du Ministère de la fonction publique est 1
+            // Vérifier si le dossier nécessite l'intervention du DRSC
+            $interventionDRSC = $dossier->intervention_dpsc; // Exemple de champ ou de relation
+
+            if ($interventionDRSC) {
+                 // Vérifier si l'utilisateur est un acteur du DRSC
+                $userEstDRSCActeur = $user->estDRSCActeur(); // Exemple de méthode dans le modèle User
+
+                return $userEstDRSCActeur;
+            }
+        }
+
+        // Par défaut : Refuser l'accès
+        return false;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+migration
+
+php artisan make:migration add_ministere_id_to_users_table
+
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class AddMinistereIdToUsers extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::table('users', function (Blueprint $table) {
+            // Ajoute la colonne ministere_id à la table users.
+            $table->unsignedBigInteger('ministere_id')->nullable();
+
+            // Définit la colonne ministere_id comme une clé étrangère, référençant la colonne id de la table ministeres.
+            $table->foreign('ministere_id')
+                  ->references('id')
+                  ->on('ministeres')
+                  ->onDelete('set null'); // Si un ministère est supprimé, la valeur de ministere_id pour les utilisateurs de ce ministère sera mise à null.
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::table('users', function (Blueprint $table) {
+            // Supprime la clé étrangère ministere_id.
+            $table->dropForeign(['ministere_id']);
+
+            // Supprime la colonne ministere_id.
+            $table->dropColumn('ministere_id');
+        });
+    }
+}
+
+
