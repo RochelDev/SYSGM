@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Models\Profil; // Importez le modèle Profil
 use App\Models\User;
+use App\Models\Ministere;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
+use App\Models\Profil; // Importez le modèle Profil
 
 class UserController extends Controller
 {
@@ -17,7 +18,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with('profils')->paginate(10); // Paginer les utilisateurs
+        $users = User::with('profils', 'ministere')->paginate(10); // Paginer les utilisateurs
         
         return view('admin.users.index', compact('users'));
     }
@@ -29,7 +30,8 @@ class UserController extends Controller
     {
         $user = new User(); // Créer une instance vide pour le formulaire
         $profils = Profil::all(); // Récupérer tous les profils
-        return view('admin.users.create', compact('user', 'profils'));
+        $ministeres = Ministere::all(); // Ajoute cette ligne pour ministeres
+        return view('admin.users.create', compact('user', 'profils' , 'ministeres'));
     }
 
     /**
@@ -40,6 +42,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'ministere_id' => ['nullable', 'integer', 'exists:ministeres,id'],
             'password' => ['required', 'confirmed', Password::min(8)],
             'profils' => ['nullable', 'array'], // Autoriser la sélection de plusieurs profils
             'profils.*' => ['exists:profils,id'], // Vérifier que les IDs de profils existent
@@ -66,7 +69,8 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $profils = Profil::all(); // Récupérer tous les profils
-        return view('admin.users.edit', compact('user', 'profils'));
+        $ministeres = Ministere::all();
+        return view('admin.users.edit', compact('user', 'profils', 'ministeres'));
     }
 
     /**
@@ -77,6 +81,7 @@ class UserController extends Controller
         $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'ministere_id' => ['nullable', 'integer', 'exists:ministeres,id'],
             'profils' => ['nullable', 'array'],
             'profils.*' => ['exists:profils,id'],
         ];
@@ -93,6 +98,7 @@ class UserController extends Controller
 
         $user->name = $request->name;
         $user->email = $request->email;
+        $user->ministere_id = $request->ministere_id;
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }

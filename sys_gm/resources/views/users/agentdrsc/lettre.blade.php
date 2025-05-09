@@ -1,10 +1,10 @@
-@extends('admin')
+@extends('dashboard')
 
-@section('title', '| Affectation')
+@section('title', '| Document')
 
 @section('content')
     <!-- Affectation -->
     <div class="">
-        Editer un agent
+        Générer document
     </div>
 @endsection

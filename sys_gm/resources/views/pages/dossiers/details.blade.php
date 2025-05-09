@@ -7,44 +7,30 @@
     <div class="">
         <div class="fade-in">
             <div class="mb-6">
-                <button
-                    class="inline-flex items-center text-gray-600 hover:text-gray-800 mb-4"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="lucide lucide-arrow-left mr-1"
-                    >
+                <button class="inline-flex items-center text-gray-600 hover:text-gray-800 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left mr-1">
                         <path d="m12 19-7-7 7-7"></path>
-                        <path d="M19 12H5"></path></svg
-                    >Retour aux demandes
+                        <path d="M19 12H5"></path></svg>
+                    Retour aux demandes
                 </button>
-                <div
-                    class="flex flex-col md:flex-row md:items-center md:justify-between"
-                >
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                     <div>
                         <h1 class="text-2xl font-bold text-gray-800 mb-2">
                             Demande #1001
                         </h1>
                         <div class="flex items-center">
-                            <span
-                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-2"
-                                >Approuvée</span
-                            ><span class="text-gray-600">Soumise le 10/03/2025</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-2">
+                                Approuvée
+                            </span>
+                            <span class="text-gray-600">Soumise le 10/03/2025</span>
                         </div>
                     </div>
                 </div>
             </div>
+            
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2">
-                    <div class="card mb-6">
+                    <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 mb-6">
                         <div class="p-6 border-b border-gray-100">
                             <h2 class="text-lg font-semibold text-gray-800">
                                 Détails de la demande
@@ -138,58 +124,21 @@
                                             <path d="M16 17H8"></path>
                                         </svg>
                                         <div class="flex-1">
-                                            <p
-                                                class="text-sm font-medium text-gray-800"
-                                            >
+                                            <p class="text-sm font-medium text-gray-800">
                                                 Demande_signée.pdf
                                             </p>
                                             <p class="text-xs text-gray-500">1.2 MB</p>
                                         </div>
-                                        <button
-                                            class="p-2 text-[#0F2C59] hover:text-[#4CB9E7] transition-colors"
-                                        >
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="18"
-                                                height="18"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                stroke-width="2"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                class="lucide lucide-download"
-                                            >
-                                                <path
-                                                    d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                                                ></path>
-                                                <polyline
-                                                    points="7 10 12 15 17 10"
-                                                ></polyline>
-                                                <line
-                                                    x1="12"
-                                                    x2="12"
-                                                    y1="15"
-                                                    y2="3"
-                                                ></line>
+                                        <button class="p-2 text-[#0F2C59] hover:text-[#4CB9E7] transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" >
+                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                                <polyline points="7 10 12 15 17 10"></polyline>
+                                                <line x1="12" x2="12" y1="15" y2="3"></line>
                                             </svg>
                                         </button>
                                     </div>
-                                    <div
-                                        class="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50"
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="20"
-                                            height="20"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            class="lucide lucide-file-text text-gray-500 mr-3"
-                                        >
+                                    <div class="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text text-gray-500 mr-3">
                                             <path
                                                 d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"
                                             ></path>
@@ -301,7 +250,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card mb-6">
+                    <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 mb-6">
                         <div class="p-6 border-b border-gray-100">
                             <h2 class="text-lg font-semibold text-gray-800">
                                 Historique de la demande
@@ -462,116 +411,10 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card">
-                        <div class="p-6 border-b border-gray-100">
-                            <div class="flex items-center">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="20"
-                                    height="20"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    class="lucide lucide-message-circle text-gray-500 mr-2"
-                                >
-                                    <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path>
-                                </svg>
-                                <h2 class="text-lg font-semibold text-gray-800">
-                                    Commentaires
-                                </h2>
-                            </div>
-                        </div>
-                        <div class="p-6">
-                            <div class="space-y-6">
-                                <div
-                                    class="border-b border-gray-100 pb-4 last:border-0 last:pb-0"
-                                >
-                                    <div class="flex items-start">
-                                        <div
-                                            class="h-10 w-10 rounded-full bg-[#0F2C59] flex items-center justify-center text-white"
-                                        >
-                                            A
-                                        </div>
-                                        <div class="ml-3">
-                                            <div class="flex items-baseline">
-                                                <h3
-                                                    class="text-sm font-medium text-gray-800"
-                                                >
-                                                    Amadou Diallo
-                                                </h3>
-                                                <p class="ml-2 text-xs text-gray-500">
-                                                    Directeur RH
-                                                </p>
-                                            </div>
-                                            <p class="mt-1 text-sm text-gray-600">
-                                                Je valide cette demande. L'agent a les
-                                                compétences requises.
-                                            </p>
-                                            <p class="mt-1 text-xs text-gray-500">
-                                                14/03/2025
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div
-                                    class="border-b border-gray-100 pb-4 last:border-0 last:pb-0"
-                                >
-                                    <div class="flex items-start">
-                                        <div
-                                            class="h-10 w-10 rounded-full bg-[#0F2C59] flex items-center justify-center text-white"
-                                        >
-                                            M
-                                        </div>
-                                        <div class="ml-3">
-                                            <div class="flex items-baseline">
-                                                <h3
-                                                    class="text-sm font-medium text-gray-800"
-                                                >
-                                                    Marie Acogny
-                                                </h3>
-                                                <p class="ml-2 text-xs text-gray-500">
-                                                    Directrice Budget
-                                                </p>
-                                            </div>
-                                            <p class="mt-1 text-sm text-gray-600">
-                                                Nous sommes favorables à cette mutation.
-                                            </p>
-                                            <p class="mt-1 text-xs text-gray-500">
-                                                15/03/2025
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <form class="mt-6">
-                                <div class="mb-4">
-                                    <label for="comment" class="sr-only"
-                                        >Ajouter un commentaire</label
-                                    ><textarea
-                                        id="comment"
-                                        rows="3"
-                                        class="input-field"
-                                        placeholder="Ajoutez un commentaire..."
-                                    ></textarea>
-                                </div>
-                                <div class="flex justify-end">
-                                    <button
-                                        type="submit"
-                                        class="btn btn-primary"
-                                        disabled=""
-                                    >
-                                        Ajouter un commentaire
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
                 </div>
+                
                 <div>
-                    <div class="card mb-6">
+                    <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 mb-6">
                         <div class="p-6 border-b border-gray-100">
                             <h2 class="text-lg font-semibold text-gray-800">
                                 Détails de l'agent
@@ -642,7 +485,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card mb-6">
+                    <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 mb-6">
                         <div class="p-6 border-b border-gray-100">
                             <h2 class="text-lg font-semibold text-gray-800">
                                 Approbation
@@ -684,15 +527,13 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card">
+                    <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
                         <div class="p-6 border-b border-gray-100">
                             <h2 class="text-lg font-semibold text-gray-800">Actions</h2>
                         </div>
                         <div class="p-6">
                             <div class="space-y-3">
-                                <button
-                                    class="btn btn-secondary w-full flex items-center justify-center"
-                                >
+                                <button class="btn btn-secondary w-full flex items-center justify-center">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="18"
@@ -714,8 +555,8 @@
                                             x2="12"
                                             y1="15"
                                             y2="3"
-                                        ></line></svg
-                                    >Exporter en PDF
+                                        ></line></svg>
+                                    Exporter en PDF
                                 </button>
                             </div>
                         </div>
@@ -723,6 +564,5 @@
                 </div>
             </div>
         </div>
-        
     </div>
 @endsection

@@ -17,7 +17,7 @@ class HomeController extends Controller
 			$user = Auth::user();
 		    $usertype=$user->usertype;
 
-		    if($usertype=='user')
+		    if($usertype =='user')
 		    {
 				$profilActif = $user->profilActif();
 
@@ -34,6 +34,14 @@ class HomeController extends Controller
 		    		{
 			    		return view('users.responsable.index');
     				}
+					else if($profilActif->intitule_profil == 'Service RH')
+		    		{
+			    		return view('users.servicerh.index');
+    				}
+					else if($profilActif->intitule_profil == 'Agent DRSC')
+		    		{
+			    		return view('users.agentdrsc.index');
+    				}
 		    		else
 		    		{
 			    		return view('users.error'); // Erreur Ce profil n'est pas répertorié
@@ -45,8 +53,37 @@ class HomeController extends Controller
     			}
 
     		}
-		    else if($usertype=='admin')
+		    else if($usertype =='admin')
 		    {
+				$profilActif = $user->profilActif();
+
+				if ($profilActif) {
+					if($profilActif->intitule_profil == 'Agent')
+		    		{
+			    		return view('users.agents.index');
+    				}
+		    		else if($profilActif->intitule_profil == 'Ordonnateur Sectoriel')
+		    		{
+			    		return view('users.ordonnateur.index');
+    				}
+					else if($profilActif->intitule_profil == 'Responsable Sectoriel')
+		    		{
+			    		return view('users.responsable.index');
+    				}
+					else if($profilActif->intitule_profil == 'Service RH')
+		    		{
+			    		return view('users.servicerh.index');
+    				}
+					else if($profilActif->intitule_profil == 'Agent DRSC')
+		    		{
+			    		return view('users.agentdrsc.index');
+    				}
+		    		else
+		    		{
+			    		return view('users.error'); // Erreur Ce profil n'est pas répertorié
+    	    		}
+				}
+				
 			    return redirect()->route('admindashboard');
     		}
 		    else

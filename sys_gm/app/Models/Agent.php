@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Agent extends Model
 {
@@ -28,6 +28,7 @@ class Agent extends Model
         'date_recrutement',
         'date_debut_service',
         'user_id',
+        'ministere_id',
     ];
 
     /**
@@ -38,6 +39,16 @@ class Agent extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * The ministere that belong to the Agent
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function ministere(): BelongsTo
+    {
+        return $this->belongsTo(Ministere::class);
     }
 
     /**
@@ -63,6 +74,8 @@ class Agent extends Model
                     ->withPivot(['poste_id', 'date_recrutement', 'date_debut_service'])
                     ->withTimestamps();
     }
+
+    
 
     /**
      * Get all of the dossiers for the Agent

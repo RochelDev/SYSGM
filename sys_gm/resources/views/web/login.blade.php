@@ -4,11 +4,20 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>tailwind css Login Componentes</title>
-    <!-- tailwind css cdn -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Tailwind css</title>
 
+    <!-- google font link -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+
+    <!-- Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+<body>
+    
+
+@include('web.shared.header')
+
 <body class="w-full h-screen flex justify-center items-center bg-slate-100">
     <div class="w-full max-w-sm rounded-lg border border-gray-200 bg-white p-4 shadow-lg shadow-indigo-600/10 dark:border-gray-700 dark:bg-gray-800 sm:p-6 md:p-8">
         <form class="space-y-6" action="#">
@@ -35,5 +44,7 @@
         </form>
       </div>
       
-</body>
-</html>
+      @include('web.shared.footer')
+
+    </body>
+    </html>

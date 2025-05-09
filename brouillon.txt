@@ -1483,6 +1483,10 @@ class User extends Authenticatable
     
 }
 
+git branch
+git add .
+git commit -m "Nom du commit"
+git push origin Nomdebranch
 
 
 <?php
@@ -1560,3 +1564,332 @@ class HomeController extends Controller
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Soit le header de mon interface suivant: 
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+    <head>
+        @include('partials.head')
+    </head>
+    <body class="min-h-screen bg-white dark:bg-zinc-800">
+        <flux:header container class="border-b border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
+            <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
+
+            <a href="{{ route('dashboard') }}" class="ms-2 me-5 flex items-center space-x-2 rtl:space-x-reverse lg:ms-0" wire:navigate>
+                <x-app-logo />
+            </a>
+
+            <flux:navbar class="-mb-px max-lg:hidden">
+                <flux:navbar.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
+                    {{ __('Dashboard') }}
+                </flux:navbar.item>
+            </flux:navbar>
+
+            <flux:spacer />
+
+            <flux:navbar class="me-1.5 space-x-0.5 rtl:space-x-reverse py-0!">
+                <flux:tooltip :content="__('Search')" position="bottom">
+                    <flux:navbar.item class="!h-10 [&>div>svg]:size-5" icon="magnifying-glass" href="#" :label="__('Search')" />
+                </flux:tooltip>
+                <flux:tooltip :content="__('Repository')" position="bottom">
+                    <flux:navbar.item
+                        class="h-10 max-lg:hidden [&>div>svg]:size-5"
+                        icon="folder-git-2"
+                        href="https://github.com/laravel/livewire-starter-kit"
+                        target="_blank"
+                        :label="__('Repository')"
+                    />
+                </flux:tooltip>
+                <flux:tooltip :content="__('Documentation')" position="bottom">
+                    <flux:navbar.item
+                        class="h-10 max-lg:hidden [&>div>svg]:size-5"
+                        icon="book-open-text"
+                        href="https://laravel.com/docs/starter-kits"
+                        target="_blank"
+                        label="Documentation"
+                    />
+                </flux:tooltip>
+            </flux:navbar>
+
+            <!-- Desktop User Menu -->
+            <flux:dropdown position="top" align="end">
+                <flux:profile
+                    class="cursor-pointer"
+                    :initials="auth()->user()->initials()"
+                />
+
+                <flux:menu>
+                    <flux:menu.radio.group>
+                        <div class="p-0 text-sm font-normal">
+                            <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
+                                <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
+                                    <span
+                                        class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white"
+                                    >
+                                        {{ auth()->user()->initials() }}
+                                    </span>
+                                </span>
+
+                                <div class="grid flex-1 text-start text-sm leading-tight">
+                                    <span class="truncate font-semibold">{{ auth()->user()->name }}</span>
+                                    <span class="truncate text-xs">{{ auth()->user()->email }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </flux:menu.radio.group>
+
+                    <flux:menu.separator />
+
+                    <flux:menu.radio.group>
+                        <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
+                        {{-- a ce niveau ajouter le ou les profils de l'agent. Et si possible le profil actif est marquer  --}}
+                    </flux:menu.radio.group>
+
+                    <flux:menu.separator />
+
+                    <form method="POST" action="{{ route('logout') }}" class="w-full">
+                        @csrf
+                        <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">
+                            {{ __('Log Out') }}
+                        </flux:menu.item>
+                    </form>
+                </flux:menu>
+            </flux:dropdown>
+        </flux:header>
+
+        <!-- Mobile Menu -->
+        <flux:sidebar stashable sticky class="lg:hidden border-r border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
+            <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
+
+            <a href="{{ route('dashboard') }}" class="ms-1 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
+                <x-app-logo />
+            </a>
+
+            <flux:navlist variant="outline">
+                <flux:navlist.group :heading="__('Platform')">
+                    <flux:navlist.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
+                    {{ __('Dashboard') }}
+                    </flux:navlist.item>
+                </flux:navlist.group>
+            </flux:navlist>
+
+            <flux:spacer />
+
+            <flux:navlist variant="outline">
+                <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
+                {{ __('Repository') }}
+                </flux:navlist.item>
+
+                <flux:navlist.item icon="book-open-text" href="https://laravel.com/docs/starter-kits" target="_blank">
+                {{ __('Documentation') }}
+                </flux:navlist.item>
+            </flux:navlist>
+        </flux:sidebar>
+
+        {{ $slot }}
+
+        @fluxScripts
+    </body>
+</html>
+
+
+
+Etant donné qu'un utilisateur puisse avoir plusieurs profils, je voudrais que lorsque c'est le cas l'interface change lorsqu'il clique sur un autre profil.
+
+Voici le HomeController:
+
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
+
+
+class HomeController extends Controller
+{
+    //
+    public function index()
+    {
+        if(Auth::id())
+	    {
+			$user = Auth::user();
+		    $usertype=$user->usertype;
+
+		    if($usertype=='user')
+		    {
+				$profilActif = $user->profilActif();
+
+				if ($profilActif) {
+					if($profilActif->intitule_profil == 'Agent')
+		    		{
+			    		return view('users.agents.index');
+    				}
+		    		else if($profilActif->intitule_profil == 'Ordonnateur Sectoriel')
+		    		{
+			    		return view('users.ordonnateur.index');
+    				}
+					else if($profilActif->intitule_profil == 'Responsable Sectoriel')
+		    		{
+			    		return view('users.responsable.index');
+    				}
+		    		else
+		    		{
+			    		return view('users.error'); // Erreur Ce profil n'est pas répertorié
+    	    		}
+				}
+				else
+		    	{
+					return view('users.index'); // Vous n'avez pas encore de profil
+    			}
+
+    		}
+		    else if($usertype=='admin')
+		    {
+				$profilActif = $user->profilActif();
+
+				if ($profilActif) {
+					if($profilActif->intitule_profil == 'Agent')
+		    		{
+			    		return view('users.agents.index');
+    				}
+		    		else if($profilActif->intitule_profil == 'Ordonnateur Sectoriel')
+		    		{
+			    		return view('users.ordonnateur.index');
+    				}
+					else if($profilActif->intitule_profil == 'Responsable Sectoriel')
+		    		{
+			    		return view('users.responsable.index');
+    				}
+		    		else
+		    		{
+			    		return view('users.error'); // Erreur Ce profil n'est pas répertorié
+    	    		}
+				}
+				
+			    return redirect()->route('admindashboard');
+    		}
+		    else
+		    {
+			    return redirect()->back();
+    	    }
+	    }
+    }
+
+}
+
+
+
+Voici le web.php:
+
+<?php
+
+
+use App\Livewire\Settings\Appearance;
+use App\Livewire\Settings\Password;
+use App\Livewire\Settings\Profile;
+use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\Admin\FonctionController;
+use App\Http\Controllers\Admin\MinistereController;
+use App\Http\Controllers\Admin\PosteController;
+use App\Http\Controllers\Admin\ProfilAccessController;
+use App\Http\Controllers\Admin\StructureController;
+use App\Http\Controllers\Admin\TypeMobiliteController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\AgentController;
+use App\Http\Controllers\HomeController;
+
+
+Route::get('/', function () {
+    return view('web.index');
+})->name('home');
+
+Route::get('/dossier', function () {
+    return view('pages.dossiers.index');
+})->name('dossier');
+
+
+Route::get('/home', function () {
+    return view('web.page');
+});
+
+// Route::get('/admin', function () {
+//     return view('admin.index');
+// })->name('admindashboard')->middleware(['auth', 'verified', 'admin']);
+
+// Route::get('/admin', function () {
+//     return view('admin.index');
+// })->name('admindashboard')->middleware(['auth', 'verified', 'admin']);
+
+Route::get('/dashboard', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware(['auth', 'verified', 'admin'])->prefix('/admin')->group(function () {
+    Route::get('/', function () { return view('admin.index');})->name('admindashboard');
+    Route::resource('agent', AgentController::class )->except(['show']);
+    Route::name('admin.')->group(function () {
+        Route::resource('user', UserController::class )->except(['show']);
+        Route::resource('ministere', MinistereController::class )->except(['show']);
+        Route::resource('structure', StructureController::class )->except(['show']);
+        Route::resource('poste', PosteController::class )->except(['show']);
+        Route::resource('fonction', FonctionController::class )->except(['show']);
+        Route::resource('profil', ProfilAccessController::class )->except(['show']);
+        Route::resource('type_mobilite', TypeMobiliteController::class )->except(['show']);
+    });
+    
+
+});
+
+// Route::get('/admin', function () {
+//     return view('admin.index');
+// })->name('admindashboard')->middleware(['auth', 'verified', 'admin']);
+
+// Route::get('/users', function () {
+//     return view('users.index');
+// })->middleware(['auth', 'verified'])->name('user');
+
+
+Route::get('/userhome', function () {
+    return view('users.user');
+})->middleware(['auth', 'verified'])->name('userUser');
+
+
+
+//route vers dashboard
+
+// Route::view('/user', 'users.index')
+//     ->middleware(['auth', 'verified'])
+//     ->name('dashboard');
+
+// Route::middleware(['auth', 'verified', 'profilAccess'])->group(function () {
+// });
+
+
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::redirect('settings', 'settings/profile');
+
+    Route::get('settings/profile', Profile::class)->name('settings.profile');
+    Route::get('settings/password', Password::class)->name('settings.password');
+    Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
+});
+
+require __DIR__.'/auth.php';
+
+
+
