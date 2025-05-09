@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agent;
+use App\Models\Ministere;
 use Illuminate\Http\Request;
 
 class AgentController extends Controller
@@ -12,7 +13,7 @@ class AgentController extends Controller
      */
     public function index()
     {
-        $agents = Agent::orderBy('created_at', 'desc')->with('user')->paginate(5);
+        $agents = Agent::orderBy('created_at', 'desc')->with('user', 'ministere')->paginate(5);
         return view('pages.agents.index', [
             'agents' => $agents,
         ]);
@@ -20,7 +21,15 @@ class AgentController extends Controller
 
     public function edit(Agent $agent)
     {
-        return view('pages.agents.create', compact('agent'));
+        $ministeres = Ministere::all();
+        return view('pages.agents.create', compact('agent', 'ministeres'));
+    }
+
+    public function create()
+    {
+        $agent = new Agent();
+        $ministeres = Ministere::all();
+        return view('pages.agents.create', compact('agent', 'ministeres'));
     }
 
 
@@ -37,7 +46,7 @@ class AgentController extends Controller
     /**
      * Enregistre un nouvel agent.
      */
-    public function store(Request $request): Response
+    public function store(Request $request)
     {
         $validatedData = $request->validate([
             'matricule' => ['required', 'string', 'max:20', 'unique:agents,matricule'],
@@ -50,14 +59,12 @@ class AgentController extends Controller
             'date_recrutement' => ['required', 'date'],
             'date_debut_service' => ['required', 'date'],
             'user_id' => ['nullable', 'exists:users,id'],
+            'ministere_id' => ['nullable', 'exists:ministeres,id'],
         ]);
 
         $agent = Agent::create($validatedData);
 
-        return response([
-            'agent' => $agent,
-            'message' => 'Agent créé avec succès',
-        ], 201);
+        return to_route('agent.index')->with('success', 'Modification réussi!');
     }
 
     /**
@@ -75,11 +82,11 @@ class AgentController extends Controller
     /**
      * Met à jour les informations d'un agent.
      */
-    public function update(Request $request, Agent $agent): Response
+    public function update(Request $request, Agent $agent)
     {
         $validatedData = $request->validate([
-             'matricule' => ['required', 'string', 'max:20', Rule::unique('agents', 'matricule')->ignore($agent)],
-            'num_NPI' => ['required', 'string', 'max:20', Rule::unique('agents', 'num_NPI')->ignore($agent)],
+            'matricule' => ['required', 'string', 'max:20', 'exists:agents,matricule'],
+            'num_NPI' => ['required', 'string', 'max:20', 'exists:agents,num_NPI'],
             'nom' => ['required', 'string', 'max:255'],
             'prenom' => ['required', 'string', 'max:255'],
             'grade' => ['required', 'string', 'max:50'],
@@ -88,25 +95,20 @@ class AgentController extends Controller
             'date_recrutement' => ['required', 'date'],
             'date_debut_service' => ['required', 'date'],
             'user_id' => ['nullable', 'exists:users,id'],
+            'ministere_id' => ['nullable', 'exists:ministeres,id'],
         ]);
 
         $agent->update($validatedData);
 
-        return response([
-            'agent' => $agent,
-            'message' => 'Agent mis à jour avec succès',
-        ], 200);
+        return to_route('agent.index')->with('success', 'Modification réussi!');
     }
 
     /**
      * Supprime un agent.
      */
-    public function destroy(Agent $agent): Response
+    public function destroy(Agent $agent)
     {
         $agent->delete();
-
-        return response([
-            'message' => 'Agent supprimé avec succès',
-        ], 200);
+        return to_route('agent.index')->with('success', 'Suppression réussi!');
     }
 }

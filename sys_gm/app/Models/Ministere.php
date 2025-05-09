@@ -22,6 +22,11 @@ class Ministere extends Model
         return $this->hasMany(Structure::class);
     }
 
+    public function agents(): HasMany
+    {
+        return $this->hasMany(Agent::class);
+    }
+
     /**
      * Get all of the dossiers for the Ministere
      *

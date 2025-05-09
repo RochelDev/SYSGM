@@ -1,0 +1,673 @@
+<div class="fade-in">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">
+            Répertoire des agents
+        </h1>
+        <p class="text-gray-600">
+            Consultez les informations des agents de l'administration publique.
+        </p>
+    </div>
+    <div class="card mb-6">
+        <div class="p-4 border-b border-gray-100">
+            <div
+                class="flex flex-col lg:flex-row lg:items-center lg:justify-between"
+            >
+                <div class="relative w-full lg:max-w-md mb-4 lg:mb-0">
+                    <div
+                        class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-search text-gray-400"
+                        >
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.3-4.3"></path>
+                        </svg>
+                    </div>
+                    <input
+                        type="text"
+                        class="input-field pl-10"
+                        placeholder="Rechercher un agent par nom ou matricule..."
+                        value=""
+                    />
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="flex items-center">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-filter text-gray-500 mr-2"
+                        >
+                            <polygon
+                                points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"
+                            ></polygon></svg
+                        ><select class="input-field">
+                            <option value="all">Toutes les structures</option>
+                            <option value="Direction du Budget">
+                                Direction du Budget
+                            </option>
+                            <option value="Direction des Ressources Humaines">
+                                Direction des Ressources Humaines
+                            </option>
+                            <option value="Direction de l'Informatique">
+                                Direction de l'Informatique
+                            </option>
+                            <option value="Direction de l'Audit">
+                                Direction de l'Audit
+                            </option>
+                            <option value="Direction des Statistiques">
+                                Direction des Statistiques
+                            </option>
+                        </select>
+                    </div>
+                    <div>
+                        <select class="input-field">
+                            <option value="all">Tous les statuts</option>
+                            <option value="active">Actif</option>
+                            <option value="inactive">Inactif</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th
+                            scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                            Matricule
+                        </th>
+                        <th
+                            scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                            Nom
+                        </th>
+                        <th
+                            scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                            Fonction
+                        </th>
+                        <th
+                            scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell"
+                        >
+                            Structure
+                        </th>
+                        <th
+                            scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell"
+                        >
+                            Contact
+                        </th>
+                        <th
+                            scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                            Statut
+                        </th>
+                        <th
+                            scope="col"
+                            class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#0F2C59]"
+                        >
+                            AGT12345
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"
+                        >
+                            Kofi Amoah
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"
+                        >
+                            Analyste Financier
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 hidden lg:table-cell"
+                        >
+                            Direction du Budget
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 hidden md:table-cell"
+                        >
+                            k.amoah@finances.gouv.bj
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                                >Actif</span
+                            >
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
+                        >
+                            <a
+                                class="text-[#0F2C59] hover:text-[#4CB9E7]"
+                                href="/directory/AGT12345"
+                                >Voir</a
+                            >
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#0F2C59]"
+                        >
+                            AGT12346
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"
+                        >
+                            Amina Diallo
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"
+                        >
+                            Responsable RH
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 hidden lg:table-cell"
+                        >
+                            Direction des Ressources Humaines
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 hidden md:table-cell"
+                        >
+                            a.diallo@finances.gouv.bj
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                                >Actif</span
+                            >
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
+                        >
+                            <a
+                                class="text-[#0F2C59] hover:text-[#4CB9E7]"
+                                href="/directory/AGT12346"
+                                >Voir</a
+                            >
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#0F2C59]"
+                        >
+                            AGT12347
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"
+                        >
+                            Emmanuel Santos
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"
+                        >
+                            Ingénieur Informatique
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 hidden lg:table-cell"
+                        >
+                            Direction de l'Informatique
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 hidden md:table-cell"
+                        >
+                            e.santos@finances.gouv.bj
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                                >Actif</span
+                            >
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
+                        >
+                            <a
+                                class="text-[#0F2C59] hover:text-[#4CB9E7]"
+                                href="/directory/AGT12347"
+                                >Voir</a
+                            >
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#0F2C59]"
+                        >
+                            AGT12348
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"
+                        >
+                            Fatima Mensah
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"
+                        >
+                            Auditrice
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 hidden lg:table-cell"
+                        >
+                            Direction de l'Audit
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 hidden md:table-cell"
+                        >
+                            f.mensah@finances.gouv.bj
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                                >Inactif</span
+                            >
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
+                        >
+                            <a
+                                class="text-[#0F2C59] hover:text-[#4CB9E7]"
+                                href="/directory/AGT12348"
+                                >Voir</a
+                            >
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#0F2C59]"
+                        >
+                            AGT12349
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"
+                        >
+                            Jean-Pierre Kouassi
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"
+                        >
+                            Statisticien
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 hidden lg:table-cell"
+                        >
+                            Direction des Statistiques
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 hidden md:table-cell"
+                        >
+                            jp.kouassi@finances.gouv.bj
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                                >Actif</span
+                            >
+                        </td>
+                        <td
+                            class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
+                        >
+                            <a
+                                class="text-[#0F2C59] hover:text-[#4CB9E7]"
+                                href="/directory/AGT12349"
+                                >Voir</a
+                            >
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div
+            class="px-6 py-4 border-t border-gray-100 flex items-center justify-between"
+        >
+            <p class="text-sm text-gray-600">
+                Affichage de <span class="font-medium">5</span> agents
+            </p>
+            <div class="flex items-center space-x-2">
+                <button
+                    class="p-2 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-chevron-left"
+                    >
+                        <path d="m15 18-6-6 6-6"></path>
+                    </svg></button
+                ><span class="text-sm text-gray-600">Page 1</span
+                ><button
+                    class="p-2 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="lucide lucide-chevron-right"
+                    >
+                        <path d="m9 18 6-6-6-6"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- login -->
+
+<div class="bg-white rounded-lg shadow-xl overflow-hidden">
+    <div class="px-10 py-12">
+        <div class="text-center mb-8">
+            <div
+                class="inline-flex items-center justify-center h-16 w-16 rounded-full bg-[#0F2C59]/10 mb-4"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="lucide lucide-building2 h-8 w-8 text-[#0F2C59]"
+                >
+                    <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path>
+                    <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path>
+                    <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path>
+                    <path d="M10 6h4"></path>
+                    <path d="M10 10h4"></path>
+                    <path d="M10 14h4"></path>
+                    <path d="M10 18h4"></path>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-800">MobilitéGov</h1>
+            <p class="mt-2 text-gray-600">
+                Système de gestion de la mobilité des agents
+            </p>
+        </div>
+        <form class="space-y-6">
+            <div>
+                <label
+                    for="email"
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                    >Adresse email</label
+                >
+                <div class="relative">
+                    <div
+                        class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-mail text-gray-400"
+                        >
+                            <rect
+                                width="20"
+                                height="16"
+                                x="2"
+                                y="4"
+                                rx="2"
+                            ></rect>
+                            <path
+                                d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"
+                            ></path>
+                        </svg>
+                    </div>
+                    <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        autocomplete="email"
+                        required=""
+                        class="input-field pl-10"
+                        placeholder="votre.email@gouv.bj"
+                        value=""
+                    />
+                </div>
+            </div>
+            <div>
+                <label
+                    for="password"
+                    class="block text-sm font-medium text-gray-700 mb-1"
+                    >Mot de passe</label
+                >
+                <div class="relative">
+                    <div
+                        class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="lucide lucide-lock text-gray-400"
+                        >
+                            <rect
+                                width="18"
+                                height="11"
+                                x="3"
+                                y="11"
+                                rx="2"
+                                ry="2"
+                            ></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                    </div>
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        autocomplete="current-password"
+                        required=""
+                        class="input-field pl-10"
+                        placeholder="••••••••"
+                        value=""
+                    />
+                </div>
+            </div>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <input
+                        id="remember-me"
+                        name="remember-me"
+                        type="checkbox"
+                        class="h-4 w-4 text-[#0F2C59] focus:ring-[#4CB9E7] border-gray-300 rounded"
+                    /><label
+                        for="remember-me"
+                        class="ml-2 block text-sm text-gray-700"
+                        >Se souvenir de moi</label
+                    >
+                </div>
+                <div class="text-sm">
+                    <a
+                        href="#"
+                        class="font-medium text-[#0F2C59] hover:text-[#4CB9E7]"
+                        >Mot de passe oublié?</a
+                    >
+                </div>
+            </div>
+            <div>
+                <button type="submit" class="w-full btn btn-primary flex justify-center items-center">
+                    Se connecter
+                </button>
+            </div>
+        </form>
+    </div>
+    <div class="px-10 py-4 bg-gray-50 border-t border-gray-100 text-sm text-center text-gray-500">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center">
+            <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-[#0F2C59] focus:ring-[#4CB9E7] border-gray-300 rounded"/>
+            <label for="remember-me" class="ml-2 block text-sm text-gray-700">Se souvenir de moi</label>
+        </div>
+        <div class="text-sm">
+            <a href="#" class="font-medium text-[#0F2C59] hover:text-[#4CB9E7]" >Mot de passe oublié?</a>
+        </div>
+    </div>
+    </div>
+</div>
+
+
+
+
+
+
+<div class="bg-gray-50 dark:bg-gray-800">
+    <div class="flex min-h-[80vh] flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div class="text-center sm:mx-auto sm:w-full sm:max-w-md">
+            <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white">
+                Sign in
+            </h1>
+        </div>
+        <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+            <div class="bg-white dark:bg-gray-700 px-4 pb-4 pt-8 sm:rounded-lg sm:px-10 sm:pb-6 sm:shadow">
+                <form class="space-y-6">
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 dark:text-white">Email address /
+                            Username</label>
+                        <div class="mt-1">
+                            <input id="email" type="text" data-testid="username" required=""
+                                class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-300 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 sm:text-sm"
+                                value="">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 dark:text-white">Password</label>
+                        <div class="mt-1">
+                            <input id="password" name="password" type="password" data-testid="password"
+                                autocomplete="current-password" required=""
+                                class="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-300 dark:focus:border-indigo-400 dark:focus:ring-indigo-400 sm:text-sm"
+                                value="">
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <input id="remember_me" name="remember_me" type="checkbox"
+                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:text-white dark:border-gray-600 dark:focus:ring-indigo-400 disabled:cursor-wait disabled:opacity-50">
+                            <label for="remember_me" class="ml-2 block text-sm text-gray-900 dark:text-white">Remember me</label>
+                        </div>
+                        <div class="text-sm">
+                            <a class="font-medium text-indigo-400 hover:text-indigo-500" href="">
+                                Forgot your password?
+                            </a>
+                        </div>
+                    </div>
+                    <div>
+                        <button data-testid="login" type="submit"
+                            class="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-indigo-700 dark:border-transparent dark:hover:bg-indigo-600 dark:focus:ring-indigo-400 dark:focus:ring-offset-2 disabled:cursor-wait disabled:opacity-50">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                                <svg class="h-5 w-5 text-indigo-500 group-hover:text-indigo-400"
+                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                    aria-hidden="true">
+                                    <path fill-rule="evenodd"
+                                        d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                        clip-rule="evenodd"></path>
+                                </svg>
+                            </span>
+                            Sign In
+                        </button>
+                    </div>
+                </form>
+                <div class="mt-6">
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="bg-white dark:bg-gray-700 px-2 text-gray-500 dark:text-white">Or continue with</span>
+                        </div>
+                    </div>
+                    <div class="mt-6 grid grid-cols-2 gap-3">
+                        <button
+                            class="inline-flex w-full items-center justify-center rounded-md border border-gray-300 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-500 dark:text-white shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 disabled:cursor-wait disabled:opacity-50">
+                            <span class="sr-only">Sign in with Google</span>
+                            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <clipPath id="p.0">
+                                    <path d="m0 0l20.0 0l0 20.0l-20.0 0l0 -20.0z" clip-rule="nonzero"></path>
+                                </clipPath>
+                                <g clip-path="url(#p.0)">
+                                    <path fill="currentColor" fill-opacity="0.0" d="m0 0l20.0 0l0 20.0l-20.0 0z"
+                                        fill-rule="evenodd"></path>
+                                    <path fill="currentColor"
+                                        d="m19.850197 8.270351c0.8574047 4.880001 -1.987587 9.65214 -6.6881847 11.218641c-4.700598 1.5665016 -9.83958 -0.5449295 -12.08104 -4.963685c-2.2414603 -4.4187555 -0.909603 -9.81259 3.1310139 -12.6801605c4.040616 -2.867571 9.571754 -2.3443127 13.002944 1.2301085l-2.8127813 2.7000687l0 0c-2.0935059 -2.1808972 -5.468274 -2.500158 -7.933616 -0.75053835c-2.4653416 1.74962 -3.277961 5.040613 -1.9103565 7.7366734c1.3676047 2.6960592 4.5031037 3.9843292 7.3711267 3.0285425c2.868022 -0.95578575 4.6038647 -3.8674583 4.0807285 -6.844941z"
+                                        fill-rule="evenodd"></path>
+                                    <path fill="currentColor" d="m10.000263 8.268785l9.847767 0l0 3.496233l-9.847767 0z"
+                                        fill-rule="evenodd"></path>
+                                </g>
+                            </svg>
+                        </button>
+                        <button class="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-500 dark:text-white shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 disabled:cursor-wait disabled:opacity-50">
+                            <span class="sr-only">Sign in with GitHub</span>
+                            <svg class="h-6 w-6" fill="currentColor" xmlns="http://www.w3.org/2000/svg" fill="#000000" width="800px" height="800px"
+                                viewBox="0 0 32 32" version="1.1">
+                                <path
+                                    d="M16 1.375c-8.282 0-14.996 6.714-14.996 14.996 0 6.585 4.245 12.18 10.148 14.195l0.106 0.031c0.750 0.141 1.025-0.322 1.025-0.721 0-0.356-0.012-1.3-0.019-2.549-4.171 0.905-5.051-2.012-5.051-2.012-0.288-0.925-0.878-1.685-1.653-2.184l-0.016-0.009c-1.358-0.93 0.105-0.911 0.105-0.911 0.987 0.139 1.814 0.718 2.289 1.53l0.008 0.015c0.554 0.995 1.6 1.657 2.801 1.657 0.576 0 1.116-0.152 1.582-0.419l-0.016 0.008c0.072-0.791 0.421-1.489 0.949-2.005l0.001-0.001c-3.33-0.375-6.831-1.665-6.831-7.41-0-0.027-0.001-0.058-0.001-0.089 0-1.521 0.587-2.905 1.547-3.938l-0.003 0.004c-0.203-0.542-0.321-1.168-0.321-1.821 0-0.777 0.166-1.516 0.465-2.182l-0.014 0.034s1.256-0.402 4.124 1.537c1.124-0.321 2.415-0.506 3.749-0.506s2.625 0.185 3.849 0.53l-0.1-0.024c2.849-1.939 4.105-1.537 4.105-1.537 0.285 0.642 0.451 1.39 0.451 2.177 0 0.642-0.11 1.258-0.313 1.83l0.012-0.038c0.953 1.032 1.538 2.416 1.538 3.937 0 0.031-0 0.061-0.001 0.091l0-0.005c0 5.761-3.505 7.029-6.842 7.398 0.632 0.647 1.022 1.532 1.022 2.509 0 0.093-0.004 0.186-0.011 0.278l0.001-0.012c0 2.007-0.019 3.619-0.019 4.106 0 0.394 0.262 0.862 1.031 0.712 6.028-2.029 10.292-7.629 10.292-14.226 0-8.272-6.706-14.977-14.977-14.977-0.006 0-0.013 0-0.019 0h0.001z" />
+                            </svg>
+
+                        </button>
+                    </div>
+                </div>
+                <div class="m-auto mt-6 w-fit md:mt-8">
+                    <span class="m-auto dark:text-gray-400">Don't have an account?
+                        <a class="font-semibold text-indigo-600 dark:text-indigo-100" href="/register">Create Account</a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

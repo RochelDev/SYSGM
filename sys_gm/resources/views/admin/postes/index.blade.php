@@ -54,12 +54,12 @@
             <tbody>
             @forelse ($postes as $poste)
                 <tr class="border-b transition-colors hover:bg-muted/50">
-                    <td class="p-2 align-middle">{{ $poste->intitule_poste }}</td>
-                    <td class="p-2 align-middle">{{ $poste->code_poste }}</td>
-                    <td class="p-2 align-middle">{{ $poste->service }}</td>
-                    <td class="p-2 align-middle">{{ $poste->direction }}</td>
-                    <td class="p-2 align-middle">{{ $poste->structure ? $poste->structure->nom_structure : 'Aucune' }}</td>
-                    <td class="p-2 align-middle flex justify-end gap-2">
+                    <td class="py-2 px-4 align-middle">{{ $poste->intitule_poste }}</td>
+                    <td class="py-2 px-4 align-middle">{{ $poste->code_poste }}</td>
+                    <td class="py-2 px-4 align-middle">{{ $poste->service }}</td>
+                    <td class="py-2 px-4 align-middle">{{ $poste->direction }}</td>
+                    <td class="py-2 px-4 align-middle">{{ $poste->structure ? $poste->structure->nom_structure : 'Aucune' }}</td>
+                    <td class="py-2 px-4 align-middle flex justify-end gap-2">
                         <a href="{{ route('admin.poste.edit', $poste) }}"
                            class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium border border-yellow-300 hover:bg-yellow-700 hover:text-accent-foreground h-9 rounded-md px-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -82,7 +82,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" class="p-4 text-center text-gray-500 dark:text-gray-400">Aucun poste enregistré.</td>
+                    <td colspan="6" class="py-2 px-4 text-center text-gray-500 dark:text-gray-400">Aucun poste enregistré.</td>
                 </tr>
             @endforelse
             </tbody>

@@ -53,10 +53,12 @@
 
         <!-- Desktop User Menu -->
         <flux:dropdown position="top" align="end">
-            <flux:profile
+            {{-- <flux:profile
                 class="cursor-pointer"
-                :initials="auth()->user()->initials()"
-            />
+                :initials="auth()->user()->name"
+            /> --}}
+
+            <flux:button icon:trailing="chevron-down" class="cursor-pointer" >{{ auth()->user()->name }}</flux:button>
 
             <flux:menu>
                 <flux:menu.radio.group>
@@ -82,6 +84,29 @@
 
                 <flux:menu.radio.group>
                     <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
+                    @if (auth()->user()->usertype === 'admin')
+                        <flux:menu.item :href="route('admindashboard')" wire:navigate>{{ __('Adminitrateur') }}</flux:menu.item>
+                    @endif
+                    {{-- a ce niveau ajouter le ou les profils de l'agent. Et si possible le profil actif est marquer  --}}
+                    @if (auth()->user()->profils->count() > 1)
+                        <flux:menu.separator />
+                        <div class="px-2 py-1 text-xs text-gray-500 dark:text-gray-400">{{ __('Changer de Profil') }}</div>
+                        <form method="POST" action="{{ route('switch.profil') }}" class="space-y-1">
+                            @csrf
+                            @foreach (auth()->user()->profils as $profil)
+                                <button type="submit" name="profil_id" value="{{ $profil->id }}" class="flex items-center px-2 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors w-full justify-start">
+                                    <svg class="h-4 w-4 me-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        @if ($profil->id === auth()->user()->profilActif()->id)
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                        @else
+                                            <circle cx="12" cy="12" r="6" stroke-linecap="round" stroke-linejoin="round" />
+                                        @endif
+                                    </svg>
+                                    {{ $profil->intitule_profil }}
+                                </button>
+                            @endforeach
+                        </form>
+                    @endif
                 </flux:menu.radio.group>
 
                 <flux:menu.separator />

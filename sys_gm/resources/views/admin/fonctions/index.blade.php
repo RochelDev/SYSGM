@@ -26,7 +26,7 @@
                 <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
                     Code fonction
                 </th>
-                <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                <th class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
                     Actions
                 </th>
                 
@@ -35,9 +35,9 @@
             <tbody>
             @forelse ($fonctions as $fonction)
                 <tr class="border-b transition-colors hover:bg-muted/50">
-                    <td class="p-2 align-middle">{{ $fonction->intitule_fonction }}</td>
-                    <td class="p-2 align-middle">{{ $fonction->code_fonction }}</td>
-                    <td class="p-2 align-middle flex justify-end gap-2">
+                    <td class="py-2 px-4 align-middle">{{ $fonction->intitule_fonction }}</td>
+                    <td class="py-2 px-4 align-middle">{{ $fonction->code_fonction }}</td>
+                    <td class="py-2 px-4 align-middle flex justify-end gap-2">
                         <a href="{{ route('admin.fonction.edit', $fonction) }}"
                            class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium border border-yellow-300 hover:bg-yellow-700 hover:text-accent-foreground h-9 rounded-md px-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -60,7 +60,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="4" class="p-4 text-center text-gray-500 dark:text-gray-400">Aucune structure enregistrée.</td>
+                    <td colspan="4" class="py-2 px-4 text-center text-gray-500 dark:text-gray-400">Aucune structure enregistrée.</td>
                 </tr>
             @endforelse
             </tbody>
