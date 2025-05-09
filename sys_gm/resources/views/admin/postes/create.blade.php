@@ -109,9 +109,9 @@ if (request()->routeIs('admin.poste.edit')) {
                     <tbody>
                     @forelse ($structures as $structure)
                         <tr class="border-b transition-colors hover:bg-muted/50">
-                            <td class="p-2 align-middle">{{ $structure->nom_structure }}</td>
-                            <td class="p-2 align-middle">{{ $structure->code_structure }}</td>
-                            <td class="p-2 align-middle flex justify-end gap-2">
+                            <td class="py-2 px-4 align-middle">{{ $structure->nom_structure }}</td>
+                            <td class="py-2 px-4 align-middle">{{ $structure->code_structure }}</td>
+                            <td class="py-2 px-4 align-middle flex justify-end gap-2">
                                 <a href="{{ route('admin.poste.create', ['structure' => $structure->id]) }}"
                                    class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium border border-green-500 hover:bg-green-700 hover:text-accent-foreground h-9 rounded-md px-3">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-1">
@@ -124,7 +124,7 @@ if (request()->routeIs('admin.poste.edit')) {
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="p-4 text-center text-gray-500 dark:text-gray-400">Aucune structure enregistrée. Veuillez créer une structure d'abord.</td>
+                            <td colspan="3" class="py-2 px-4 text-center text-gray-500 dark:text-gray-400">Aucune structure enregistrée. Veuillez créer une structure d'abord.</td>
                         </tr>
                     @endforelse
                     </tbody>

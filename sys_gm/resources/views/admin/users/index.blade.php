@@ -3,6 +3,22 @@
 @section('title', '| Utilisateurs')
 
 @section('content')
+
+    @if(session('success'))
+        {{-- <div class="alert alert-success">
+        {{ session('success') }}
+        </div> --}}
+        <div class="flex items-center p-4 mb-4 text-sm text-green-800 border border-green-300 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400 dark:border-green-800" role="alert">
+            <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+            </svg>
+            <span class="sr-only">Info</span>
+            <div>
+              <span class="font-medium">Success alert!</span> {{ session('success') }}
+            </div>
+        </div>
+    @endif
+
     <div class="flex justify-between items-center mb-3">
         <h1 class="text-2xl font-bold tracking-tight">Liste des utilisateurs</h1>
         <a href="{{ route('admin.user.create') }}"
@@ -10,12 +26,6 @@
             Nouveau utilisateur
         </a>
     </div>
-
-    @if(session('success'))
-        <div class="alert alert-success mb-4">
-            {{ session('success') }}
-        </div>
-    @endif
 
     <div class="border rounded-xl overflow-x-auto">
         <table class="min-w-full caption-bottom text-sm">
@@ -30,6 +40,9 @@
                 <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
                     Profils
                 </th>
+                <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                    Ministère
+                </th>
                 <th class="h-12 px-4 align-middle font-medium text-muted-foreground text-right">
                     Actions
                 </th>
@@ -38,9 +51,9 @@
             <tbody>
             @forelse ($users as $user)
                 <tr class="border-b transition-colors hover:bg-muted/50">
-                    <td class="p-2 align-middle">{{ $user->name }}</td>
-                    <td class="p-2 align-middle">{{ $user->email }}</td>
-                    <td class="p-2 align-middle">
+                    <td class="py-2 px-4 align-middle">{{ $user->name }}</td>
+                    <td class="py-2 px-4 align-middle">{{ $user->email }}</td>
+                    <td class="py-2 px-4 align-middle">
                         @forelse ($user->profils as $profil)
                             <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-800">
                                 {{ $profil->intitule_profil }}
@@ -49,6 +62,7 @@
                             <span class="text-gray-500">Aucun profil</span>
                         @endforelse
                     </td>
+                    <td class="py-2 px-4 align-middle">{{ $user->ministere ? $user->ministere->nom_ministere : 'Aucun' }}</td>
                     <td class="p-2 align-middle flex justify-end gap-2">
                         <a href="{{ route('admin.user.edit', $user) }}"
                            class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium border border-yellow-300 hover:bg-yellow-700 hover:text-accent-foreground h-9 rounded-md px-3">

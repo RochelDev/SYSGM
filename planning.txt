@@ -1,0 +1,62 @@
+Etape 1: 1h 30
+Il faut créer une page d'inscription pour les agents. 
+En plus des informations pour la création de compte il doit fournir Num NPI pour q'on vérifie s'il s'agit bien d'un agent de l'Etat
+Si oui, on récupère l'id de son ministère actuel(sinon afficher message vous n'avez pas de ministère actuel enregistré dans la BD; 
+Rapprochez vous du service RH de votre structure pour corriger le problème puis réessayer),  
+Son compte est créer, On lie son compte à Agent, puis il a le profil Agent, par défaut.
+
+L'administrateur pourra lui ajouter un autre profil selon le cas.
+
+Possibilité de mis à jour en cascade (mis à jour du ministère actuel au niveau de l'agent implique une mis à jour au niveau du compte)
+suppression agent = suppression compte
+
+Etape 2: Soumettre une demande par l'agent. 2h
+
+Etape 3: récupérer l'id utilisateur lorsque l'utilisateur se connecte sur un profil mais avant ça gérer les actions de chaque acteur. 1j
+
+Etape 4: Suivi et Gestions des Etapes 1j
+
+Etape 5: Gestion des fichiers et générations de documents. 1j
+
+
+
+
+
+Suivi demande: (Indépendant du type de mobilité)
+
+Détachement
+Etape1: demande en attente
+Etape2: Traiment Ordonnateur
+Etape3: Traitement Fonction Publique
+Etape4: Validation officielle du dossier ou Fin du processus  ???
+
+Disposition
+Etape1: demande en attente
+Etape2: Traiment Ordonnateur
+Etape3: Traitement Fonction Publique
+  Etape4: Traitement Ordonnateur
+  Etape5: Traitement Fonction Publique
+Etape6: Validation officielle du dossier ou Fin du processus
+
+
+
+dossier
+créateur du dossier: nom de la structure
+Structure cible: nom de la structure
+
+Soumission d'un dossier entre structures
+envoyeur: nom de la structure
+destinataire: nom de la structure
+statut : 'envoyé', 'reçu';
+
+actions: validé ou refusé (par étape) géré par association SuiviDossier(profil,dossier,etape,statut ou action effectuer, motif )
+
+
+
+????
+Traitement associé à chaque étape du processus par structure
+statutTraitement: 'en attente', 'traitement par l'ordonnateur', 'traitement par l'Agent DRSC à la fonction publique',
+''  ???? lié à étapes!!!!!
+
+
+

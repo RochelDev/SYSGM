@@ -4,15 +4,24 @@
 
 @section('content')
     @if(session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
+        {{-- <div class="alert alert-success">
+        {{ session('success') }}
+        </div> --}}
+        <div class="flex items-center p-4 mb-4 text-sm text-green-800 border border-green-300 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400 dark:border-green-800" role="alert">
+            <svg class="shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+            </svg>
+            <span class="sr-only">Info</span>
+            <div>
+              <span class="font-medium">Success alert!</span> {{ session('success') }}
+            </div>
         </div>
     @endif
 
 
     <div class="flex justify-between items-center mb-3">
         <h1 class="text-2xl font-bold tracking-tight">Listes de tous les agents</h1>
-        <a href="{{ route('admin.agent.create') }}"
+        <a href="{{ route('agent.create') }}"
            class="inline-flex bg-blue-500 items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 gap-2">
             Nouvel agent
         </a>
@@ -62,6 +71,9 @@
                     class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
                     Compte
                 </th>
+                <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                    Ministère actuel
+                </th>
                 <th
                     class="h-12 px-4 align-middle font-medium text-muted-foreground text-right">
                     Actions
@@ -71,17 +83,18 @@
             <tbody>
             @foreach ($agents as $agent)
                 <tr class="border-b transition-colors hover:bg-muted/50">
-                    <td class="p-2 align-middle ">{{ $agent->matricule }}</td>
-                    <td class="p-2 align-middle ">{{ $agent->num_NPI }}</td>
-                    <td class="p-2 align-middle ">{{ $agent->nom }}</td>
-                    <td class="p-2 align-middle ">{{ $agent->prenom }}</td>
-                    <td class="p-2 align-middle ">{{ $agent->grade }}</td>
-                    <td class="p-2 align-middle ">{{ $agent->categorie }}</td>
-                    <td class="p-2 align-middle ">{{ $agent->historique_poste }}</td>
-                    <td class="p-2 align-middle ">{{ $agent->date_recrutement }}</td>
-                    <td class="p-2 align-middle ">{{ $agent->date_debut_service }}</td>
-                    <td class="p-2 align-middle ">@if (isset($agent->user->exists)) oui @else non @endif</td>
-                    <td class="p-2 align-middle flex justify-end gap-2">
+                    <td class="py-2 px-4 align-middle ">{{ $agent->matricule }}</td>
+                    <td class="py-2 px-4 align-middle ">{{ $agent->num_NPI }}</td>
+                    <td class="py-2 px-4 align-middle ">{{ $agent->nom }}</td>
+                    <td class="py-2 px-4 align-middle ">{{ $agent->prenom }}</td>
+                    <td class="py-2 px-4 align-middle ">{{ $agent->grade }}</td>
+                    <td class="py-2 px-4 align-middle ">{{ $agent->categorie }}</td>
+                    <td class="py-2 px-4 align-middle ">{{ $agent->historique_poste }}</td>
+                    <td class="py-2 px-4 align-middle ">{{ $agent->date_recrutement }}</td>
+                    <td class="py-2 px-4 align-middle ">{{ $agent->date_debut_service }}</td>
+                    <td class="py-2 px-4 align-middle ">@if (isset($agent->user->exists)) oui @else non @endif</td>
+                    <td class="py-2 px-4 align-middle">{{ $agent->ministere ? $agent->ministere->code_ministere : 'Aucun' }}</td>
+                    <td class="py-2 px-4 align-middle flex justify-end gap-2">
                         {{-- <a class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium border border-yellow-300 hover:bg-yellow-700 hover:text-accent-foreground h-9 rounded-md px-3"
                            type="button">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24"
@@ -100,7 +113,7 @@
                             Voir
                         </a> --}}
 
-                        <a href="{{ route('admin.agent.edit', $agent) }}"
+                        <a href="{{ route('agent.edit', $agent) }}"
                            class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium border border-yellow-300 hover:bg-yellow-700 hover:text-accent-foreground h-9 rounded-md px-3">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -110,7 +123,7 @@
                             Modifier
                         </a>
 
-                        <form action="{{ route('admin.agent.destroy', $agent)}}" method="post">
+                        <form action="{{ route('agent.destroy', $agent)}}" method="post">
                             @csrf
                             @method("delete")
                             <button type="submit" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium border border-red-400 hover:bg-red-500 hover:text-accent-foreground h-9 rounded-md px-3"

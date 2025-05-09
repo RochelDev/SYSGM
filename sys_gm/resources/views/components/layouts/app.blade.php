@@ -2,7 +2,7 @@
     @include('components.layouts.app.navbar')
 
     <flux:main class="overflow-y-auto h-[calc(100vh-4rem)]">
-        <div class="container mx-auto h-full">
+        <div class="container mx-auto">
             {{ $slot }}
         </div>
     </flux:main>

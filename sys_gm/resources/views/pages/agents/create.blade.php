@@ -5,7 +5,7 @@
 @section('content')
     <div class="">
         {{ $agent->exists ? 'Modifier' : 'Enregistrer' }} un Agent
-        <form class="space-y-6" action="{{ route($agent->exists ? 'admin.agent.update' : 'admin.agent.store', $agent) }}" method="post">
+        <form class="space-y-6" action="{{ route($agent->exists ? 'agent.update' : 'agent.store', $agent) }}" method="post">
             @csrf
             @method($agent->exists ? 'put' : 'post')
 
@@ -60,6 +60,22 @@
                                required>
                         @error('prenom')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="ministere_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Ministère <span class="text-red-500">*</span>
+                        </label>
+                        <select id="ministere_id" name="ministere_id"
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-dark-700 dark:text-white @error('ministere_id') border-red-500 @enderror">
+                            <option value="">-- Choisir un Ministère --</option>
+                            @foreach ($ministeres as $minist)
+                                <option value="{{ $minist->id }}" @if(old('ministere_id', $agent->ministere_id) == $minist->id) selected @endif>{{ $minist->nom_ministere }}</option>
+                            @endforeach
+                        </select>
+                        @error('ministere_id')
+                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
                 </div>
@@ -128,7 +144,7 @@
             </div>
 
             <div class="flex justify-end gap-4 mt-8">
-                <a href="{{ route('admin.agent.index') }}" type="button"
+                <a href="{{ route('agent.index') }}" type="button"
                     class="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     Abandonner
                 </a>

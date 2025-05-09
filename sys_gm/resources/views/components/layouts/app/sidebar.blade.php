@@ -35,7 +35,7 @@
                 </flux:navlist.group>
             </flux:navlist> --}}
 
-            <div class="flex items-center space-x-2 p-2 rounded-md">
+            {{-- <div class="flex items-center space-x-2 p-2 rounded-md">
                 <div class="h-10 w-10 rounded-full bg-[#4CB9E7] flex items-center justify-center">
                     <span class="font-semibold text-lg">A</span>
                 </div>
@@ -43,14 +43,13 @@
                     <p class="font-medium truncate">Admin Système</p>
                     <p class="text-xs text-gray-300 truncate">admin</p>
                 </div>
-            </div>
+            </div> --}}
 
             <flux:separator variant="subtle" />
 
             <flux:navlist variant="outline">
                 <flux:navlist.item icon="home" class="hover:bg-blue-50! hover:text-blue-700! text-white!   {{ request()->routeIs('dashboard') ? 'bg-blue-800! text-white!' : '' }}" :href="route('dashboard')" wire:navigate>Tableau de bord</flux:navlist.item>
-                @if(auth()->user()->profilActif())
-                <flux:navlist.item icon="folder" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Dossier à traiter</flux:navlist.item>
+            @if(auth()->user()->profilActif())
                 {{-- @if(auth()->user()->profilActif()->intitule_profil == 'Agent') Agent @endif
                 @if(auth()->user()->profilActif()->intitule_profil == 'Responsable Sectoriel') Responsable Sectoriel @endif
                 @if(auth()->user()->profilActif()->intitule_profil == 'Ordonnateur Sectoriel') Ordonnateur Sectoriel @endif
@@ -72,11 +71,15 @@
                 @endif
 
                 @if(auth()->user()->profilActif()->intitule_profil == 'Ordonnateur Sectoriel')
+                    <flux:navlist.item icon="folder" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Dossier à traiter</flux:navlist.item>
                     <flux:navlist.item icon="document" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Générer un Document</flux:navlist.item>
                 @endif
-                <flux:navlist.item icon="inbox" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Affectations</flux:navlist.item>
-                <flux:navlist.item icon="document-text" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Historiques</flux:navlist.item>
+
+                @if(auth()->user()->profilActif()->intitule_profil == 'Service RH' ) 
+                    <flux:navlist.item icon="inbox" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Affectations</flux:navlist.item>
                 @endif
+                    {{-- <flux:navlist.item icon="document-text" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Historiques</flux:navlist.item> --}}
+            @endif
             </flux:navlist>
 
             <flux:spacer />

@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('historique_poste')->nullable();
             $table->date('date_recrutement');
             $table->date('date_debut_service');
+            $table->foreignId('ministere_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
             $table->timestamps();
         });

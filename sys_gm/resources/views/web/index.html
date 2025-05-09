@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MOBILITE - Gestion de la mobilité des agents publics béninois</title>
+    <meta name="description" content="Plateforme de gestion de la mobilité des agents publics béninois pour les demandes de mutation, détachement et mise à disposition." />
+    <meta name="author" content="MOBILITE" />
+
+    <meta property="og:title" content="MOBILITE - Gestion de la mobilité des agents publics béninois" />
+    <meta property="og:description" content="Plateforme de gestion de la mobilité des agents publics béninois pour les demandes de mutation, détachement et mise à disposition." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@mobilite_benin" />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: 'hsl(220, 95%, 33%)',
+              'primary-foreground': 'hsl(210, 40%, 98%)',
+            }
+          }
+        }
+      }
+    </script> -->
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="border-b border-gray-200 bg-white">
+      <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center h-16">
+          <div class="flex items-center">
+            <a href="index.html" class="flex items-center">
+              <span class="font-bold text-xl">MOB<span class="text-blue-700">ILITE</span></span>
+            </a>
+          </div>
+
+          <nav class="hidden md:flex items-center space-x-8">
+            <a href="index.html" class="text-sm font-medium hover:text-blue-700 transition-colors">
+              Accueil
+            </a>
+            <a href="about.html" class="text-sm font-medium hover:text-blue-700 transition-colors">
+              À propos
+            </a>
+            <a href="services.html" class="text-sm font-medium hover:text-blue-700 transition-colors">
+              Services
+            </a>
+            <a href="contact.html" class="text-sm font-medium hover:text-blue-700 transition-colors">
+              Contact
+            </a>
+          </nav>
+
+          <div>
+            <button class="bg-blue-700 hover:bg-blue-700/90 text-white px-4 py-2 rounded-md text-sm font-medium">
+              Se connecter
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-br from-black/65 to-black/45 bg-[url('{{asset('img/pexels-sora-shimazaki-5673502.jpg')}}')] bg-cover bg-center text-white py-24 md:py-32">
+      <div class="container mx-auto px-4">
+        <div class="max-w-2xl space-y-6">
+          <h1 class="text-4xl md:text-5xl font-bold leading-tight">
+            Votre Mobilité Publique, <span class="text-blue-400">Simplifiée.</span>
+          </h1>
+          <p class="text-lg md:text-xl">
+            Gérez vos demandes de mutation, détachement et mise à disposition en toute simplicité.
+          </p>
+          <div class="flex flex-wrap gap-4 pt-4">
+            <button class="bg-blue-700 hover:bg-blue-700/90 text-white px-6 py-2.5 rounded-md text-sm font-medium h-11">
+              Déposer une Demande
+            </button>
+            <button class="bg-white/10 hover:bg-white/20 border border-white text-white px-4 py-2 rounded-md text-sm font-medium inline-flex items-center h-11">
+              En savoir plus 
+              <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it Works Section -->
+    <section class="py-16 bg-gray-50">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold mb-4">En 3 étapes simples, gérez votre mobilité</h2>
+          <p class="text-gray-600 max-w-2xl mx-auto">
+            Notre plateforme a été conçue pour rendre le processus de mobilité aussi simple et transparent que possible.
+          </p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="p-6 rounded-md transition-all duration-300 bg-white shadow hover:shadow-lg">
+            <div class="flex justify-center mb-4">
+              <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="m16 11 2 2 4-4"></path></svg>
+              </div>
+            </div>
+            <h3 class="text-xl font-semibold mb-3 text-center">Étape 1</h3>
+            <p class="text-gray-600 text-center">
+              Créez votre compte ou connectez-vous. Soumettez facilement votre demande en ligne.
+            </p>
+          </div>
+          
+          <div class="p-6 rounded-md transition-all duration-300 bg-white shadow hover:shadow-lg">
+            <div class="flex justify-center mb-4">
+              <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              </div>
+            </div>
+            <h3 class="text-xl font-semibold mb-3 text-center">Étape 2</h3>
+            <p class="text-gray-600 text-center">
+              Suivez l'état de votre dossier. Restez informé de chaque étape de votre demande.
+            </p>
+          </div>
+          
+          <div class="p-6 rounded-md transition-all duration-300 bg-white shadow hover:shadow-lg">
+            <div class="flex justify-center mb-4">
+              <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              </div>
+            </div>
+            <h3 class="text-xl font-semibold mb-3 text-center">Étape 3</h3>
+            <p class="text-gray-600 text-center">
+              Découvrez les opportunités. Consultez les postes disponibles et les appels à candidatures.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Types of Mobility Section -->
+    <section class="py-16">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold mb-4">Tous vos types de mobilité au même endroit</h2>
+          <p class="text-gray-600 max-w-2xl mx-auto">
+            Notre plateforme centralise la gestion de toutes vos démarches administratives liées à la mobilité.
+          </p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="p-6 rounded-md transition-all duration-300 bg-white shadow border-t-4 border-blue-700 hover:shadow-lg">
+            <div class="mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            </div>
+            <h3 class="text-xl font-semibold mb-3">Mutation</h3>
+            <p class="text-gray-600 mb-4">
+              Changez de poste au sein de l'administration publique béninoise tout en conservant votre grade.
+            </p>
+            <a href="#" class="text-blue-700 inline-flex items-center">
+              En savoir plus 
+              <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+          
+          <div class="p-6 rounded-md transition-all duration-300 bg-white shadow border-t-4 border-blue-700 hover:shadow-lg">
+            <div class="mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+            </div>
+            <h3 class="text-xl font-semibold mb-3">Détachement</h3>
+            <p class="text-gray-600 mb-4">
+              Exercez votre activité hors de votre administration d'origine tout en conservant vos droits.
+            </p>
+            <a href="#" class="text-blue-700 inline-flex items-center">
+              En savoir plus 
+              <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+          
+          <div class="p-6 rounded-md transition-all duration-300 bg-white shadow border-t-4 border-blue-700 hover:shadow-lg">
+            <div class="mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            <h3 class="text-xl font-semibold mb-3">Mise à Disposition</h3>
+            <p class="text-gray-600 mb-4">
+              Travaillez pour une autre administration tout en restant rattaché à votre structure d'origine.
+            </p>
+            <a href="#" class="text-blue-700 inline-flex items-center">
+              En savoir plus 
+              <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- News and Information Section -->
+    <section class="py-16 bg-gray-50">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold mb-4">Restez informé</h2>
+          <p class="text-gray-600 max-w-2xl mx-auto">
+            Retrouvez les dernières actualités et informations concernant la mobilité des agents publics.
+          </p>
+        </div>
+        
+        <div class="space-y-6 max-w-4xl mx-auto">
+          <div class="p-6 rounded-md transition-all duration-300 bg-white shadow-sm border-l-4 border-blue-700 hover:shadow">
+            <div>
+              <div class="flex justify-between items-start mb-2">
+                <h3 class="font-semibold text-lg">
+                  Nouvelle campagne de mobilité pour les secteurs administratifs
+                </h3>
+                <span class="text-sm text-gray-500">12 Mai 2023</span>
+              </div>
+              <p class="text-gray-600">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ac diam sit amet nunc varius gravida.
+              </p>
+              <a href="#" class="text-blue-700 inline-flex items-center mt-2">
+                Lire plus 
+                <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="p-6 rounded-md transition-all duration-300 bg-white shadow-sm border-l-4 border-blue-700 hover:shadow">
+            <div>
+              <div class="flex justify-between items-start mb-2">
+                <h3 class="font-semibold text-lg">
+                  Nouvelle campagne de mobilité pour les secteurs administratifs
+                </h3>
+                <span class="text-sm text-gray-500">12 Mai 2023</span>
+              </div>
+              <p class="text-gray-600">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ac diam sit amet nunc varius gravida.
+              </p>
+              <a href="#" class="text-blue-700 inline-flex items-center mt-2">
+                Lire plus 
+                <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="p-6 rounded-md transition-all duration-300 bg-white shadow-sm border-l-4 border-blue-700 hover:shadow">
+            <div>
+              <div class="flex justify-between items-start mb-2">
+                <h3 class="font-semibold text-lg">
+                  Nouvelle campagne de mobilité pour les secteurs administratifs
+                </h3>
+                <span class="text-sm text-gray-500">12 Mai 2023</span>
+              </div>
+              <p class="text-gray-600">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ac diam sit amet nunc varius gravida.
+              </p>
+              <a href="#" class="text-blue-700 inline-flex items-center mt-2">
+                Lire plus 
+                <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-10">
+          <button class="border-blue-700 text-blue-700 hover:bg-blue-700/5 px-4 py-2 rounded-md text-sm font-medium border inline-flex items-center">
+            Voir toutes les actualités 
+            <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-100 pt-12 pb-6">
+      <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <h3 class="font-bold text-xl mb-4">MOB<span class="text-primary">ILITE</span></h3>
+            <p class="text-gray-600 mb-4">
+              Plateforme de gestion de la mobilité des agents publics béninois.
+            </p>
+          </div>
+          
+          <div>
+            <h4 class="font-semibold mb-4">Liens Rapides</h4>
+            <ul class="space-y-2">
+              <li><a href="index.html" class="text-gray-600 hover:text-primary transition-colors">Accueil</a></li>
+              <li><a href="about.html" class="text-gray-600 hover:text-primary transition-colors">À propos</a></li>
+              <li><a href="services.html" class="text-gray-600 hover:text-primary transition-colors">Services</a></li>
+              <li><a href="contact.html" class="text-gray-600 hover:text-primary transition-colors">Contact</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4 class="font-semibold mb-4">Ressources</h4>
+            <ul class="space-y-2">
+              <li><a href="#" class="text-gray-600 hover:text-primary transition-colors">FAQ</a></li>
+              <li><a href="#" class="text-gray-600 hover:text-primary transition-colors">Guides</a></li>
+              <li><a href="#" class="text-gray-600 hover:text-primary transition-colors">Documentation</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4 class="font-semibold mb-4">Contact</h4>
+            <ul class="space-y-2 text-gray-600">
+              <li>Email: contact@mobilite.gouv.bj</li>
+              <li>Téléphone: +229 XX XX XX XX</li>
+              <li>Adresse: Cotonou, Bénin</li>
+            </ul>
+          </div>
+        </div>
+        
+        <hr class="my-6 border-gray-200" />
+        
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <p class="text-sm text-gray-600">
+            © 2025 MOBILITE - Tous droits réservés
+          </p>
+          <div class="flex space-x-4 mt-4 md:mt-0">
+            <a href="#" class="text-sm text-gray-600 hover:text-primary transition-colors">
+              Mentions légales
+            </a>
+            <a href="#" class="text-sm text-gray-600 hover:text-primary transition-colors">
+              Politique de confidentialité
+            </a>
+            <a href="#" class="text-sm text-gray-600 hover:text-primary transition-colors">
+              Conditions d'utilisation
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Don't remove this script tag -->
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+  </body>
+</html>
