@@ -89,11 +89,28 @@ class User extends Authenticatable
 
     public function setProfilActif(int $profilId): void
     {
-        // Désactive tous les profils actifs précédents
-        $this->profils()->updateExistingPivot($this->id, ['statut' => 'inactif'], false);
+        // Désactive tous les profils actifs précédents pour cet utilisateur
+        $this->profils()->wherePivot('user_id', $this->id)
+        ->update(['statut' => 'inactif']);
+
+        //déboggage pour voir le nombre de lignes mises à jour
+        /*$updatedCount = $this->profils()->wherePivot('user_id', $this->id)->update(['statut' => 'inactif']);
+        dd('Nombre de lignes mises à jour à inactif : ', $updatedCount);*/
 
         // Active le nouveau profil
         $this->profils()->updateExistingPivot($profilId, ['statut' => 'actif'], false);
+
+        
+        // Désactive tous les profils actifs précédents : cette ligne ne marchait pas
+        // $this->profils()->updateExistingPivot($this->id, ['statut' => 'inactif'], false);
+
+        //ce qui ne marchait pas : déboggage retourne zéro ligne mis à jour
+        /* $updatedCount = $this->profils()->wherePivot('statut', 'actif')->updateExistingPivot($this->id, ['statut' => 'inactif'], false);
+        dd('Nombre de lignes mises à jour à inactif : ', $updatedCount);*/
+
+       
     }
+
+        
     
 }

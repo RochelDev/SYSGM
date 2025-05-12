@@ -1,0 +1,204 @@
+<?php
+
+namespace App\Models;
+
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
+
+class User extends Authenticatable
+{
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory, Notifiable;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'ministere_id',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+
+    /**
+     * Get the user's initials
+     */
+    public function initials(): string
+    {
+        return Str::of($this->name)
+            ->explode(' ')
+            ->map(fn (string $name) => Str::of($name)->substr(0, 1))
+            ->implode('');
+    }
+
+    /**
+     * The ministere that belong to the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function ministere(): BelongsTo
+    {
+        return $this->belongsTo(Ministere::class);
+    }
+
+
+    /**
+     * The roles that belong to the user.
+     */
+    public function profils(): BelongsToMany
+    {
+        return $this->belongsToMany(Profil::class, 'user_profils')
+                    ->withPivot('statut')
+                    ->withTimestamps();
+    }
+
+    public function profilActif()
+    {
+        return $this->profils()->wherePivot('statut', 'actif')->first();
+    }
+
+    public function setProfilActif(int $profilId): void
+    {
+        // Désactive tous les profils actifs précédents
+        $this->profils()->updateExistingPivot($this->id, ['statut' => 'inactif'], false);
+
+        // Active le nouveau profil
+        $this->profils()->updateExistingPivot($profilId, ['statut' => 'actif'], false);
+    }
+    
+}
+
+
+
+
+
+
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class ProfilController extends Controller
+{
+    public function switch(Request $request)
+    {
+        $profilId = $request->input('profil_id');
+
+        if (Auth::check() && $profilId) {
+            /** @var User $user */
+            $user = Auth::user();
+
+            // Vérifiez si le profil ID appartient bien à l'utilisateur (sécurité)
+            if ($user->profils()->where('profil_id', $profilId)->exists()) {
+                $user->setProfilActif($profilId);
+                return redirect()->route('dashboard')->with('success', 'Profil actif mis à jour.');
+            } else {
+                return redirect()->route('dashboard')->with('error', 'Profil non autorisé.');
+            }
+        }
+
+        return redirect()->route('dashboard')->with('error', 'Erreur lors du changement de profil.');
+    }
+}
+
+
+
+
+
+
+
+
+<flux:menu.radio.group>
+                    <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
+                    @if (auth()->user()->usertype === 'admin')
+                        <flux:menu.item :href="route('admindashboard')" wire:navigate>{{ __('Adminitrateur') }}</flux:menu.item>
+                    @endif
+                    {{-- a ce niveau ajouter le ou les profils de l'agent. Et si possible le profil actif est marquer  --}}
+                    @if (auth()->user()->profils->count() > 1)
+                        <flux:menu.separator />
+                        <div class="px-2 py-1 text-xs text-gray-500 dark:text-gray-400">{{ __('Changer de Profil') }}</div>
+                        <form method="POST" action="{{ route('switch.profil') }}" class="space-y-1">
+                            @csrf
+                            @foreach (auth()->user()->profils as $profil)
+                                <button type="submit" name="profil_id" value="{{ $profil->id }}" class="flex items-center px-2 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors w-full justify-start">
+                                    <svg class="h-4 w-4 me-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        @if ($profil->id === auth()->user()->profilActif()->id)
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                        @else
+                                            <circle cx="12" cy="12" r="6" stroke-linecap="round" stroke-linejoin="round" />
+                                        @endif
+                                    </svg>
+                                    {{ $profil->intitule_profil }}
+                                </button>
+                            @endforeach
+                        </form>
+                    @endif
+                </flux:menu.radio.group>
+
+Je voudrais que les autres profils mis à part ou sauf celui sélectionné par l'utilisateur soit inactif.
+Je voudrais que tu me dise si c'est bien fait. Ou des modifications sont nécéssaires. 
+
+
+
+
+
+Éditer Éditer
+Copier Copier
+Supprimer Supprimer
+1
+Agent
+
+2
+Ordonnateur Sectoriel
+
+3
+Responsable Sectoriel
+
+4
+
+5
+DRSC
+
+6
+DGFP
+
+7
+Responsable MTFP
+
+
+
+8
+Service RH
