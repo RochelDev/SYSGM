@@ -3,7 +3,6 @@
 @section('title', '| Demandes')
 
 @section('content')
-    <!-- Affectation -->
     <div class="">
         <div class="fade-in">
             <div class="mb-6">
@@ -11,10 +10,10 @@
                     Répertoire des Demandes
                 </h1>
                 <p class="text-gray-600">
-                    Consultez les informations des demandes de l'administration publique.
+                    Consultez les informations des demandes.
                 </p>
             </div>
-            <div class="card mb-6">
+            <div class="mb-6 p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
                 <div class="p-4 border-b border-gray-100">
                     <div
                         class="flex flex-col lg:flex-row lg:items-center lg:justify-between"
@@ -41,7 +40,7 @@
                             </div>
                             <input
                                 type="text"
-                                class="input-field pl-10"
+                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:outline-none focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 pl-10"
                                 placeholder="Rechercher un agent par nom ou matricule..."
                                 value=""
                             />
@@ -60,10 +59,9 @@
                                     stroke-linejoin="round"
                                     class="lucide lucide-filter text-gray-500 mr-2"
                                 >
-                                    <polygon
-                                        points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"
-                                    ></polygon></svg
-                                ><select class="input-field">
+                                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                                </svg>
+                                <select class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:outline-none focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                                     <option value="all">Toutes les structures</option>
                                     <option value="Direction du Budget">
                                         Direction du Budget
@@ -71,22 +69,14 @@
                                     <option value="Direction des Ressources Humaines">
                                         Direction des Ressources Humaines
                                     </option>
-                                    <option value="Direction de l'Informatique">
-                                        Direction de l'Informatique
-                                    </option>
-                                    <option value="Direction de l'Audit">
-                                        Direction de l'Audit
-                                    </option>
-                                    <option value="Direction des Statistiques">
-                                        Direction des Statistiques
-                                    </option>
                                 </select>
                             </div>
                             <div>
-                                <select class="input-field">
+                                <select class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:outline-none focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                                     <option value="all">Tous les statuts</option>
-                                    <option value="active">Actif</option>
-                                    <option value="inactive">Inactif</option>
+                                    <option value="validé">Validé</option>
+                                    <option value="rejeté">Rejeté</option>
+                                    <option value="en_attente">en attente</option>
                                 </select>
                             </div>
                         </div>
@@ -96,182 +86,65 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th
-                                    scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                >
-                                    Matricule
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Code Dossier
                                 </th>
-                                <th
-                                    scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                >
-                                    Nom
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Nom Agent
                                 </th>
-                                <th
-                                    scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                >
-                                    Fonction
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Type de mobilité
                                 </th>
-                                <th
-                                    scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell"
-                                >
-                                    Structure
-                                </th>
-                                <th
-                                    scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell"
-                                >
-                                    Contact
-                                </th>
-                                <th
-                                    scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                >
-                                    Statut
-                                </th>
-                                <th
-                                    scope="col"
-                                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                >
+                                @auth
+                                @if(auth()->user()->profilActif()->intitule_profil == 'Service RH')
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Titre
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Type Acte
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Référence du Dossier
+                                    </th>
+                                @endif
+                                @endauth
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Actions
                                 </th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <tr class="hover:bg-gray-50 transition-colors">
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#0F2C59]"
-                                >
-                                    AGT12345
-                                </td>
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"
-                                >
-                                    Kofi Amoah
-                                </td>
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"
-                                >
-                                    Analyste Financier
-                                </td>
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 hidden lg:table-cell"
-                                >
-                                    Direction du Budget
-                                </td>
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 hidden md:table-cell"
-                                >
-                                    k.amoah@finances.gouv.bj
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
-                                        >Actif</span
-                                    >
-                                </td>
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
-                                >
-                                    <a
-                                        class="text-[#0F2C59] hover:text-[#4CB9E7]"
-                                        href="/directory/AGT12345"
-                                        >Voir</a
-                                    >
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-gray-50 transition-colors">
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#0F2C59]"
-                                >
-                                    AGT12346
-                                </td>
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-800"
-                                >
-                                    Amina Diallo
-                                </td>
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"
-                                >
-                                    Responsable RH
-                                </td>
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 hidden lg:table-cell"
-                                >
-                                    Direction des Ressources Humaines
-                                </td>
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 hidden md:table-cell"
-                                >
-                                    a.diallo@finances.gouv.bj
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
-                                        >Actif</span
-                                    >
-                                </td>
-                                <td
-                                    class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
-                                >
-                                    <a
-                                        class="text-[#0F2C59] hover:text-[#4CB9E7]"
-                                        href="/directory/AGT12346"
-                                        >Voir</a
-                                    >
-                                </td>
-                            </tr>
+                            @foreach($demandes as $demande)
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#0F2C59]">
+                                        {{ $demande->code_dossier }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                        {{ $demande->nom_agent }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                        {{ $demande->typeMobilite->nom }}
+                                    </td>
+                                    @auth
+                                    @if(auth()->user()->profilActif()->intitule_profil == 'Service RH')
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                            {{ $demande->titre }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                            {{ $demande->type_acte }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                            {{ $demande->reference_dossier }}
+                                        </td>
+                                    @endif
+                                    @endauth
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <a class="text-[#0F2C59] hover:text-[#4CB9E7]" href="{{ route('demande.show', $demande) }}">Voir</a>
+                                    </td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
-                </div>
-                <div
-                    class="px-6 py-4 border-t border-gray-100 flex items-center justify-between"
-                >
-                    <p class="text-sm text-gray-600">
-                        Affichage de <span class="font-medium">5</span> agents
-                    </p>
-                    <div class="flex items-center space-x-2">
-                        <button
-                            class="p-2 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                class="lucide lucide-chevron-left"
-                            >
-                                <path d="m15 18-6-6 6-6"></path>
-                            </svg></button
-                        ><span class="text-sm text-gray-600">Page 1</span
-                        ><button
-                            class="p-2 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                class="lucide lucide-chevron-right"
-                            >
-                                <path d="m9 18 6-6-6-6"></path>
-                            </svg>
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>

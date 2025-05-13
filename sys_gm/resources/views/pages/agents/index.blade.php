@@ -72,7 +72,7 @@
                     Compte
                 </th>
                 <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                    Ministère actuel
+                    Structure actuel
                 </th>
                 <th
                     class="h-12 px-4 align-middle font-medium text-muted-foreground text-right">
@@ -93,7 +93,7 @@
                     <td class="py-2 px-4 align-middle ">{{ $agent->date_recrutement }}</td>
                     <td class="py-2 px-4 align-middle ">{{ $agent->date_debut_service }}</td>
                     <td class="py-2 px-4 align-middle ">@if (isset($agent->user->exists)) oui @else non @endif</td>
-                    <td class="py-2 px-4 align-middle">{{ $agent->ministere ? $agent->ministere->code_ministere : 'Aucun' }}</td>
+                    <td class="py-2 px-4 align-middle">{{ $agent->structure ? $agent->structure->code_structure : 'Aucun' }}</td>
                     <td class="py-2 px-4 align-middle flex justify-end gap-2">
                         {{-- <a class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium border border-yellow-300 hover:bg-yellow-700 hover:text-accent-foreground h-9 rounded-md px-3"
                            type="button">
