@@ -33,6 +33,9 @@
                 <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
                     Intitulé
                 </th>
+                <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                    Code
+                </th>
                 <th class="h-12 px-4 text-right align-middle font-medium text-muted-foreground">
                     Actions
                 </th>
@@ -43,6 +46,7 @@
             @forelse ($type_mobilites as $type_mobilite)
                 <tr class="border-b transition-colors hover:bg-muted/50">
                     <td class="py-2 px-4 align-middle">{{ $type_mobilite->intitule_mobilite }}</td>
+                    <td class="py-2 px-4 align-middle">{{ $type_mobilite->code_type }}</td>
                     <td class="py-2 px-4 align-middle flex justify-end gap-2">
                         <a href="{{ route('admin.type_mobilite.edit', $type_mobilite) }}"
                            class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium border border-yellow-300 hover:bg-yellow-700 hover:text-accent-foreground h-9 rounded-md px-3">

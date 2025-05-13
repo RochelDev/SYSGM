@@ -16,6 +16,13 @@
             <input type="text" value="{{ $type_mobilite->intitule_mobilite  }}" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-dark-700 dark:text-white">
         </div>
 
+        <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Code <span class="text-red-500">*</span>
+            </label>
+            <input type="text" value="{{ $type_mobilite->code_type  }}" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-dark-700 dark:text-white">
+        </div>
+
 
         <div class="flex justify-end gap-4">
             <a href="{{ route('admin.type_mobilite.index') }}" type="button"

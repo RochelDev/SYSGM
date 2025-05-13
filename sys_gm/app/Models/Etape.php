@@ -24,7 +24,7 @@ class Etape extends Model
     public function dossiers(): BelongsToMany
     {
         return $this->belongsToMany(Dossier::class, 'suivi_dossiers')
-                    ->withPivot(['user_id', 'motif'])
+                    ->withPivot(['user_id', 'statut', 'motif'])
                     ->withTimestamps();
     }
 

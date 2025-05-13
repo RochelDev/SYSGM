@@ -41,7 +41,7 @@
                     Profils
                 </th>
                 <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                    Ministère
+                    Structure
                 </th>
                 <th class="h-12 px-4 align-middle font-medium text-muted-foreground text-right">
                     Actions
@@ -62,7 +62,7 @@
                             <span class="text-gray-500">Aucun profil</span>
                         @endforelse
                     </td>
-                    <td class="py-2 px-4 align-middle">{{ $user->ministere ? $user->ministere->nom_ministere : 'Aucun' }}</td>
+                    <td class="py-2 px-4 align-middle">{{ $user->structure ? $user->structure->nom_structure : 'Aucun' }}</td>
                     <td class="p-2 align-middle flex justify-end gap-2">
                         <a href="{{ route('admin.user.edit', $user) }}"
                            class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium border border-yellow-300 hover:bg-yellow-700 hover:text-accent-foreground h-9 rounded-md px-3">

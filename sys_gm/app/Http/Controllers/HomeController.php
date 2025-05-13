@@ -56,6 +56,7 @@ class HomeController extends Controller
 		    else if($usertype =='admin')
 		    {
 				$profilActif = $user->profilActif();
+				//dd($profilActif);
 
 				if ($profilActif) {
 					if($profilActif->intitule_profil == 'Agent')

@@ -59,7 +59,15 @@
                 @if(auth()->user()->profilActif()->intitule_profil == 'Service RH') Service RH @endif
                 @if(auth()->user()->profilActif()->intitule_profil == 'DGFP') DGFP @endif --}}
                 @if(auth()->user()->profilActif()->intitule_profil == 'Agent' || auth()->user()->profilActif()->intitule_profil == 'Service RH' ) 
-                    <flux:navlist.item icon="folder-plus" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Faire une Demande</flux:navlist.item>
+                    <flux:navlist.item icon="folder-plus" :href="route('demande.create')" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Faire une Demande</flux:navlist.item>
+                @endif
+
+                @if(auth()->user()->profilActif()->intitule_profil == 'Agent' ) 
+                    <flux:navlist.item icon="folder-plus" :href="route('demande.create')" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Consulter ses demandes</flux:navlist.item>
+                @endif
+
+                @if(auth()->user()->profilActif()->intitule_profil == 'Service RH') 
+                    <flux:navlist.item icon="folder-plus" :href="route('demande.create')" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Consulter dossiers</flux:navlist.item>
                 @endif
 
                 @if(auth()->user()->profilActif()->intitule_profil == 'Ordonnateur Sectoriel' || auth()->user()->profilActif()->intitule_profil == 'Service RH' || auth()->user()->profilActif()->intitule_profil == 'Agent DRSC' ) 
