@@ -2,6 +2,200 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class SuiviDossier extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'etape_id',
+        'dossier_id',
+        'user_id',
+        'statut',
+        'motif',
+    ];
+
+    /**
+     * Get the etape that owns the suivi dossier.
+     */
+    public function etape(): BelongsTo
+    {
+        return $this->belongsTo(Etape::class);
+    }
+
+    /**
+     * Get the dossier that owns the suivi dossier.
+     */
+    public function dossier(): BelongsTo
+    {
+        return $this->belongsTo(Dossier::class);
+    }
+
+    /**
+     * Get the user that performed the action.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+}
+
+
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Dossier extends Model
+{
+
+    use HasFactory;
+
+    protected $fillable = [
+        'code_dossier',
+        'titre',
+        'structure_id',
+        'type_mobilite_id',
+        'nom_agent',
+        'structure_cible',
+        'agent_id',
+        'statut',
+        'annee',
+        'type_acte',
+        'envoyeur',
+        'destinataire',
+        'signataire',
+        'reference_dossier',
+        'contenu_acte',
+        'motif_demande',
+    ];
+
+    protected $casts = [
+        'historique_statut' => 'json',
+    ];
+
+    public function structure(): BelongsTo
+    {
+        return $this->belongsTo(Structure::class);
+    }
+
+    public function typeMobilite(): BelongsTo
+    {
+        return $this->belongsTo(TypeMobilite::class);
+    }
+
+    public function agent(): BelongsTo
+    {
+        return $this->belongsTo(Agent::class);
+    }
+
+    public function etapes(): BelongsToMany
+    {
+        return $this->belongsToMany(Etape::class, 'suivi_dossiers')
+                    ->withPivot('user_id', 'motif', 'statut')
+                    ->withTimestamps();
+    }
+}
+
+
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class SuiviDossier extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'etape_id',
+        'dossier_id',
+        'user_id',
+        'statut',
+        'motif',
+    ];
+
+    /**
+     * Get the etape that owns the suivi dossier.
+     */
+    public function etape(): BelongsTo
+    {
+        return $this->belongsTo(Etape::class);
+    }
+
+    /**
+     * Get the dossier that owns the suivi dossier.
+     */
+    public function dossier(): BelongsTo
+    {
+        return $this->belongsTo(Dossier::class);
+    }
+
+    /**
+     * Get the user that performed the action.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+}
+
+
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+
+class Etape extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'nom',
+        'ordre',
+        'delai_max',
+    ];
+
+    /**
+     * The dossiers that belong to the etape.
+     */
+    public function dossiers(): BelongsToMany
+    {
+        return $this->belongsToMany(Dossier::class, 'suivi_dossiers')
+                    ->withPivot(['user_id', 'statut', 'motif'])
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get the suivi dossiers for the etape.
+     */
+    public function suiviDossiers(): HasMany
+    {
+        return $this->hasMany(SuiviDossier::class);
+    }
+}
+
+
+<?php
+
+namespace App\Models;
+
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -24,7 +218,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'ministere_id',
+        'structure_id',
     ];
 
     /**
@@ -66,9 +260,9 @@ class User extends Authenticatable
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function ministere(): BelongsTo
+    public function structure(): BelongsTo
     {
-        return $this->belongsTo(Ministere::class);
+        return $this->belongsTo(Structure::class);
     }
 
 
@@ -89,116 +283,92 @@ class User extends Authenticatable
 
     public function setProfilActif(int $profilId): void
     {
-        // Désactive tous les profils actifs précédents
-        $this->profils()->updateExistingPivot($this->id, ['statut' => 'inactif'], false);
+        // Désactive tous les profils actifs précédents pour cet utilisateur
+        $this->profils()->wherePivot('user_id', $this->id)
+        ->update(['statut' => 'inactif']);
+
+        //déboggage pour voir le nombre de lignes mises à jour
+        /*$updatedCount = $this->profils()->wherePivot('user_id', $this->id)->update(['statut' => 'inactif']);
+        dd('Nombre de lignes mises à jour à inactif : ', $updatedCount);*/
 
         // Active le nouveau profil
         $this->profils()->updateExistingPivot($profilId, ['statut' => 'actif'], false);
+
+        
+        // Désactive tous les profils actifs précédents : cette ligne ne marchait pas
+        // $this->profils()->updateExistingPivot($this->id, ['statut' => 'inactif'], false);
+
+        //ce qui ne marchait pas : déboggage retourne zéro ligne mis à jour
+        /* $updatedCount = $this->profils()->wherePivot('statut', 'actif')->updateExistingPivot($this->id, ['statut' => 'inactif'], false);
+        dd('Nombre de lignes mises à jour à inactif : ', $updatedCount);*/
+
+       
     }
+
+
+
+    public function etapes(): BelongsToMany
+    {
+        return $this->belongsToMany(Etape::class, 'suivi_dossiers')
+                    ->withPivot('dossier_id', 'motif', 'statut')
+                    ->withTimestamps();
+    }
+
+        
     
 }
 
 
+Je voudrais que lorssque lon veut soumettre une demande le code dossier est générer
+
+Code Structure+annee+Alias type_mobilite+id. Ex: DGB20250001
 
 
 
+Lorsque le dossier est soumis il est à l'etape 1 a le statut est "en attente" au niveau de la table dossier et la table suivi_dossier(après avoir soumis la demande, le dossier est à l'etape 1)
+L'ordonnateur sélectionne ou clique sur un boutton pour ajouter un dossier à la liste de dossier à traiter; le statut du dossier est mis à jour à "en cours"
 
-<?php
+Lorsque le dossier a le statut "en cours", il passe à l'étape 2 ; avec le statut "en cours" au niveau de la table suivi_dossier
+Une fois que l'ordonnateur ait validé le dossier, le statut est mis à jour sur "validé" au niveau de la table suivi_dossier
 
-namespace App\Http\Controllers;
+Puis le dossier passe à l'étape 3, lorsqu'il est envoyé à la fonction publique avec le statut "en attente"
+L'agent DRSC sélectionne ou clique sur un boutton pour ajouter un dossier à la liste de dossier à traiter car le statut est mis à jour à "en cours" au niveau de la table suivi_dossier
+Une fois que l'agent DRSC ait validé le dossier, le statut est mis à jour sur "validé" au niveau de la table suivi_dossier
 
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+Puis le dossier passe à l'étape 4 , lorsqu'il est envoyé à une autre structure avec le statut "en attente"
+L'ordonnateur sélectionne ou clique sur un boutton pour ajouter un dossier à la liste de dossier à traiter car le statut est mis à jour à "en cours" au niveau de la table suivi_dossier
+Une fois que l'agent DRSC ait validé le dossier, le statut est mis à jour sur "validé" au niveau de la table suivi_dossier
 
-class ProfilController extends Controller
-{
-    public function switch(Request $request)
-    {
-        $profilId = $request->input('profil_id');
+Puis le dossier passe à l'étape 5 , lorsqu'il est envoyé à la fonction publique avec le statut "en attente"
+L'ordonnateur sélectionne ou clique sur un boutton pour ajouter un dossier à la liste de dossier à traiter car le statut est mis à jour à "en cours" au niveau de la table suivi_dossier
+Une fois que l'agent DRSC ait validé le dossier, le statut est mis à jour sur "validé" au niveau de la table suivi_dossier
 
-        if (Auth::check() && $profilId) {
-            /** @var User $user */
-            $user = Auth::user();
+Puis le dossier passe à l'étape 6 , le statut dans la table dossier est mis à jour à "Validé". 
+lorsqu'il est envoyé à la structure requérente, le statut passe de "validé" à "archivé" puis
+le statut est mis à jour sur "terminé" au niveau de la table suivi_dossier
 
-            // Vérifiez si le profil ID appartient bien à l'utilisateur (sécurité)
-            if ($user->profils()->where('profil_id', $profilId)->exists()) {
-                $user->setProfilActif($profilId);
-                return redirect()->route('dashboard')->with('success', 'Profil actif mis à jour.');
-            } else {
-                return redirect()->route('dashboard')->with('error', 'Profil non autorisé.');
-            }
-        }
-
-        return redirect()->route('dashboard')->with('error', 'Erreur lors du changement de profil.');
-    }
-}
+l'ordonnateur est a le statut de "validé" sinon "rejeté"
+lorsque le dossier est envoyé à la fonction publique (MTFP) ou à une structure, elle a le statut de "dossier en_cours",
+lorsque le dossier est valider à la fonction publique (MTFP) "dossier validé" sinon "dossier rejeté"
+lorsque le dossier est envoyer à la structure requérente "dossier archivé"
 
 
 
+Détachement
+Etape1: demande en attente
+Etape2: Traiment Ordonnateur
+Etape3: Traitement Fonction Publique
+Etape6: Validation officielle du dossier ou Fin du processus
 
+Disposition
+Etape1: demande en attente
+Etape2: Traiment Ordonnateur
+Etape3: Traitement Fonction Publique
+  Etape4: Traitement Ordonnateur
+  Etape5: Traitement Fonction Publique
+Etape6: Validation officielle du dossier ou Fin du processus
 
+Selon le type de mobilité, soit on saute les étapes 4 et 5 pour aboutir à l'étape final, ou soit on accompli les étapes
+4 puis 5. 
 
-
-
-<flux:menu.radio.group>
-                    <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
-                    @if (auth()->user()->usertype === 'admin')
-                        <flux:menu.item :href="route('admindashboard')" wire:navigate>{{ __('Adminitrateur') }}</flux:menu.item>
-                    @endif
-                    {{-- a ce niveau ajouter le ou les profils de l'agent. Et si possible le profil actif est marquer  --}}
-                    @if (auth()->user()->profils->count() > 1)
-                        <flux:menu.separator />
-                        <div class="px-2 py-1 text-xs text-gray-500 dark:text-gray-400">{{ __('Changer de Profil') }}</div>
-                        <form method="POST" action="{{ route('switch.profil') }}" class="space-y-1">
-                            @csrf
-                            @foreach (auth()->user()->profils as $profil)
-                                <button type="submit" name="profil_id" value="{{ $profil->id }}" class="flex items-center px-2 py-1.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors w-full justify-start">
-                                    <svg class="h-4 w-4 me-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        @if ($profil->id === auth()->user()->profilActif()->id)
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                        @else
-                                            <circle cx="12" cy="12" r="6" stroke-linecap="round" stroke-linejoin="round" />
-                                        @endif
-                                    </svg>
-                                    {{ $profil->intitule_profil }}
-                                </button>
-                            @endforeach
-                        </form>
-                    @endif
-                </flux:menu.radio.group>
-
-Je voudrais que les autres profils mis à part ou sauf celui sélectionné par l'utilisateur soit inactif.
-Je voudrais que tu me dise si c'est bien fait. Ou des modifications sont nécéssaires. 
-
-
-
-
-
-Éditer Éditer
-Copier Copier
-Supprimer Supprimer
-1
-Agent
-
-2
-Ordonnateur Sectoriel
-
-3
-Responsable Sectoriel
-
-4
-
-5
-DRSC
-
-6
-DGFP
-
-7
-Responsable MTFP
-
-
-
-8
-Service RH
+Contributed command 'editor.action.clipboardCopyAction' does not exist.

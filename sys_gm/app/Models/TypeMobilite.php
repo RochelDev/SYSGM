@@ -17,6 +17,7 @@ class TypeMobilite extends Model
      */
     protected $fillable = [
         'intitule_mobilite',
+        'code_type',
     ];
 
     /**

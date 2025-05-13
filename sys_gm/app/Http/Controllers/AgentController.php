@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Agent;
 use App\Models\Ministere;
+use App\Models\Structure;
 use Illuminate\Http\Request;
 
 class AgentController extends Controller
@@ -13,7 +14,7 @@ class AgentController extends Controller
      */
     public function index()
     {
-        $agents = Agent::orderBy('created_at', 'desc')->with('user', 'ministere')->paginate(5);
+        $agents = Agent::orderBy('created_at', 'desc')->with('user', 'structure')->paginate(5);
         return view('pages.agents.index', [
             'agents' => $agents,
         ]);
@@ -21,15 +22,15 @@ class AgentController extends Controller
 
     public function edit(Agent $agent)
     {
-        $ministeres = Ministere::all();
-        return view('pages.agents.create', compact('agent', 'ministeres'));
+        $structures = Structure::all();
+        return view('pages.agents.create', compact('agent', 'structures'));
     }
 
     public function create()
     {
         $agent = new Agent();
-        $ministeres = Ministere::all();
-        return view('pages.agents.create', compact('agent', 'ministeres'));
+        $structures = Structure::all();
+        return view('pages.agents.create', compact('agent', 'structures'));
     }
 
 
@@ -59,7 +60,7 @@ class AgentController extends Controller
             'date_recrutement' => ['required', 'date'],
             'date_debut_service' => ['required', 'date'],
             'user_id' => ['nullable', 'exists:users,id'],
-            'ministere_id' => ['nullable', 'exists:ministeres,id'],
+            'structure_id' => ['nullable', 'exists:structures,id'],
         ]);
 
         $agent = Agent::create($validatedData);
@@ -95,7 +96,7 @@ class AgentController extends Controller
             'date_recrutement' => ['required', 'date'],
             'date_debut_service' => ['required', 'date'],
             'user_id' => ['nullable', 'exists:users,id'],
-            'ministere_id' => ['nullable', 'exists:ministeres,id'],
+            'structure_id' => ['nullable', 'exists:structures,id'],
         ]);
 
         $agent->update($validatedData);

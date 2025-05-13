@@ -1,0 +1,353 @@
+// Génération automatique du code dossier
+    public static function genererCodeDossier($ministereCode, $typeMobiliteCode, $annee)
+    {
+        $lastNumber = self::where('annee', $annee)
+                        ->where('code_dossier', 'like', $ministereCode.$typeMobiliteCode.$annee.'%')
+                        ->count() + 1;
+
+        return strtoupper($ministereCode)
+               . strtoupper($typeMobiliteCode)
+               . $annee
+               . str_pad($lastNumber, 5, '0', STR_PAD_LEFT);
+    }
+
+
+
+Dossier.php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class DossierMobilite extends Model
+{
+    use SoftDeletes;
+
+    protected $fillable = [
+        'code_dossier',
+        'ministere_id',
+        'type_mobilite_id',
+        'agent_id',
+        'statut',
+        'annee',
+        'historique_statut'
+    ];
+
+    protected $casts = [
+        'historique_statut' => 'array'
+    ];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $ministere = Ministere::find($model->ministere_id);
+            $typeMobilite = TypeMobilite::find($model->type_mobilite_id);
+            
+            $model->code_dossier = self::genererCodeDossier(
+                $ministere->code,
+                $typeMobilite->code,
+                $model->annee
+            );
+        });
+    }
+
+    public static function genererCodeDossier($ministereCode, $typeMobiliteCode, $annee)
+    {
+        $lastNumber = self::where('annee', $annee)
+                        ->where('code_dossier', 'like', $ministereCode.$typeMobiliteCode.$annee.'%')
+                        ->count() + 1;
+
+        return strtoupper($ministereCode)
+               . strtoupper($typeMobiliteCode)
+               . $annee
+               . str_pad($lastNumber, 5, '0', STR_PAD_LEFT);
+    }
+
+    // Relations
+    public function ministere()
+    {
+        return $this->belongsTo(Ministere::class);
+    }
+
+    public function typeMobilite()
+    {
+        return $this->belongsTo(TypeMobilite::class);
+    }
+
+    public function agent()
+    {
+        return $this->belongsTo(Agent::class);
+    }
+
+    // Méthode pour vérifier l'accès
+    public function userCanAccess(User $user)
+    {
+        return $user->hasRole('admin') || 
+               $user->ministere_id === $this->ministere_id ||
+               $this->ministere_destination_id === $user->ministere_id;
+    }
+}
+
+
+
+
+
+
+### DossierMobiliteController.php
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\DossierMobilite;
+use App\Models\Ministere;
+use App\Models\TypeMobilite;
+use App\Models\Agent;
+use Illuminate\Http\Request;
+
+class DossierMobiliteController extends Controller
+{
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+    public function index(Request $request)
+    {
+        $query = DossierMobilite::query();
+
+        // Filtrage par ministère pour les non-admins
+        if (!auth()->user()->hasRole('admin')) {
+            $query->where(function($q) {
+                $q->where('ministere_id', auth()->user()->ministere_id)
+                  ->orWhere('ministere_destination_id', auth()->user()->ministere_id);
+            });
+        }
+
+        // Recherche
+        if ($request->has('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('code_dossier', 'like', '%'.$request->search.'%')
+                  ->orWhereHas('agent', function($q) use ($request) {
+                      $q->where('nom', 'like', '%'.$request->search.'%')
+                        ->orWhere('prenom', 'like', '%'.$request->search.'%');
+                  });
+            });
+        }
+
+        $dossiers = $query->with(['ministere', 'typeMobilite', 'agent'])
+                         ->latest()
+                         ->paginate(10);
+
+        return view('dossiers.index', compact('dossiers'));
+    }
+
+    public function create()
+    {
+        $ministeres = Ministere::all();
+        $typesMobilite = TypeMobilite::all();
+        $agents = Agent::all();
+
+        return view('dossiers.create', compact('ministeres', 'typesMobilite', 'agents'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'ministere_id' => 'required|exists:ministeres,id',
+            'type_mobilite_id' => 'required|exists:type_mobilites,id',
+            'agent_id' => 'required|exists:agents,id',
+            'annee' => 'required|digits:4|integer|min:2023|max:'.(date('Y')+1),
+        ]);
+
+        $dossier = DossierMobilite::create([
+            'ministere_id' => $request->ministere_id,
+            'type_mobilite_id' => $request->type_mobilite_id,
+            'agent_id' => $request->agent_id,
+            'annee' => $request->annee,
+            'statut' => 'en_attente',
+            'historique_statut' => [
+                [
+                    'statut' => 'en_attente',
+                    'date' => now()->toDateTimeString(),
+                    'user_id' => auth()->id()
+                ]
+            ]
+        ]);
+
+        return redirect()->route('dossiers.show', $dossier->id)
+                         ->with('success', 'Dossier créé avec succès: ' . $dossier->code_dossier);
+    }
+
+    public function show(DossierMobilite $dossier)
+    {
+        if (!$dossier->userCanAccess(auth()->user())) {
+            abort(403, 'Accès non autorisé à ce dossier.');
+        }
+
+        return view('dossiers.show', compact('dossier'));
+    }
+
+    public function edit(DossierMobilite $dossier)
+    {
+        if (!$dossier->userCanAccess(auth()->user())) {
+            abort(403, 'Accès non autorisé à ce dossier.');
+        }
+
+        $ministeres = Ministere::all();
+        $typesMobilite = TypeMobilite::all();
+        $agents = Agent::all();
+
+        return view('dossiers.edit', compact('dossier', 'ministeres', 'typesMobilite', 'agents'));
+    }
+
+    public function update(Request $request, DossierMobilite $dossier)
+    {
+        if (!$dossier->userCanAccess(auth()->user())) {
+            abort(403, 'Accès non autorisé à ce dossier.');
+        }
+
+        $request->validate([
+            'ministere_id' => 'required|exists:ministeres,id',
+            'type_mobilite_id' => 'required|exists:type_mobilites,id',
+            'agent_id' => 'required|exists:agents,id',
+            'statut' => 'required|in:en_attente,en_cours,valide,rejete',
+            'commentaire' => 'nullable|string|max:500',
+        ]);
+
+        $historique = $dossier->historique_statut ?? [];
+        $historique[] = [
+            'statut' => $request->statut,
+            'date' => now()->toDateTimeString(),
+            'user_id' => auth()->id(),
+            'commentaire' => $request->commentaire
+        ];
+
+        $dossier->update([
+            'ministere_id' => $request->ministere_id,
+            'type_mobilite_id' => $request->type_mobilite_id,
+            'agent_id' => $request->agent_id,
+            'statut' => $request->statut,
+            'historique_statut' => $historique
+        ]);
+
+        return redirect()->route('dossiers.show', $dossier->id)
+                         ->with('success', 'Dossier mis à jour avec succès.');
+    }
+
+    public function destroy(DossierMobilite $dossier)
+    {
+        if (!$dossier->userCanAccess(auth()->user())) {
+            abort(403, 'Accès non autorisé à ce dossier.');
+        }
+
+        $dossier->delete();
+
+        return redirect()->route('dossiers.index')
+                         ->with('success', 'Dossier supprimé avec succès.');
+    }
+}
+
+
+
+
+
+
+### Index `resources/views/dossiers/index.blade.php`
+```html
+@extends('layouts.app')
+
+@section('content')
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Liste des Dossiers de Mobilité</h5>
+        <a href="{{ route('dossiers.create') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nouveau Dossier
+        </a>
+    </div>
+
+    <div class="card-body">
+        <form method="GET" action="{{ route('dossiers.index') }}" class="mb-4">
+            <div class="input-group">
+                <input type="text" name="search" class="form-control" placeholder="Rechercher..." value="{{ request('search') }}">
+                <button class="btn btn-outline-secondary" type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Code Dossier</th>
+                        <th>Ministère</th>
+                        <th>Type Mobilité</th>
+                        <th>Agent</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($dossiers as $dossier)
+                        <tr>
+                            <td>{{ $dossier->code_dossier }}</td>
+                            <td>{{ $dossier->ministere->nom }}</td>
+                            <td>{{ $dossier->typeMobilite->nom }}</td>
+                            <td>{{ $dossier->agent->full_name }}</td>
+                            <td>
+                                <span class="badge bg-{{ $dossier->statut === 'valide' ? 'success' : ($dossier->statut === 'rejete' ? 'danger' : 'warning') }}">
+                                    {{ $dossier->statut }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ route('dossiers.show', $dossier->id) }}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ route('dossiers.edit', $dossier->id) }}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form action="{{ route('dossiers.destroy', $dossier->id) }}" method="POST" style="display: inline-block;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center">Aucun dossier trouvé</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4">
+            {{ $dossiers->links() }}
+        </div>
+    </div>
+</div>
+@endsection
+
+
+
+
+```php
+Route::resource('dossiers', DossierMobiliteController::class)
+     ->middleware('auth');
+
+// Protection supplémentaire pour les méthodes show, edit, update, destroy
+Route::middleware(['can:view,dossier'])->group(function () {
+    Route::get('/dossiers/{dossier}', [DossierMobiliteController::class, 'show'])->name('dossiers.show');
+    Route::get('/dossiers/{dossier}/edit', [DossierMobiliteController::class, 'edit'])->name('dossiers.edit');
+    Route::put('/dossiers/{dossier}', [DossierMobiliteController::class, 'update'])->name('dossiers.update');
+    Route::delete('/dossiers/{dossier}', [DossierMobiliteController::class, 'destroy'])->name('dossiers.destroy');
+});
+```

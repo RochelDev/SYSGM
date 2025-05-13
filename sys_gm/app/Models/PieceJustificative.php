@@ -3,13 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PieceJustificative extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'type_mobilite_id',
+        'dossier_id',
         'type_piece_id',
         'titre',
         'reference',
@@ -26,9 +28,9 @@ class PieceJustificative extends Model
     /**
      * Get the type mobilite that owns the piece justificative.
      */
-    public function typeMobilite(): BelongsTo
+    public function dossier(): BelongsTo
     {
-        return $this->belongsTo(TypeMobilite::class);
+        return $this->belongsTo(Dossier::class);
     }
     /**
      * Get the type piece that owns the piece justificative.

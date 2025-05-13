@@ -24,7 +24,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'ministere_id',
+        'structure_id',
     ];
 
     /**
@@ -66,9 +66,9 @@ class User extends Authenticatable
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function ministere(): BelongsTo
+    public function structure(): BelongsTo
     {
-        return $this->belongsTo(Ministere::class);
+        return $this->belongsTo(Structure::class);
     }
 
 
@@ -109,6 +109,15 @@ class User extends Authenticatable
         dd('Nombre de lignes mises à jour à inactif : ', $updatedCount);*/
 
        
+    }
+
+
+
+    public function etapes(): BelongsToMany
+    {
+        return $this->belongsToMany(Etape::class, 'suivi_dossiers')
+                    ->withPivot('dossier_id', 'motif', 'statut')
+                    ->withTimestamps();
     }
 
         

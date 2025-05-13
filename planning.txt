@@ -22,7 +22,7 @@ Etape 5: Gestion des fichiers et générations de documents. 1j
 
 
 
-Suivi demande: (Indépendant du type de mobilité)
+Suivi demande: (dépendant du type de mobilité)
 
 Détachement
 Etape1: demande en attente
