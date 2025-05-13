@@ -24,6 +24,7 @@ class TypeMobiliteFormRequest extends FormRequest
     {
         return [
             'intitule_mobilite' => ['required', 'string', 'max:255', Rule::unique('type_mobilites')->ignore($this->type_mobilite)],
+            'code_type' => ['required', 'string', 'max:10', Rule::unique('type_mobilites')->ignore($this->type_mobilite)],
         ];
     }
 }

@@ -64,17 +64,17 @@
                     </div>
 
                     <div>
-                        <label for="ministere_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Ministère <span class="text-red-500">*</span>
+                        <label for="structure_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Structure <span class="text-red-500">*</span>
                         </label>
-                        <select id="ministere_id" name="ministere_id"
-                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-dark-700 dark:text-white @error('ministere_id') border-red-500 @enderror">
-                            <option value="">-- Choisir un Ministère --</option>
-                            @foreach ($ministeres as $minist)
-                                <option value="{{ $minist->id }}" @if(old('ministere_id', $agent->ministere_id) == $minist->id) selected @endif>{{ $minist->nom_ministere }}</option>
+                        <select id="structure_id" name="structure_id"
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 dark:bg-dark-700 dark:text-white @error('structure_id') border-red-500 @enderror">
+                            <option value="">-- Choisir un Structure --</option>
+                            @foreach ($structures as $struct)
+                                <option value="{{ $struct->id }}" @if(old('structure_id', $agent->structure_id) == $struct->id) selected @endif>{{ $struct->nom_structure }}</option>
                             @endforeach
                         </select>
-                        @error('ministere_id')
+                        @error('structure_id')
                         <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
                         @enderror
                     </div>

@@ -1,0 +1,374 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class SuiviDossier extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'etape_id',
+        'dossier_id',
+        'user_id',
+        'statut',
+        'motif',
+    ];
+
+    /**
+     * Get the etape that owns the suivi dossier.
+     */
+    public function etape(): BelongsTo
+    {
+        return $this->belongsTo(Etape::class);
+    }
+
+    /**
+     * Get the dossier that owns the suivi dossier.
+     */
+    public function dossier(): BelongsTo
+    {
+        return $this->belongsTo(Dossier::class);
+    }
+
+    /**
+     * Get the user that performed the action.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+}
+
+
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Dossier extends Model
+{
+
+    use HasFactory;
+
+    protected $fillable = [
+        'code_dossier',
+        'titre',
+        'structure_id',
+        'type_mobilite_id',
+        'nom_agent',
+        'structure_cible',
+        'agent_id',
+        'statut',
+        'annee',
+        'type_acte',
+        'envoyeur',
+        'destinataire',
+        'signataire',
+        'reference_dossier',
+        'contenu_acte',
+        'motif_demande',
+    ];
+
+    protected $casts = [
+        'historique_statut' => 'json',
+    ];
+
+    public function structure(): BelongsTo
+    {
+        return $this->belongsTo(Structure::class);
+    }
+
+    public function typeMobilite(): BelongsTo
+    {
+        return $this->belongsTo(TypeMobilite::class);
+    }
+
+    public function agent(): BelongsTo
+    {
+        return $this->belongsTo(Agent::class);
+    }
+
+    public function etapes(): BelongsToMany
+    {
+        return $this->belongsToMany(Etape::class, 'suivi_dossiers')
+                    ->withPivot('user_id', 'motif', 'statut')
+                    ->withTimestamps();
+    }
+}
+
+
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class SuiviDossier extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'etape_id',
+        'dossier_id',
+        'user_id',
+        'statut',
+        'motif',
+    ];
+
+    /**
+     * Get the etape that owns the suivi dossier.
+     */
+    public function etape(): BelongsTo
+    {
+        return $this->belongsTo(Etape::class);
+    }
+
+    /**
+     * Get the dossier that owns the suivi dossier.
+     */
+    public function dossier(): BelongsTo
+    {
+        return $this->belongsTo(Dossier::class);
+    }
+
+    /**
+     * Get the user that performed the action.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+}
+
+
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+
+class Etape extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'nom',
+        'ordre',
+        'delai_max',
+    ];
+
+    /**
+     * The dossiers that belong to the etape.
+     */
+    public function dossiers(): BelongsToMany
+    {
+        return $this->belongsToMany(Dossier::class, 'suivi_dossiers')
+                    ->withPivot(['user_id', 'statut', 'motif'])
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get the suivi dossiers for the etape.
+     */
+    public function suiviDossiers(): HasMany
+    {
+        return $this->hasMany(SuiviDossier::class);
+    }
+}
+
+
+<?php
+
+namespace App\Models;
+
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
+
+class User extends Authenticatable
+{
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory, Notifiable;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'structure_id',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+
+    /**
+     * Get the user's initials
+     */
+    public function initials(): string
+    {
+        return Str::of($this->name)
+            ->explode(' ')
+            ->map(fn (string $name) => Str::of($name)->substr(0, 1))
+            ->implode('');
+    }
+
+    /**
+     * The ministere that belong to the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function structure(): BelongsTo
+    {
+        return $this->belongsTo(Structure::class);
+    }
+
+
+    /**
+     * The roles that belong to the user.
+     */
+    public function profils(): BelongsToMany
+    {
+        return $this->belongsToMany(Profil::class, 'user_profils')
+                    ->withPivot('statut')
+                    ->withTimestamps();
+    }
+
+    public function profilActif()
+    {
+        return $this->profils()->wherePivot('statut', 'actif')->first();
+    }
+
+    public function setProfilActif(int $profilId): void
+    {
+        // Désactive tous les profils actifs précédents pour cet utilisateur
+        $this->profils()->wherePivot('user_id', $this->id)
+        ->update(['statut' => 'inactif']);
+
+        //déboggage pour voir le nombre de lignes mises à jour
+        /*$updatedCount = $this->profils()->wherePivot('user_id', $this->id)->update(['statut' => 'inactif']);
+        dd('Nombre de lignes mises à jour à inactif : ', $updatedCount);*/
+
+        // Active le nouveau profil
+        $this->profils()->updateExistingPivot($profilId, ['statut' => 'actif'], false);
+
+        
+        // Désactive tous les profils actifs précédents : cette ligne ne marchait pas
+        // $this->profils()->updateExistingPivot($this->id, ['statut' => 'inactif'], false);
+
+        //ce qui ne marchait pas : déboggage retourne zéro ligne mis à jour
+        /* $updatedCount = $this->profils()->wherePivot('statut', 'actif')->updateExistingPivot($this->id, ['statut' => 'inactif'], false);
+        dd('Nombre de lignes mises à jour à inactif : ', $updatedCount);*/
+
+       
+    }
+
+
+
+    public function etapes(): BelongsToMany
+    {
+        return $this->belongsToMany(Etape::class, 'suivi_dossiers')
+                    ->withPivot('dossier_id', 'motif', 'statut')
+                    ->withTimestamps();
+    }
+
+        
+    
+}
+
+
+Je voudrais que lorssque lon veut soumettre une demande le code dossier est générer
+
+Code Structure+annee+Alias type_mobilite+id. Ex: DGB20250001
+
+
+
+Lorsque le dossier est soumis il est à l'etape 1 a le statut est "en attente" au niveau de la table dossier et la table suivi_dossier(après avoir soumis la demande, le dossier est à l'etape 1)
+L'ordonnateur sélectionne ou clique sur un boutton pour ajouter un dossier à la liste de dossier à traiter; le statut du dossier est mis à jour à "en cours"
+
+Lorsque le dossier a le statut "en cours", il passe à l'étape 2 ; avec le statut "en cours" au niveau de la table suivi_dossier
+Une fois que l'ordonnateur ait validé le dossier, le statut est mis à jour sur "validé" au niveau de la table suivi_dossier
+
+Puis le dossier passe à l'étape 3, lorsqu'il est envoyé à la fonction publique avec le statut "en attente"
+L'agent DRSC sélectionne ou clique sur un boutton pour ajouter un dossier à la liste de dossier à traiter car le statut est mis à jour à "en cours" au niveau de la table suivi_dossier
+Une fois que l'agent DRSC ait validé le dossier, le statut est mis à jour sur "validé" au niveau de la table suivi_dossier
+
+Puis le dossier passe à l'étape 4 , lorsqu'il est envoyé à une autre structure avec le statut "en attente"
+L'ordonnateur sélectionne ou clique sur un boutton pour ajouter un dossier à la liste de dossier à traiter car le statut est mis à jour à "en cours" au niveau de la table suivi_dossier
+Une fois que l'agent DRSC ait validé le dossier, le statut est mis à jour sur "validé" au niveau de la table suivi_dossier
+
+Puis le dossier passe à l'étape 5 , lorsqu'il est envoyé à la fonction publique avec le statut "en attente"
+L'ordonnateur sélectionne ou clique sur un boutton pour ajouter un dossier à la liste de dossier à traiter car le statut est mis à jour à "en cours" au niveau de la table suivi_dossier
+Une fois que l'agent DRSC ait validé le dossier, le statut est mis à jour sur "validé" au niveau de la table suivi_dossier
+
+Puis le dossier passe à l'étape 6 , le statut dans la table dossier est mis à jour à "Validé". 
+lorsqu'il est envoyé à la structure requérente, le statut passe de "validé" à "archivé" puis
+le statut est mis à jour sur "terminé" au niveau de la table suivi_dossier
+
+l'ordonnateur est a le statut de "validé" sinon "rejeté"
+lorsque le dossier est envoyé à la fonction publique (MTFP) ou à une structure, elle a le statut de "dossier en_cours",
+lorsque le dossier est valider à la fonction publique (MTFP) "dossier validé" sinon "dossier rejeté"
+lorsque le dossier est envoyer à la structure requérente "dossier archivé"
+
+
+
+Détachement
+Etape1: demande en attente
+Etape2: Traiment Ordonnateur
+Etape3: Traitement Fonction Publique
+Etape6: Validation officielle du dossier ou Fin du processus
+
+Disposition
+Etape1: demande en attente
+Etape2: Traiment Ordonnateur
+Etape3: Traitement Fonction Publique
+  Etape4: Traitement Ordonnateur
+  Etape5: Traitement Fonction Publique
+Etape6: Validation officielle du dossier ou Fin du processus
+
+Selon le type de mobilité, soit on saute les étapes 4 et 5 pour aboutir à l'étape final, ou soit on accompli les étapes
+4 puis 5. 
+
+Contributed command 'editor.action.clipboardCopyAction' does not exist.

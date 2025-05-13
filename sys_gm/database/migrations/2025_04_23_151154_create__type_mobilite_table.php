@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('type_mobilites', function (Blueprint $table) {
             $table->id();
             $table->string('intitule_mobilite')->unique();
+            $table->string('code_type')->nullable();
             $table->timestamps();
         });
 
@@ -21,23 +22,27 @@ return new class extends Migration
             $table->id();
             $table->string('code_dossier')->unique();
             $table->string('titre');
-            $table->foreignId('ministere_id')->constrained();
+            $table->foreignId('structure_id')->constrained();
             $table->foreignId('type_mobilite_id')->constrained();
+            $table->string('nom_agent')->nullable();
             $table->foreignId('agent_id')->constrained();
-            $table->string('statut')->default('en_attente');
+            $table->string('statut')->default('demande en_attente');
+            $table->string('envoyeur')->nullable();
+            $table->string('destinataire')->nullable();
             $table->year('annee');
             $table->json('historique_statut')->nullable();
-            $table->string('type_acte');
-            $table->string('signataire');
-            $table->string('référence dossier');
-            $table->string('contenu_acte');
+            $table->string('type_acte')->nullable();
+            $table->string('signataire')->nullable();
+            $table->string('reference_dossier')->nullable();
+            $table->string('contenu_acte')->nullable();
+            $table->string('motif_demande')->nullable();
             $table->timestamps();
         });
 
         Schema::create('etapes', function (Blueprint $table) {
             $table->id();
             $table->string('nom');
-            $table->string('ordre');
+            $table->integer('ordre');
             $table->string('delai_max');
             $table->timestamps();
         });
@@ -47,6 +52,7 @@ return new class extends Migration
             $table->foreignId('etape_id')->constrained();
             $table->foreignId('dossier_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained();
+            $table->string('statut')->default('en attente');
             $table->string('motif')->nullable();
             $table->primary(['etape_id', 'dossier_id', 'user_id']);
             $table->timestamps();

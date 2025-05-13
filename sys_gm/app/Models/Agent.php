@@ -28,7 +28,7 @@ class Agent extends Model
         'date_recrutement',
         'date_debut_service',
         'user_id',
-        'ministere_id',
+        'structure_id',
     ];
 
     /**
@@ -46,9 +46,9 @@ class Agent extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function ministere(): BelongsTo
+    public function structure(): BelongsTo
     {
-        return $this->belongsTo(Ministere::class);
+        return $this->belongsTo(Structure::class);
     }
 
     /**

@@ -16,25 +16,29 @@ class Dossier extends Model
     protected $fillable = [
         'code_dossier',
         'titre',
-        'ministere_id',
+        'structure_id',
         'type_mobilite_id',
+        'nom_agent',
+        'structure_cible',
         'agent_id',
         'statut',
         'annee',
-        'historique_statut',
         'type_acte',
+        'envoyeur',
+        'destinataire',
         'signataire',
-        'référence dossier',
+        'reference_dossier',
         'contenu_acte',
+        'motif_demande',
     ];
 
     protected $casts = [
         'historique_statut' => 'json',
     ];
 
-    public function ministere(): BelongsTo
+    public function structure(): BelongsTo
     {
-        return $this->belongsTo(Ministere::class);
+        return $this->belongsTo(Structure::class);
     }
 
     public function typeMobilite(): BelongsTo
@@ -50,7 +54,34 @@ class Dossier extends Model
     public function etapes(): BelongsToMany
     {
         return $this->belongsToMany(Etape::class, 'suivi_dossiers')
-                    ->withPivot('user_id', 'motif')
+                    ->withPivot('user_id', 'motif', 'statut')
                     ->withTimestamps();
     }
+
+    public function piecesJustificatives(): HasMany
+    {
+        return $this->hasMany(PieceJustificative::class);
+    }
+
+    public static function genererCodeDossier($structureCode)
+    {
+        $annee = date('Y');
+        $lastNumber = self::where('annee', $annee)
+                        ->where('code_dossier', 'like', strtoupper($structureCode) . $annee . '%')
+                        ->count() + 1;
+
+        return strtoupper($structureCode)
+               . $annee
+               . str_pad($lastNumber, 4, '0', STR_PAD_LEFT);
+
+    }
+
+
+    public function structureDestinataire(): BelongsTo
+    {
+        return $this->belongsTo(Structure::class, 'destinataire');
+    }
+
+
+
 }

@@ -31,9 +31,9 @@ return new class extends Migration
 
         Schema::create('piece_justificatives', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('type_mobilite_id')->constrained()->onDelete('cascade'); // Ajout de la contrainte de clé étrangère et de l'action en cas de suppression
+            $table->foreignId('dossier_id')->constrained()->onDelete('cascade'); // Ajout de la contrainte de clé étrangère et de l'action en cas de suppression
             $table->foreignId('type_piece_id')->constrained()->onDelete('cascade'); // Ajout de la contrainte de clé étrangère et de l'action en cas de suppression
-            $table->string('titre');
+            $table->string('titre')->nullable();
             $table->string('reference')->nullable(); // Ajout de ->nullable() car ce champ pourrait être optionnel
             $table->date('date')->nullable(); // Ajout de ->nullable() car ce champ pourrait être optionnel
             $table->string('signataire')->nullable(); // Ajout de ->nullable() car ce champ pourrait être optionnel

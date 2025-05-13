@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             // Ajoute la colonne ministere_id à la table users.
-            $table->unsignedBigInteger('ministere_id')->nullable();
+            $table->unsignedBigInteger('structure_id')->nullable();
 
             // Définit la colonne ministere_id comme une clé étrangère, référençant la colonne id de la table ministeres.
-            $table->foreign('ministere_id')
+            $table->foreign('structure_id')
                   ->references('id')
-                  ->on('ministeres')
+                  ->on('structures')
                   ->onDelete('set null'); // Si un ministère est supprimé, la valeur de ministere_id pour les utilisateurs de ce ministère sera mise à null.
         });
     }

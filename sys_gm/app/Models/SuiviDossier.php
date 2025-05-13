@@ -14,6 +14,7 @@ class SuiviDossier extends Model
         'etape_id',
         'dossier_id',
         'user_id',
+        'statut',
         'motif',
     ];
 

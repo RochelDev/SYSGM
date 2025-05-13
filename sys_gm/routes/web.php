@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AgentController;
 use App\Http\Controllers\ProfilController;
+use App\Http\Controllers\DemandeController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\PosteController;
 use App\Http\Controllers\Admin\FonctionController;
@@ -41,6 +42,7 @@ Route::get('/home', function () {
 
 Route::get('/dashboard', [HomeController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 Route::post('/switch-profil', [ProfilController::class, 'switch'])->name('switch.profil');
+Route::resource('demande', DemandeController::class)->middleware(['auth', 'verified']);
 
 
 Route::middleware(['auth', 'verified', 'admin'])->prefix('/admin')->group(function () {

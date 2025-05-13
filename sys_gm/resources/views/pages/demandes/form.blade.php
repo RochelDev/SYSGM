@@ -5,8 +5,10 @@
 @section('content')
     <!-- Demandes -->
     <div class="fade-in mb-3">
+        @auth
+        @if(auth()->user()->profilActif()->intitule_profil == 'Service RH') 
         <div class="mb-6">
-            <button
+            <a  href="{{ route('demande.index') }}"
                 class="inline-flex items-center text-gray-600 hover:text-gray-800 mb-4"
             >
                 <svg
@@ -24,7 +26,7 @@
                     <path d="m12 19-7-7 7-7"></path>
                     <path d="M19 12H5"></path></svg>
                 Retour aux demandes
-            </button>
+            </a>
             <h1 class="text-2xl font-bold text-gray-800 mb-2">
                 Nouvelle demande de mobilité
             </h1>
@@ -33,6 +35,8 @@
                 de mobilité.
             </p>
         </div>
+        @endif
+        @endauth
         <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
             <div class="p-6 border-b border-gray-100">
                 <div class="flex items-center">
@@ -60,13 +64,15 @@
                     </h2>
                 </div>
             </div>
-            <form class="p-6">
+            <form class="p-6" action="{{ route($demande->exists ? 'demande.update' : 'demande.store', $demande) }}" method="post">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
                         <label for="agentId" class="block text-sm font-medium text-gray-700 mb-1">
-                            Matricule de l'agent*
+                            Code Dossier*
                         </label>
-                            <input type="text" id="agentId" name="agentId" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:outline-none focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Exemple: 12345A" value=""/>
+                        <input type="text" id="code_dossier" name="code_dossier"
+                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:outline-none focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        placeholder="Exemple: 12345A" value="{{ $codeDossier ?? '' }}" @if($codeDossier != '') readonly @endif  />
                     </div>
                     <div>
                         <label for="agentName" class="block text-sm font-medium text-gray-700 mb-1" >Nom complet de l'agent*</label>
@@ -90,7 +96,7 @@
                             <option value="secondment">Mise à disposition</option>
                         </select>
                     </div>
-                    <div>
+                    {{-- <div>
                         <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">
                             Date souhaitée*
                         </label
@@ -101,7 +107,39 @@
                             class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:outline-none focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                             value=""
                         />
+                    </div> --}}
+                    @if(auth()->user()->profilActif()->intitule_profil == 'Service RH')
+                    
+                    <div>
+                        <label for="agentName" class="block text-sm font-medium text-gray-700 mb-1" >Titre*</label>
+                        <input type="text" id="agentName" name="agentName" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:outline-none focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Prénom et NOM" value=""
+                        />
                     </div>
+                    <div>
+                        <label
+                            for="currentDepartment"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                            >Type Acte*</label
+                        ><select
+                            id="currentDepartment"
+                            name="currentDepartment"
+                            class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:outline-none focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        >
+                            <option value="">Sélectionnez un acte</option>
+                            <option value="Direction des Ressources Humaines">
+                                Lettre
+                            </option>
+                            <option value="Direction du Budget">
+                                Arrêté
+                            </option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="agentName" class="block text-sm font-medium text-gray-700 mb-1" >Référence du Dossier*</label>
+                        <input type="text" id="agentName" name="agentName" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:outline-none focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Prénom et NOM" value=""
+                        />
+                    </div>
+                    @endif
                     <div>
                         <label
                             for="currentDepartment"
@@ -184,6 +222,21 @@
                         placeholder="Donnez les raisons motivant cette demande de mobilité..."
                     ></textarea>
                 </div>
+                @if(auth()->user()->profilActif()->intitule_profil == 'Service RH')
+                <div class="mb-6">
+                    <label
+                        for="justification"
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                        >Contenu de l'acte</label
+                    ><textarea
+                        id="justification"
+                        name="justification"
+                        rows="4"
+                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:outline-none focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        placeholder="Saisissez le contenu de l'acte..."
+                    ></textarea>
+                </div>
+                @endif
                 <div class="mb-8">
                     <label
                         for="documents"

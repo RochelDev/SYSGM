@@ -32,6 +32,11 @@ class Structure extends Model
         return $this->belongsTo(Ministere::class);
     }
 
+    public function agents(): HasMany
+    {
+        return $this->hasMany(Agent::class);
+    }
+
     /**
      * Get all of the postes for the Structure
      *
