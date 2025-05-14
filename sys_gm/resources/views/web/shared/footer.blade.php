@@ -1,16 +1,16 @@
 <!-- ====== footer ====== -->
 
-<footer class="bg-gray-100 pt-12 pb-6">
-    <div class="container mx-auto px-4">
+<footer class="bg-gray-100 pt-12 pb-6 px-8">
+    <div class="container mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
+            <div class="p-4">
                 <h3 class="font-bold text-xl mb-4 text-primary">SYS<span class="text-primary">GM</span></h3>
                 <p class="text-gray-600 mb-4">
                     Plateforme de gestion de la mobilité des agents de l'administration publique béninoise.
                 </p>
             </div>
 
-            <div>
+            <div class="p-4">
                 <h4 class="font-semibold mb-4 text-lg">Liens Rapides</h4>
                 <ul class="space-y-2">
                     <li><a href="{{ route('home') }}" class="hover:text-primary">Accueil</a></li>
@@ -20,7 +20,7 @@
                 </ul>
             </div>
 
-            <div>
+            <div class="p-4">
                 <h4 class="font-semibold mb-4 text-lg">Ressources</h4>
                 <ul class="space-y-2">
                     <li><a href="{{ route('faq') }}" class="text-gray-600 hover:text-primary transition-colors">FAQ</a></li>
@@ -29,7 +29,7 @@
                 </ul>
             </div>
 
-            <div>
+            <div class="p-4">
                 <h4 class="font-semibold mb-4 text-lg">Contact</h4>
                 <ul class="space-y-2 text-gray-600">
                     <li>Email: <a href="mailto:contact@mobilite.gouv.bj" class="hover:text-primary">contact@mobilite.gouv.bj</a></li>

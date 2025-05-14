@@ -14,7 +14,7 @@
 
     @include('web.shared.header')
 
-    <div class="py-12 bg-gray-50">
+    <div class="py-12 bg-gray-50 mt-[76px]">
       <div class="container mx-auto px-4">
         <div class="max-w-5xl mx-auto">
           <h1 class="text-3xl font-bold mb-6 text-center">Contactez-nous</h1>

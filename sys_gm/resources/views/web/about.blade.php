@@ -15,7 +15,7 @@
 
 @include('web.shared.header')
 
-<section class="py-12 bg-gray-50">
+<section class="py-12 bg-gray-50 mt-[76px]">
     <div class="container mx-auto px-4">
         <div class="max-w-3xl mx-auto">
             <div class="mb-8">
@@ -43,7 +43,7 @@
             <div>
                 <h2 class="text-2xl font-semibold mb-4">Fonctionnalités Clés du Système</h2>
                 <p class="text-gray-700 text-lg">
-                    Le Sys_gm est conçu pour :
+                    Le SYSGM est conçu pour :
                 </p>
                 <ul class="list-disc list-inside text-gray-700 mt-2">
                     <li>Gérer les différents types de mobilité (détachement, disponibilité, etc.)

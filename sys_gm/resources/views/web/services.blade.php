@@ -18,13 +18,13 @@
 @include('web.shared.header')
 
     <!-- Services Content -->
-    <div class="py-12 bg-gray-50">
+    <div class="relative py-12 bg-gray-50 mt-[76px]">
       <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto">
           <h1 class="text-3xl font-bold mb-6 text-center">Nos Services</h1>
 
           <p class="text-gray-700 mb-10 text-center">
-            Découvrez l'ensemble des services proposés par la plateforme Sys_gm pour gérer votre carrière
+            Découvrez l'ensemble des services proposés par la plateforme SYSGM pour gérer votre carrière
             et votre mobilité au sein de l'administration publique béninoise.
           </p>
 

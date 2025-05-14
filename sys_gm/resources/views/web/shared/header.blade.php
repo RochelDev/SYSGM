@@ -1,21 +1,21 @@
 <!-- ====== header ====== -->
 
-<header class="absolute sticky left-0 top-0 z-50 bg-white/90 w-full backdrop-blur">
-    <nav class="bg-white/90 backdrop-blur fixed w-full z-20 top-0 start-0 border-b border-gray-200">
+<header class="bg-white/90 backdrop-blur fixed w-full z-50 top-0 start-0 border-b border-gray-200">
+    <nav>
         <div class="max-w-screen-xl flex flex-wrap items-center justify-evenly mx-auto p-4">
             <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
                 {{-- <img src="https://flowbite.com/docs/images/logo.svg" class="h-8" alt="Flowbite Logo"> --}}
-                <span class="self-center text-2xl font-semibold whitespace-nowrap">MOB<span class="text-blue-700">ILITE</span> </span>
+                <span class="self-center text-2xl font-semibold whitespace-nowrap">SYS<span class="text-blue-700">GM</span> </span>
             </a>
             <div class="hidden space-x-32 w-full lg:flex md:w-auto md:order-1" id="navbar-sticky">
             <!-- Bouton burger à ajouter ici pour mobile -->
 
                 <div class="hidden w-full md:flex md:w-auto" id="navbar-sticky">
                     <ul class="flex flex-col md:flex-row md:space-x-8 font-medium">
-                        <li><a href="{{ route('home') }}" class="block py-2 px-3 text-blue-700">Home</a></li>
-                        <li><a href="{{ route('about') }}" class="block py-2 px-3 text-gray-900 hover:text-blue-700">About</a></li>
-                        <li><a href="{{ route('services') }}" class="block py-2 px-3 text-gray-900 hover:text-blue-700">Services</a></li>
-                        <li><a href="{{ route('contact') }}" class="block py-2 px-3 text-gray-900 hover:text-blue-700">Contact</a></li>
+                        <li><a href="{{ route('home') }}" class="block py-2 px-3 {{ request()->routeIs('home') ? 'text-blue-700!' : '' }}">Home</a></li>
+                        <li><a href="{{ route('about') }}" class="block py-2 px-3 text-gray-900 hover:text-blue-700 {{ request()->routeIs('about') ? 'text-blue-700!' : '' }}">About</a></li>
+                        <li><a href="{{ route('services') }}" class="block py-2 px-3 text-gray-900 hover:text-blue-700 {{ request()->routeIs('services') ? 'text-blue-700!' : '' }}">Services</a></li>
+                        <li><a href="{{ route('contact') }}" class="block py-2 px-3 text-gray-900 hover:text-blue-700 {{ request()->routeIs('contact') ? 'text-blue-700!' : '' }}">Contact</a></li>
                     </ul>
                     
                 </div>

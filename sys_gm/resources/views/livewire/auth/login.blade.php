@@ -51,7 +51,7 @@
 </div> --}}
 
 
-<div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+<div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mt-2">
     <div class="mb-8 text-center">
         <h1 class="text-2xl font-bold text-gray-800">Bienvenue</h1>
         <p class="text-gray-600 mt-2">Se connecter</p>

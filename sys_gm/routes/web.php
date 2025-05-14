@@ -33,6 +33,23 @@ Route::get('/home', function () {
     return view('web.index');
 });
 
+
+Route::get('/about', function () {
+    return view('web.about');
+})->name('about');
+
+Route::get('/services', function () {
+    return view('web.services');
+})->name('services');
+
+Route::get('/contact', function () {
+    return view('web.contact');
+})->name('contact');
+
+Route::get('/faq', [FAQController::class, 'index'])->name('faq');
+
+Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
+
 // Route::get('/admin', function () {
 //     return view('admin.index');
 // })->name('admindashboard')->middleware(['auth', 'verified', 'admin']);
@@ -100,25 +117,6 @@ Route::middleware(['auth'])->group(function () {
 require __DIR__.'/auth.php';
 
 
-Route::get('/about', function () {
-    return view('web.about');
-})->name('about');
 
-Route::get('/services', function () {
-    return view('web.services');
-})->name('services');
-
-Route::get('/contact', function () {
-    return view('web.contact');
-})->name('contact');
-
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'admin'])
-    ->name('dashboard');
-
-    Route::get('/faq', [FAQController::class, 'index'])->name('faq');
-
-    
-Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
 
 
