@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\MinistereController;
 use App\Http\Controllers\Admin\StructureController;
 use App\Http\Controllers\Admin\ProfilAccessController;
 use App\Http\Controllers\Admin\TypeMobiliteController;
+use App\Http\Controllers\FAQController;
 
 
 Route::get('/', function () {
@@ -28,7 +29,7 @@ Route::get('/dossier', function () {
 
 
 Route::get('/home', function () {
-    return view('web.page');
+    return view('web.index');
 });
 
 // Route::get('/admin', function () {
@@ -55,7 +56,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('/admin')->group(functi
         Route::resource('profil', ProfilAccessController::class )->except(['show']);
         Route::resource('type_mobilite', TypeMobiliteController::class )->except(['show']);
     });
-    
+
 
 });
 
@@ -95,3 +96,27 @@ Route::middleware(['auth'])->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+
+Route::get('/about', function () {
+    return view('web.about');
+})->name('about');
+
+Route::get('/services', function () {
+    return view('web.services');
+})->name('services');
+
+Route::get('/contact', function () {
+    return view('web.contact');
+})->name('contact');
+
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'admin'])
+    ->name('dashboard');
+
+    Route::get('/faq', [FAQController::class, 'index'])->name('faq');
+
+    
+Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
+
+

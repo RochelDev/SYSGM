@@ -8,7 +8,7 @@
 
     <!-- google font link -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
+
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -22,9 +22,9 @@
       <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto">
           <h1 class="text-3xl font-bold mb-6 text-center">Nos Services</h1>
-          
+
           <p class="text-gray-700 mb-10 text-center">
-            Découvrez l'ensemble des services proposés par la plateforme MOBILITE pour gérer votre carrière
+            Découvrez l'ensemble des services proposés par la plateforme Sys_gm pour gérer votre carrière
             et votre mobilité au sein de l'administration publique béninoise.
           </p>
 
@@ -56,14 +56,14 @@
                 Déposer une demande
               </button>
             </div>
-            
+
             <div class="p-6 border-t-4 border-primary rounded-lg bg-white shadow-md">
               <div class="mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
               </div>
               <h3 class="text-xl font-semibold mb-3">Demande de Détachement</h3>
               <p class="text-gray-600 mb-4">
-                Initiez et suivez votre procédure de détachement vers une autre structure. 
+                Initiez et suivez votre procédure de détachement vers une autre structure.
                 Consultez les informations sur les droits et obligations.
               </p>
               <ul class="space-y-2 mb-6">
@@ -84,7 +84,7 @@
                 Déposer une demande
               </button>
             </div>
-            
+
             <div class="p-6 border-t-4 border-primary rounded-lg bg-white shadow-md">
               <div class="mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
@@ -112,7 +112,7 @@
                 Déposer une demande
               </button>
             </div>
-            
+
             <div class="p-6 border-t-4 border-primary rounded-lg bg-white shadow-md">
               <div class="mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -141,25 +141,30 @@
               </button>
             </div>
           </div>
-          
+
           <div class="bg-blue-50 p-8 rounded-lg border border-blue-100">
             <h3 class="text-xl font-semibold mb-4 text-center">Besoin d'assistance?</h3>
             <p class="text-center mb-6">
               Notre équipe est disponible pour vous aider dans vos démarches et répondre à vos questions.
             </p>
             <div class="flex justify-center">
+                <a href="{{ route('faq') }}">
               <button class="border border-primary bg-white hover:bg-gray-50 text-primary px-4 py-2 rounded-md text-sm font-medium mr-4">
                 Consulter la FAQ
               </button>
-              <button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md text-sm font-medium">
-                Contactez-nous
-              </button>
+                </a>
+              <a href="{{ route('contact') }}">
+    <button class="border border-primary bg-white hover:bg-gray-50 text-primary px-4 py-2 rounded-md text-sm font-medium mr-4">
+        Contactez-nous
+    </button>
+</a>
+
             </div>
           </div>
         </div>
       </div>
     </div>
-    
+
     @include('web.shared.footer')
 
   </body>
