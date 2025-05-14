@@ -172,7 +172,7 @@
             </div>
         </div> --}}
 
-        @include('web.shared.footer')
+        {{-- @include('web.shared.footer') --}}
         
         @fluxScripts
     </body>
