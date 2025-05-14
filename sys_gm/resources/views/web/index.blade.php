@@ -101,7 +101,7 @@
 </section>
 
 <!-- Types of Mobility Section -->
-<section class="py-16">
+<section class="py-16"> 
     <div class="container mx-auto px-4">
         <div class="text-center mb-12">
             <h2 class="text-3xl font-bold mb-4">Tous vos types de mobilité au même endroit</h2>
@@ -191,39 +191,15 @@
     </div>
 </section>
 
-<style>
-    .hidden {
-        display: none;
-    }
-</style>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const showDetailsLinks = document.querySelectorAll('.show-details');
-
-        showDetailsLinks.forEach(link => {
-            link.addEventListener('click', function(event) {
-                event.preventDefault(); // Empêche le lien de naviguer
-
-                const targetId = this.dataset.target;
-                const targetElement = document.getElementById(targetId);
-
-                if (targetElement) {
-                    targetElement.classList.toggle('hidden');
-                }
-            });
-        });
-    });
-</script>
 
 <!-- ====== Blog ====== -->
 <section class="py-16 bg-gray-700">
     <div class="mx-auto max-w-7xl px-8 md:px-6">
-
         <!-- wrapper -->
         <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:gap-10">
            <!-- single-blog -->
-<div class="w-full duration-200 hover:scale-95">
+        <div class="w-full duration-200 hover:scale-95">
     <div class="max-h-52 w-full overflow-hidden rounded-t-xl">
             <img src="{{ asset('img/Capture_dashboard.png') }}" alt="blog img" class="w-full">
         </a>
@@ -248,10 +224,8 @@
                     <div class="flex">
                         <a href="{{ route('contact') }}" class="mr-2 rounded-md bg-blue-50 px-3 py-1 text-sm text-slate-600">Contact</a>
                         <a href="#" class="ml-auto rounded-md bg-blue-50 px-3 py-1 text-sm text-slate-600">A voir</a>
-
                     </div>
                     <hr class="my-4 border-slate-100">
-
                 </div>
             </div>
 
@@ -266,7 +240,6 @@
                         <a href="{{ route('login') }}" class="ml-auto rounded-md bg-blue-50 px-3 py-1 text-sm text-slate-600">Login</a>
                     </div>
                     <hr class="my-4 border-slate-100">
-
                 </div>
             </div>
         </div>
@@ -277,5 +250,23 @@
 
 @include('web.shared.footer')
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const showDetailsLinks = document.querySelectorAll('.show-details');
+
+        showDetailsLinks.forEach(link => {
+            link.addEventListener('click', function(event) {
+                event.preventDefault(); // Empêche le lien de naviguer
+
+                const targetId = this.dataset.target;
+                const targetElement = document.getElementById(targetId);
+
+                if (targetElement) {
+                    targetElement.classList.toggle('hidden');
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>
