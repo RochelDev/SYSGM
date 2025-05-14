@@ -160,60 +160,7 @@
 
 
 
-<!-- ====== Blog ====== -->
-<section class="py-16 px-8 bg-gray-700">
-    <div class="mx-auto max-w-7xl px-8 md:px-6">
-        <!-- wrapper -->
-        <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:gap-10">
-           <!-- single-blog -->
-            <div class="w-full duration-200 hover:scale-95">
-                <div class="max-h-52 w-full overflow-hidden rounded-t-xl">
-                    <img src="{{ asset('img/Capture_dashboard.png') }}" alt="blog img" class="w-full">
-                    </a>
-                </div>
-                <div class="rounded-b-xl px-5 pb-5 pt-3 shadow-md shadow-blue-500/10 bg-white">
-                    <div class="flex">
-                        <a href="{{ route('services') }}"  class="mr-2 rounded-md bg-blue-50 px-3 py-1 text-sm text-slate-600">Services</a>
-                        <a href="{{ route('dashboard') }}" class="ml-auto rounded-md bg-blue-50 px-3 py-1 text-sm text-slate-600">Dashboard</a>
-                    </div>
-                    <hr class="my-4 border-slate-100">
 
-                </div>
-            </div>
-
-
-            <!-- single-blog -->
-            <div class="w-full duration-200 hover:scale-95">
-                <div class="max-h-52 w-full overflow-hidden rounded-t-xl">
-                    <img src="{{asset('img/stat_capt.png')}}" alt="blog img" class="w-full">
-                </div>
-                <div class="rounded-b-xl px-5 pb-5 pt-3 shadow-md shadow-blue-500/10 bg-white">
-                    <div class="flex">
-                        <a href="{{ route('contact') }}" class="mr-2 rounded-md bg-blue-50 px-3 py-1 text-sm text-slate-600">Contact</a>
-                        <a href="#" class="ml-auto rounded-md bg-blue-50 px-3 py-1 text-sm text-slate-600">A voir</a>
-                    </div>
-                    <hr class="my-4 border-slate-100">
-                </div>
-            </div>
-
-            <!-- single-blog -->
-            <div class="w-full duration-200 hover:scale-95 ">
-                <div class="max-h-52 w-full overflow-hidden rounded-t-xl">
-                    <img src="{{asset('img/Capt_profil.png')}}" alt="blog img" class="w-full">
-                </div>
-                <div class="rounded-b-xl px-5 pb-5 pt-3 shadow-md shadow-blue-500/10 bg-white">
-                    <div class="flex">
-                        <a href="{{ route('about') }}" class="mr-2 rounded-md bg-blue-50 px-3 py-1 text-sm text-slate-600">A propos</a>
-                        <a href="{{ route('login') }}" class="ml-auto rounded-md bg-blue-50 px-3 py-1 text-sm text-slate-600">Login</a>
-                    </div>
-                    <hr class="my-4 border-slate-100">
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ====== END Blog ====== -->
 
 @include('web.shared.footer')
 
