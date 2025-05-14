@@ -178,6 +178,55 @@
                 </div>
                 <div class="rounded-b-xl px-5 pb-5 pt-3 shadow-md shadow-blue-500/10 bg-white">
                     <div class="">
+                        <a href="#" class="block pt-4 font-medium capitalize text-slate-800 hover:text-blue-500">Lorem Ipsum Dolor Sit Amet, Consectetur Adipisicing Elit.</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- single-blog -->
+            <div class="w-full duration-200 hover:scale-95">
+                <div class="max-h-52 w-full overflow-hidden rounded-t-xl">
+                    <img src="{{asset('ZED.zahidul/images/blog/blog-2.png')}}" alt="blog img" class="w-full">
+                </div>
+                <div class="rounded-b-xl px-5 pb-5 pt-3 shadow-md shadow-blue-500/10 bg-white">
+                    <div class="">
+                        <a href="#" class="block pt-4 font-medium capitalize text-slate-800 hover:text-blue-500">Dolore Placeat Ullam Architecto Deleniti Maxime Laborum</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- single-blog -->
+            <div class="w-full duration-200 hover:scale-95 ">
+                <div class="max-h-52 w-full overflow-hidden rounded-t-xl">
+                    <img src="{{asset('ZED.zahidul/images/blog/blog-3.png')}}" alt="blog img" class="w-full">
+                </div>
+                <div class="rounded-b-xl px-5 pb-5 pt-3 shadow-md shadow-blue-500/10 bg-white">
+                    <div class="">
+                        <a href="#" class="block pt-4 font-medium capitalize text-slate-800 hover:text-blue-500">Lorem Ipsum Dolor Sit Amet, Consectetur Adipisicing Elit.</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{{-- <section class="py-16 bg-gray-700">
+    <div class="mx-auto max-w-7xl px-8 md:px-6">
+        <!-- heading text -->
+        <div class="mb-5 sm:mb-10">
+            <span class="font-medium text-blue-500">Our Blog</span>
+            <h1 class="text-2xl font-bold text-slate-700 sm:text-3xl">From Our Latest Blog</h1>
+        </div>
+        <!-- wrapper -->
+        <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:gap-10">
+            <!-- single-blog -->
+            <div class="w-full duration-200 hover:scale-95">
+                <div class="max-h-52 w-full overflow-hidden rounded-t-xl">
+                    <img src="{{asset('ZED.zahidul/images/blog/blog-1.png')}}" alt="blog img" class="w-full">
+                </div>
+                <div class="rounded-b-xl px-5 pb-5 pt-3 shadow-md shadow-blue-500/10 bg-white">
+                    <div class="">
                         <a href="#" class="mr-2 rounded-md bg-blue-50 px-3 py-1 text-sm text-slate-600">Services</a>
                         <a href="#" class="block pt-4 font-medium capitalize text-slate-800 hover:text-blue-500">Lorem Ipsum Dolor Sit Amet, Consectetur Adipisicing Elit.</a>
                     </div>
@@ -227,7 +276,7 @@
             </div>
         </div>
     </div>
-</section>
+</section> --}}
 
 <!-- ====== END Blog ====== -->
 
