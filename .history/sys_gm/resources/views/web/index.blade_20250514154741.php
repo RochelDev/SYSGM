@@ -226,7 +226,7 @@
 <div class="w-full duration-200 hover:scale-95">
     <div class="max-h-52 w-full overflow-hidden rounded-t-xl">
             <img src="{{ asset('img/Capture_dashboard.png') }}" alt="blog img" class="w-full">
-        
+        </a>
     </div>
     <div class="rounded-b-xl px-5 pb-5 pt-3 shadow-md shadow-blue-500/10 bg-white">
         <div class="flex">
