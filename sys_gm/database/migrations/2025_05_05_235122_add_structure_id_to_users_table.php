@@ -20,6 +20,10 @@ return new class extends Migration
                   ->references('id')
                   ->on('structures')
                   ->onDelete('set null'); // Si un ministère est supprimé, la valeur de ministere_id pour les utilisateurs de ce ministère sera mise à null.
+            
+            $table->unsignedBigInteger('agent_id')->nullable();
+            // Définit la colonne agent_id comme une clé étrangère, référençant la colonne id de la table agents.
+            $table->foreign('agent_id')->references('id')->on('agents')->onDelete('set null');
         });
     }
 

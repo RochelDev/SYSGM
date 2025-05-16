@@ -16,7 +16,7 @@
 
 @include('web.shared.header')
 
-<section class="relative hero-slider mt-[76px]">
+<section class="relative hero-slider">
     <!-- Slide 1 -->
     <div class="slide active">
         <div class="w-full h-full bg-gray-800">
