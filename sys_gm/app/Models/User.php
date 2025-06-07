@@ -71,6 +71,11 @@ class User extends Authenticatable
         return $this->belongsTo(Structure::class);
     }
 
+    public function agent(): BelongsTo
+    {
+        return $this->belongsTo(Agent::class);
+    }
+
 
     /**
      * The roles that belong to the user.

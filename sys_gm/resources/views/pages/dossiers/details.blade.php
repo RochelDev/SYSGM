@@ -1,28 +1,64 @@
 @extends('dashboard')
 
-@section('title', '| Dossiers')
+@section('title', '| Document')
 
 @section('content')
-    <!-- Dossiers -->
+    <!-- Affectation -->
     <div class="">
         <div class="fade-in">
             <div class="mb-6">
-                <button class="inline-flex items-center text-gray-600 hover:text-gray-800 mb-4">
+                @if (request()->routeIs('dossier.reçus.showdetails'))
+                <a href="{{route('dossier.reçus')}}" class="inline-flex items-center text-gray-600 hover:text-gray-800 mb-4">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left mr-1">
                         <path d="m12 19-7-7 7-7"></path>
                         <path d="M19 12H5"></path></svg>
-                    Retour aux demandes
-                </button>
+                    Retour
+                </a>
+
+                @elseif (request()->routeIs('dossier.encours.showdetails'))
+                <a href="{{route('traitement.encours')}}" class="inline-flex items-center text-gray-600 hover:text-gray-800 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left mr-1">
+                        <path d="m12 19-7-7 7-7"></path>
+                        <path d="M19 12H5"></path></svg>
+                    Retour aux dossiers
+                </a>
+
+                @elseif (request()->routeIs('dossier.validation.showdetails'))
+                <a href="{{route('dossier.validation')}}" class="inline-flex items-center text-gray-600 hover:text-gray-800 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left mr-1">
+                        <path d="m12 19-7-7 7-7"></path>
+                        <path d="M19 12H5"></path></svg>
+                    Retour
+                </a>
+
+                @elseif (request()->routeIs('dossier.transfert.showdetails'))
+                <a href="{{route('dossier.transfert')}}" class="inline-flex items-center text-gray-600 hover:text-gray-800 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left mr-1">
+                        <path d="m12 19-7-7 7-7"></path>
+                        <path d="M19 12H5"></path></svg>
+                    Retour
+                </a>
+
+                @else
+                
+                <a href="{{route('traitement.index')}}" class="inline-flex items-center text-gray-600 hover:text-gray-800 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left mr-1">
+                        <path d="m12 19-7-7 7-7"></path>
+                        <path d="M19 12H5"></path></svg>
+                    Retour aux dossiers
+                </a>
+                @endif
+
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                     <div>
                         <h1 class="text-2xl font-bold text-gray-800 mb-2">
-                            Demande #1001
+                            Dossier #{{ $dossier->code_dossier }} 
                         </h1>
                         <div class="flex items-center">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-2">
-                                Approuvée
+                                {{ $dossier->statut }}
                             </span>
-                            <span class="text-gray-600">Soumise le 10/03/2025</span>
+                            <span class="text-gray-600">{{ $dossier->created_at->format('d/m/Y') }}</span>
                         </div>
                     </div>
                 </div>
@@ -33,7 +69,7 @@
                     <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 mb-6">
                         <div class="p-6 border-b border-gray-100">
                             <h2 class="text-lg font-semibold text-gray-800">
-                                Détails de la demande
+                                Détails du dossier
                             </h2>
                         </div>
                         <div class="p-6">
@@ -42,14 +78,14 @@
                                     <h3 class="text-sm font-medium text-gray-500">
                                         Type de mobilité
                                     </h3>
-                                    <p class="mt-1 text-base text-gray-800">Mutation</p>
+                                    <p class="mt-1 text-base text-gray-800">{{ $dossier->typemobilite->intitule_mobilite }}</p>
                                 </div>
                                 <div>
                                     <h3 class="text-sm font-medium text-gray-500">
                                         Agent concerné
                                     </h3>
                                     <p class="mt-1 text-base text-gray-800">
-                                        Kofi Amoah
+                                        {{ $dossier->agent->prenom }} {{ $dossier->agent->nom }}
                                     </p>
                                 </div>
                                 <div>
@@ -57,7 +93,7 @@
                                         Structure actuelle
                                     </h3>
                                     <p class="mt-1 text-base text-gray-800">
-                                        Direction des Ressources Humaines
+                                        {{ $dossier->structure->nom_structure }}
                                     </p>
                                 </div>
                                 <div>
@@ -65,7 +101,7 @@
                                         Structure de destination
                                     </h3>
                                     <p class="mt-1 text-base text-gray-800">
-                                        Direction du Budget
+                                        {{ $dossier->structure_cible }}
                                     </p>
                                 </div>
                                 <div>
@@ -73,26 +109,42 @@
                                         Date de soumission
                                     </h3>
                                     <p class="mt-1 text-base text-gray-800">
-                                        10/03/2025
+                                        {{ $dossier->created_at->format('d/m/Y') }}
                                     </p>
                                 </div>
-                                <div>
+                                <div class="space-y-2">
+                                    <h3 class="text-sm font-medium text-gray-500">
+                                        Suivi du Dossier
+                                    </h3>
+                                    @if ($dossier->etapes->isNotEmpty())
+                                        @foreach ($dossier->etapes as $etape)
+                                            <div
+                                            >
+                                            <p class="mt-1 text-base text-gray-800">
+                                                {{ $etape->nom }} : {{ $etape->pivot->statut }}
+                                            </p>                                              
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        <p class="text-gray-600 text-sm">Aucune étape répertorié.</p>
+                                    @endif
+                                </div>
+                                {{-- <div>
                                     <h3 class="text-sm font-medium text-gray-500">
                                         Date souhaitée
                                     </h3>
                                     <p class="mt-1 text-base text-gray-800">
                                         15/04/2025
                                     </p>
-                                </div>
+                                </div> --}}
                             </div>
                             <div class="mt-6">
                                 <h3 class="text-sm font-medium text-gray-500">
-                                    Motif de la demande
+                                    Motif du dossier
                                 </h3>
                                 <p class="mt-1 text-base text-gray-800">
-                                    Réorganisation du service et nécessité de renforcer
-                                    l'équipe de la Direction du Budget. L'agent dispose
-                                    des compétences requises pour ce poste.
+                                    {{ $dossier->motif }} @if ($dossier->motif == null) Aucun @endif
+
                                 </p>
                             </div>
                             <div class="mt-6">
@@ -100,160 +152,58 @@
                                     Documents joints
                                 </h3>
                                 <div class="space-y-2">
-                                    <div
-                                        class="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50"
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="20"
-                                            height="20"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            class="lucide lucide-file-text text-gray-500 mr-3"
-                                        >
-                                            <path
-                                                d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"
-                                            ></path>
-                                            <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
-                                            <path d="M10 9H8"></path>
-                                            <path d="M16 13H8"></path>
-                                            <path d="M16 17H8"></path>
-                                        </svg>
-                                        <div class="flex-1">
-                                            <p class="text-sm font-medium text-gray-800">
-                                                Demande_signée.pdf
-                                            </p>
-                                            <p class="text-xs text-gray-500">1.2 MB</p>
-                                        </div>
-                                        <button class="p-2 text-[#0F2C59] hover:text-[#4CB9E7] transition-colors">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" >
-                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                                <polyline points="7 10 12 15 17 10"></polyline>
-                                                <line x1="12" x2="12" y1="15" y2="3"></line>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    <div class="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text text-gray-500 mr-3">
-                                            <path
-                                                d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"
-                                            ></path>
-                                            <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
-                                            <path d="M10 9H8"></path>
-                                            <path d="M16 13H8"></path>
-                                            <path d="M16 17H8"></path>
-                                        </svg>
-                                        <div class="flex-1">
-                                            <p
-                                                class="text-sm font-medium text-gray-800"
+                                    @if ($dossier->piecesJustificatives->isNotEmpty())
+                                        @foreach ($dossier->piecesJustificatives as $document)
+                                            <div
+                                                class="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50"
                                             >
-                                                CV_Kofi_Amoah.pdf
-                                            </p>
-                                            <p class="text-xs text-gray-500">0.8 MB</p>
-                                        </div>
-                                        <button
-                                            class="p-2 text-[#0F2C59] hover:text-[#4CB9E7] transition-colors"
-                                        >
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="18"
-                                                height="18"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                stroke-width="2"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                class="lucide lucide-download"
-                                            >
-                                                <path
-                                                    d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                                                ></path>
-                                                <polyline
-                                                    points="7 10 12 15 17 10"
-                                                ></polyline>
-                                                <line
-                                                    x1="12"
-                                                    x2="12"
-                                                    y1="15"
-                                                    y2="3"
-                                                ></line>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    <div
-                                        class="flex items-center p-3 border border-gray-200 rounded-md hover:bg-gray-50"
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="20"
-                                            height="20"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            class="lucide lucide-file-text text-gray-500 mr-3"
-                                        >
-                                            <path
-                                                d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"
-                                            ></path>
-                                            <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
-                                            <path d="M10 9H8"></path>
-                                            <path d="M16 13H8"></path>
-                                            <path d="M16 17H8"></path>
-                                        </svg>
-                                        <div class="flex-1">
-                                            <p
-                                                class="text-sm font-medium text-gray-800"
-                                            >
-                                                Justificatifs.pdf
-                                            </p>
-                                            <p class="text-xs text-gray-500">2.4 MB</p>
-                                        </div>
-                                        <button
-                                            class="p-2 text-[#0F2C59] hover:text-[#4CB9E7] transition-colors"
-                                        >
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="18"
-                                                height="18"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                stroke-width="2"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                class="lucide lucide-download"
-                                            >
-                                                <path
-                                                    d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                                                ></path>
-                                                <polyline
-                                                    points="7 10 12 15 17 10"
-                                                ></polyline>
-                                                <line
-                                                    x1="12"
-                                                    x2="12"
-                                                    y1="15"
-                                                    y2="3"
-                                                ></line>
-                                            </svg>
-                                        </button>
-                                    </div>
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    width="20"
+                                                    height="20"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    stroke-width="2"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    class="lucide lucide-file-text text-gray-500 mr-3"
+                                                >
+                                                    <path
+                                                        d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"
+                                                    ></path>
+                                                    <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
+                                                    <path d="M10 9H8"></path>
+                                                    <path d="M16 13H8"></path>
+                                                    <path d="M16 17H8"></path>
+                                                </svg>
+                                                <div class="flex-1">
+                                                    <p class="text-sm font-medium text-gray-800">
+                                                        {{ $document->nom_du_fichier }}
+                                                        {{-- @dd($document) --}}
+                                                    </p>
+                                                    <p class="text-xs text-gray-500">{{ number_format(Storage::size($document->lien) / 1024, 2) }} KB</p>
+                                                </div>
+                                                {{-- <a href="{{ route('documents.download', $document->id) }}" class="p-2 text-[#0F2C59] hover:text-[#4CB9E7] transition-colors" target="_blank">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download" >
+                                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                                        <polyline points="7 10 12 15 17 10"></polyline>
+                                                        <line x1="12" x2="12" y1="15" y2="3"></line>
+                                                    </svg>
+                                                </a> --}}
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        <p class="text-gray-600 text-sm">Aucun document joint.</p>
+                                    @endif
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 mb-6">
+                    {{-- <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 mb-6">
                         <div class="p-6 border-b border-gray-100">
                             <h2 class="text-lg font-semibold text-gray-800">
-                                Historique de la demande
+                                Historique de la dossier
                             </h2>
                         </div>
                         <div class="p-6">
@@ -410,7 +360,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
                 
                 <div>
@@ -425,14 +375,14 @@
                                 <div
                                     class="h-16 w-16 rounded-full bg-[#0F2C59] flex items-center justify-center text-white text-lg font-semibold"
                                 >
-                                    K
+                                    A
                                 </div>
                                 <div class="ml-4">
                                     <h3 class="text-lg font-medium text-gray-800">
-                                        Kofi Amoah
+                                        {{ $dossier->agent->prenom }} {{ $dossier->agent->nom }}
                                     </h3>
                                     <p class="text-sm text-gray-600">
-                                        Analyste Financier
+                                       Grade {{ $dossier->agent->grade }}
                                     </p>
                                 </div>
                             </div>
@@ -443,7 +393,7 @@
                                     >
                                         Matricule
                                     </h4>
-                                    <p class="mt-1 text-sm text-gray-800">AGT12345</p>
+                                    <p class="mt-1 text-sm text-gray-800">{{ $dossier->agent->matricule }}</p>
                                 </div>
                                 <div>
                                     <h4
@@ -452,10 +402,10 @@
                                         Email
                                     </h4>
                                     <p class="mt-1 text-sm text-gray-800">
-                                        k.amoah@finances.gouv.bj
+                                        {{ $dossier->agent->user->email }}
                                     </p>
                                 </div>
-                                <div>
+                                {{-- <div>
                                     <h4
                                         class="text-xs font-medium text-gray-500 uppercase"
                                     >
@@ -464,7 +414,7 @@
                                     <p class="mt-1 text-sm text-gray-800">
                                         +229 97 123 456
                                     </p>
-                                </div>
+                                </div> --}}
                                 <div>
                                     <h4
                                         class="text-xs font-medium text-gray-500 uppercase"
@@ -472,20 +422,19 @@
                                         Service actuel
                                     </h4>
                                     <p class="mt-1 text-sm text-gray-800">
-                                        Direction des Ressources Humaines
+                                        {{ $dossier->agent->structure->nom_structure }}
                                     </p>
                                 </div>
                             </div>
                             <div class="mt-6">
                                 <a
-                                    href="/directory/AGT12345"
                                     class="text-[#0F2C59] hover:text-[#4CB9E7] text-sm font-medium inline-flex items-center"
                                     >Voir le profil complet</a
                                 >
                             </div>
                         </div>
                     </div>
-                    <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 mb-6">
+                    {{-- <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 mb-6">
                         <div class="p-6 border-b border-gray-100">
                             <h2 class="text-lg font-semibold text-gray-800">
                                 Approbation
@@ -560,9 +509,10 @@
                                 </button>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>
     </div>
+    
 @endsection

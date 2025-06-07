@@ -1,41 +1,37 @@
 <!-- ====== header ====== -->
 
-<header class="absolute sticky left-0 top-0 z-50 bg-white/90 w-full backdrop-blur">
-    <nav class="bg-white/90 backdrop-blur fixed w-full z-20 top-0 start-0 border-b border-gray-200">
-        <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+<header class="bg-white/90 backdrop-blur fixed w-full z-50 top-0 start-0 border-b border-gray-200">
+    <nav>
+        <div class="max-w-screen-xl flex flex-wrap items-center justify-evenly mx-auto p-4">
             <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
                 {{-- <img src="https://flowbite.com/docs/images/logo.svg" class="h-8" alt="Flowbite Logo"> --}}
-                <span class="self-center text-2xl font-semibold whitespace-nowrap">MOB<span class="text-blue-700">ILITE</span> </span>
+                <span class="self-center text-2xl font-semibold whitespace-nowrap">SYS<span class="text-blue-700">GM</span> </span>
             </a>
-            <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-sticky">
-            <ul class="flex flex-col p-4 md:p-0 mt-4 font-medium md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
-                <li>
-                    <a href="#" class="block py-2 px-3 text-white bg-blue-700 rounded-sm md:bg-transparent md:text-blue-700 md:p-0" aria-current="page">Home</a>
-                </li>
-                <li>
-                    <a href="#" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0">About</a>
-                </li>
-                <li>
-                    <a href="#" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0">Services</a>
-                </li>
-            <li>
-              <a href="#" class="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0">Contact</a>
-            </li>
-          </ul>
-        </div>
-        <div class="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-            @if (Route::has('login'))
-                @auth
-                    <a href="{{ url('/dashboard') }}" class="rounded-md bg-blue-800 px-4 py-2.5 font-semibold text-white shadow-md shadow-blue-500/20 duration-200 hover:bg-blue-600">
-                        Dashboard
-                    </a>
-                @else
-                    <a href="{{ route('login') }}" class="rounded-lg bg-blue-800 px-4 py-2.5 font-semibold text-white shadow-md shadow-blue-500/20 duration-200 hover:bg-blue-600">Se connecter</a>
-                @endauth
-            @endif
+            <div class="hidden space-x-32 w-full lg:flex md:w-auto md:order-1" id="navbar-sticky">
+            <!-- Bouton burger à ajouter ici pour mobile -->
 
-            @if(request()->routeIs('dashboard'))
-            <flux:menu>
+                <div class="hidden w-full md:flex md:w-auto" id="navbar-sticky">
+                    <ul class="flex flex-col md:flex-row md:space-x-8 font-medium">
+                        <li><a href="{{ route('home') }}" class="block py-2 px-3 {{ request()->routeIs('home') ? 'text-blue-700!' : '' }}">Accueil</a></li>
+                        <li><a href="{{ route('about') }}" class="block py-2 px-3 text-gray-900 hover:text-blue-700 {{ request()->routeIs('about') ? 'text-blue-700!' : '' }}">A propos</a></li>
+                        <li><a href="{{ route('services') }}" class="block py-2 px-3 text-gray-900 hover:text-blue-700 {{ request()->routeIs('services') ? 'text-blue-700!' : '' }}">Services</a></li>
+                        <li><a href="{{ route('contact') }}" class="block py-2 px-3 text-gray-900 hover:text-blue-700 {{ request()->routeIs('contact') ? 'text-blue-700!' : '' }}">Contact</a></li>
+                    </ul>
+                </div>
+
+                <div class="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
+                    @if (Route::has('login'))
+                        @auth
+                        <a href="{{ url('/dashboard') }}" class="rounded-md bg-blue-800 px-4 py-2.5 font-semibold text-white shadow-md shadow-blue-500/20 duration-200 hover:bg-blue-600">
+                            Dashboard
+                        </a>
+                        @else
+                        <a href="{{ route('login') }}" class="rounded-lg bg-blue-800 px-4 py-2.5 font-semibold text-white shadow-md shadow-blue-500/20 duration-200 hover:bg-blue-600">Se connecter</a>
+                        @endauth
+                    @endif
+
+                    @if(request()->routeIs('dashboard'))
+                    <flux:menu>
                     <flux:menu.radio.group>
                         <div class="p-0 text-sm font-normal">
                             <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
@@ -69,11 +65,11 @@
                             {{ __('Log Out') }}
                         </flux:menu.item>
                     </form>
-                </flux:menu>
-            @endif
-        </div>
+                    </flux:menu>
+                    @endif
+                </div>
+            </div>
         </div>
     </nav>
-  
 </header>
 <!-- ====== END header ====== -->
