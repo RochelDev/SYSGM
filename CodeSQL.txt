@@ -348,4 +348,9 @@ INSERT INTO ministeres (code_ministere, nom_ministere, site_ministere) VALUES ('
 INSERT INTO structures (code_structure, nom_structure, ministere_id) VALUES
 ('DRSC', 'Direction de la Règlementation et du Suivi des Carrières', (SELECT id FROM ministeres WHERE code_ministere = 'MTFP'));
 
-Direction de la Règlementation et du Suivi des Carrières
+Direction de la Règlementation et du Suivi des 
+
+
+
+Commande pour exporter Base de données
+mysqldump -u root -p gesmob_save > C:\wamp64\bin\mysql\mysql9.2.0\gesmob_save.sql
