@@ -7,13 +7,13 @@
     <div class="container mx-auto px-4 py-8">
         <div>
             <h2 class="text-xl font-semibold mb-4">
-                Bienvenue, Jean Dupont
+                Bienvenue, Administrateur
             </h2>
-            <p class="text-muted-foreground mb-6">
+            {{-- <p class="text-muted-foreground mb-6">
                 Voici un aperçu de votre activité dans le système de gestion des
                 mobilités
-            </p>
-            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            </p> --}}
+            {{-- <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
                     <div class="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
                         <h3 class="tracking-tight text-sm font-medium">
@@ -104,62 +104,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="mt-6">
-                <div class="rounded-lg border bg-card text-card-foreground shadow-sm">
-                    <div class="flex flex-col space-y-1.5 p-6">
-                        <h3 class="text-2xl font-semibold leading-none tracking-tight">
-                            Dossiers à traiter en priorité
-                        </h3>
-                        <p class="text-sm text-muted-foreground">
-                            Liste des dossiers nécessitant une attention immédiate
-                        </p>
-                    </div>
-                    <div class="p-6 pt-0">
-                        <div class="space-y-4">
-                            <div
-                                class="flex items-center justify-between p-4 border rounded-lg border-l-4 border-l-red-500">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">Détachement - Jean Koffi</span><span
-                                        class="text-sm text-muted-foreground">Ref: DGFP-2023-045</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-sm text-red-600">En attente depuis 3 jours</span><button
-                                        class="px-3 py-1 text-xs bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                                        Traiter
-                                    </button>
-                                </div>
-                            </div>
-                            <div
-                                class="flex items-center justify-between p-4 border rounded-lg border-l-4 border-l-amber-500">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">Mise à disposition - Marie Sossou</span><span
-                                        class="text-sm text-muted-foreground">Ref: DGFP-2023-046</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-sm text-amber-600">En attente depuis 2 jours</span><button
-                                        class="px-3 py-1 text-xs bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                                        Traiter
-                                    </button>
-                                </div>
-                            </div>
-                            <div
-                                class="flex items-center justify-between p-4 border rounded-lg border-l-4 border-l-blue-500">
-                                <div class="flex flex-col">
-                                    <span class="font-medium">Disponibilité - Paul Gbaguidi</span><span
-                                        class="text-sm text-muted-foreground">Ref: DGFP-2023-047</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-sm text-blue-600">Nouveau dossier</span><button
-                                        class="px-3 py-1 text-xs bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                                        Traiter
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </div> --}}
         </div>
       </div>
 @endsection

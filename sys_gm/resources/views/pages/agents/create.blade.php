@@ -1,9 +1,9 @@
-@extends('admin')
+@extends('dashboard')
 
 @section('title', '| Agent')
 
 @section('content')
-    <div class="">
+    <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
         {{ $agent->exists ? 'Modifier' : 'Enregistrer' }} un Agent
         <form class="space-y-6" action="{{ route($agent->exists ? 'agent.update' : 'agent.store', $agent) }}" method="post">
             @csrf

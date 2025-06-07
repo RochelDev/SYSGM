@@ -22,6 +22,7 @@ return new class extends Migration
             $table->id();
             $table->string('code_dossier')->unique();
             $table->string('titre');
+            $table->string('type_demandeur')->default('agent');
             $table->foreignId('structure_id')->constrained();
             $table->foreignId('type_mobilite_id')->constrained();
             $table->string('nom_agent')->nullable();
@@ -29,6 +30,7 @@ return new class extends Migration
             $table->string('statut')->default('demande en_attente');
             $table->string('envoyeur')->nullable();
             $table->string('destinataire')->nullable();
+            $table->string('structure_cible')->nullable();
             $table->year('annee');
             $table->json('historique_statut')->nullable();
             $table->string('type_acte')->nullable();

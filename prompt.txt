@@ -372,3 +372,111 @@ Selon le type de mobilité, soit on saute les étapes 4 et 5 pour aboutir à l'�
 4 puis 5. 
 
 Contributed command 'editor.action.clipboardCopyAction' does not exist.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+D'accord, j'ai bien les deux contrôleurs : OrdonnateurTraitementController et DrscTraitementController.
+
+Traitement par l'Ordonnateur :
+
+Le contrôleur OrdonnateurTraitementController contient déjà les actions pour :
+
+traiter(Dossier $dossier) : Ajouter le dossier à la liste de traitement (étape 2, statut "en cours").
+valider(Dossier $dossier) : Valider le dossier (étape 2 statut "validé") et l'envoyer à l'étape suivante (étape 3, statut "en attente").
+differerDossier(Dossier $dossier) et differer_Dossier(Dossier $dossier) : Pour renvoyer le dossier à l'étape précédente.
+ajouterFichiers() et formulaireAjouterFichiers() : Pour la gestion des pièces justificatives (que nous avons implémentée).
+Traitement par l'Agent DRSC :
+
+Le contrôleur DrscTraitementController est actuellement vide pour les actions de traitement et de validation spécifiques au DRSC.
+
+Pour gérer le traitement au niveau de l'Agent DRSC, nous devons implémenter les actions suivantes dans DrscTraitementController :
+
+traiter(Dossier $dossier) : Lorsque l'agent DRSC ajoute un dossier à sa liste de traitement (cela se produira aux étapes 3 et 5). Le statut de l'étape actuelle dans la table pivot dossier_etape devrait être mis à jour à "en cours".
+
+valider(Dossier $dossier) : Lorsque l'agent DRSC valide le dossier à l'étape actuelle (étapes 3 et 5). Le statut de l'étape actuelle dans la table pivot dossier_etape devrait être mis à jour à "validé", et le dossier devrait passer à l'étape suivante (étape 4 ou 6 selon le type de mobilité).
+
+differerDossier(Dossier $dossier) : Similaire à l'ordonnateur, pour renvoyer le dossier à l'étape précédente.
+
+
+
+
+
+
+
+Points importants dans le DrscTraitementController :
+
+traiter() : Récupère l'étape actuelle et met son statut à "en cours".
+valider() :
+Récupère l'étape actuelle et met son statut à "validé".
+Détermine l'étape suivante en fonction du typeMobilite du dossier.
+Pour le "DETACHEMENT", saute les étapes 4 et 5.
+Attache l'étape suivante avec le statut "en attente".
+Si l'étape suivante est la 6, met à jour le statut général du dossier à "Validé" et crée un enregistrement dans suivi_dossiers (si tu utilises cette table).
+differerDossier() et les méthodes pour ajouter des fichiers sont similaires à celles de l'ordonnateur. Tu peux les adapter si la logique doit être différente pour le DRSC.
+Ce qu'il faut faire ensuite :
+
+Définir les routes pour ces actions dans routes/web.php.
+
+
+
+
+
+
+
+
+// Routes pour l'ordonnateur
+Route::post('/ordonnateur/dossiers/{dossier}/traiter', [OrdonnateurTraitementController::class, 'traiter'])->name('ordonnateur.traiter');
+Route::post('/ordonnateur/dossiers/{dossier}/valider', [OrdonnateurTraitementController::class, 'valider'])->name('ordonnateur.valider');
+Route::post('/ordonnateur/dossiers/{dossier}/differer', [OrdonnateurTraitementController::class, 'differerDossier'])->name('ordonnateur.differer');
+Route::get('/ordonnateur/dossiers/{dossier}/ajouter-fichiers', [OrdonnateurTraitementController::class, 'formulaireAjouterFichiers'])->name('ordonnateur.fichiers.form');
+Route::post('/ordonnateur/dossiers/{dossier}/ajouter-fichiers', [OrdonnateurTraitementController::class, 'ajouterFichiers'])->name('ordonnateur.fichiers.ajouter');
+
+// Routes pour le DRSC
+Route::post('/drsc/dossiers/{dossier}/traiter', [DrscTraitementController::class, 'traiter'])->name('drsc.traiter');
+Route::post('/drsc/dossiers/{dossier}/valider', [DrscTraitementController::class, 'valider'])->name('drsc.valider');
+Route::post('/drsc/dossiers/{dossier}/differer', [DrscTraitementController::class, 'differerDossier'])->name('drsc.differer');
+Route::get('/drsc/dossiers/{dossier}/ajouter-fichiers', [DrscTraitementController::class, 'formulaireAjouterFichiers'])->name('drsc.fichiers.form');
+Route::post('/drsc/dossiers/{dossier}/ajouter-fichiers', [DrscTraitementController::class, 'ajouterFichiers'])->name('drsc.fichiers.ajouter');
+
+
+
+
+Créer les boutons ou les liens dans tes vues pour déclencher ces actions, en utilisant les noms de routes que tu as définis. Tu devras conditionner l'affichage de ces boutons en fonction du rôle de l'utilisateur connecté et de l'étape actuelle du dossier.
+
+Dis-moi si cela te convient ou si tu souhaites que je me concentre sur une action spécifique en premier (par exemple, l'action de "traiter" pour le DRSC et comment afficher le bouton correspondant dans la vue).
+
+
+
+
+
+
+
+Traitement ordonnateur
+
+Explication des modifications :
+
+Dans traiter() et valider(), nous vérifions d'abord si l'étape actuelle est l'étape 4 et si le type de mobilité est "DISPOSITION".
+Si c'est le cas, nous récupérons la Structure correspondant au structure_cible du dossier.
+Ensuite, nous comparons l'id de la structure de l'utilisateur connecté (Auth::user()->structure_id) avec l'id de la structure cible.
+Si les IDs correspondent, l'action (traiter ou valider) est effectuée. Sinon, une erreur est renvoyée.
+Pour les autres cas (étape 2 principalement pour l'ordonnateur initial), la logique reste la même.
+Points à vérifier :
+
+Assure-toi que ton modèle Dossier a bien une propriété structure_cible qui contient le code de la structure.
+Assure-toi que tu as bien le modèle Structure et qu'il peut être récupéré par son code_structure.
+La relation etapes() sur le modèle Dossier doit fonctionner correctement pour accéder à l'étape actuelle.
+

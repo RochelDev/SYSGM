@@ -18,7 +18,7 @@
                     </svg>
                 </div>
                 <span class="text-xl font-bold ">
-                    SysGeMob
+                    SYSGM
                 </span>
             </a>
             <button class="md:hidden text-white">
@@ -32,7 +32,7 @@
         
         <flux:navlist variant="outline">
             <flux:navlist.item icon="home" :href="route('admindashboard')" class="hover:bg-blue-50! hover:text-blue-700! {{ request()->routeIs('admindashboard') ? 'bg-blue-900 text-white!' : '' }}" wire:navigate>Tableau de bord</flux:navlist.item>
-            <flux:navlist.item icon="inbox" :href="route('agent.index')" class="hover:bg-blue-50! hover:text-blue-700! {{ request()->routeIs('agent.index') ? 'bg-blue-900 text-white!' : '' }} " wire:navigate>Liste des Agents</flux:navlist.item>
+            {{-- <flux:navlist.item icon="inbox" :href="route('agent.index')" class="hover:bg-blue-50! hover:text-blue-700! {{ request()->routeIs('agent.index') ? 'bg-blue-900 text-white!' : '' }} " wire:navigate>Liste des Agents</flux:navlist.item> --}}
             <flux:navlist.item icon="users" :href="route('admin.user.index')" class="hover:bg-blue-50! hover:text-blue-700! {{ request()->routeIs('admin.user.index') ? 'bg-blue-900 text-white!' : '' }} " wire:navigate>Gestion des utilisateurs</flux:navlist.item>
             <flux:navlist.group expandable heading="Pramètres" class="hidden lg:grid">
                 <flux:navlist.item :href="route('admin.ministere.index')" class="hover:bg-blue-50! hover:text-blue-700! {{ request()->routeIs('admin.ministere.index') ? 'bg-blue-900 text-white!' : '' }} " wire:navigate>Gestion des Ministères</flux:navlist.item>

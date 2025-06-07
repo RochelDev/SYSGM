@@ -16,6 +16,7 @@ class Dossier extends Model
     protected $fillable = [
         'code_dossier',
         'titre',
+        'type_demandeur',
         'structure_id',
         'type_mobilite_id',
         'nom_agent',
@@ -61,6 +62,11 @@ class Dossier extends Model
     public function piecesJustificatives(): HasMany
     {
         return $this->hasMany(PieceJustificative::class);
+    }
+
+    public function transferts(): HasMany
+    {
+        return $this->hasMany(DossierTransfert::class);
     }
 
     public static function genererCodeDossier($structureCode)
