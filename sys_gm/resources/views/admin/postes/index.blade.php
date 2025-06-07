@@ -67,7 +67,7 @@
                                  stroke-linejoin="round" class="h-4 w-4 mr-1">
                                 <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
                             </svg>
-                            Modifier
+                            {{-- Modifier --}}
                         </a>
                         <form action="{{ route('admin.poste.destroy', $poste) }}" method="post">
                             @csrf
@@ -75,7 +75,9 @@
                             <button type="submit"
                                     class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium border border-red-400 hover:bg-red-500 hover:text-accent-foreground h-9 rounded-md px-3"
                                     onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce poste ?')">
-                                Supprimer
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash2-icon lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+
+                                {{-- Supprimer --}}
                             </button>
                         </form>
                     </td>

@@ -6,12 +6,33 @@ use App\Models\Dossier;
 use App\Models\Structure;
 use Illuminate\Http\Request;
 use App\Models\DossierTransfert;
+use Illuminate\Support\Facades\Auth;
 
 class DossierControllerTransfert extends Controller
 {
+    public function index(){
+        $userStructureId = Auth::user()->structure_id;
+
+        $dossiers = DossierTransfert::where('envoyeur_structure_id', $userStructureId)
+                                ->orwhere('destinataire_structure_id', $userStructureId)
+                                ->orderBy('created_at', 'desc')
+                                ->paginate(5);
+
+        return view('pages.historiquetransfert.index', compact('dossiers'));
+
+    }
+
     public function envoyerADestinataire(Dossier $dossier, Structure $structure)
     {
-        $dossier->update(['destinataire' => $structure->code_structure]);
+        $user = Auth::user();
+        $userStructureId = $user->structure_id;
+        $userStructure = $user->structure; // Récupérer l'objet Structure de l'utilisateur
+        $userStructureCode = $userStructure ? $userStructure->code_structure : null;
+
+        $dossier->update([
+            'destinataire' => $structure->code_structure,
+            'envoyeur' => $userStructureCode,
+        ]);
 
         // ... autres logiques car DossierTransfert exist ...
         DossierTransfert::create([
@@ -21,6 +42,6 @@ class DossierControllerTransfert extends Controller
             'motif' => 'Envoi du dossier à la structure ' . $structure->nom_structure, // Ou un motif plus spécifique
         ]);
 
-        return back()->with('success', 'Le dossier a été envoyé à la structure avec le code ' . $structure->code . '.');
+        return back()->with('success', 'Le dossier a été envoyé à la ' . $structure->code_structure . '.');
     }
 }

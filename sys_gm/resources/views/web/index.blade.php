@@ -16,11 +16,11 @@
 
 @include('web.shared.header')
 
-<section class="relative hero-slider mt-[76px]">
+<section class="relative hero-slider">
     <!-- Slide 1 -->
     <div class="slide active">
         <div class="w-full h-full bg-gray-800">
-            <img src="{{asset('img/pexels-sora-shimazaki-5673502.jpg')}}" alt="Luxury Hotel Exterior" class="w-full h-[70vh] object-cover opacity-80">
+            <img src="{{asset('img/pexels-sora-shimazaki-5673502.jpg')}}" alt="Mobilite-img" class="w-full h-[70vh] object-cover opacity-80">
             <div class="absolute inset-0 flex flex-wrap items-center justify-center px-4 sm:px-6 lg:px-8">
                 <div class="container mx-auto px-4">
                     <div class="max-w-2xl space-y-6">

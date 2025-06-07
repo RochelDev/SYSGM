@@ -4,87 +4,438 @@ namespace App\Http\Controllers;
 
 use App\Models\Dossier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class DossierControllertraitement extends Controller
 {
-    public function traiterOrdonnateur(Dossier $dossier)
+    public function index()
     {
-        $dossier->update(['statut' => 'en cours']);
-        $dossier->etapes()->attach(2, ['user_id' => auth()->id(), 'statut' => 'en cours']);
+        $user = Auth::user();
+        $userStructure = $user->structure;
+        $userStructureId = $userStructure ? $user->structure_id : '';
+        $userStructureCode = $userStructure ? $userStructure->code_structure : '';
 
-        return back()->with('success', 'Le dossier a été ajouté à votre liste de traitement.');
-    }
+        $dossiersQuery = Dossier::orderBy('created_at', 'desc');
 
-    public function validerOrdonnateur(Dossier $dossier)
-    {
-        // Mettre à jour le statut de l'étape 2
-        $dossier->etapes()->wherePivot('etape_id', 2)->updateExistingPivot(2, ['statut' => 'validé']);
+        if ($user->structure_id == null && $user->usertype == 'admin' && $user->profilActif()->intitule_profil == 'Ordonnateur Sectoriel') {
+            $dossiersQuery->whereExists(function ($query) use ($user) {
+                $query->select(DB::raw(1))
+                    ->from('suivi_dossiers')
+                    ->join('etapes', 'suivi_dossiers.etape_id', '=', 'etapes.id')
+                    ->whereColumn('suivi_dossiers.dossier_id', 'dossiers.id')
+                    ->where('suivi_dossiers.user_id', $user->id)
+                    ->where(function ($q) {
+                        $q->where('suivi_dossiers.statut', 'en attente');
+                    })
+                    ->whereIn('etapes.id', [2, 4])
+                    ->orderBy('suivi_dossiers.created_at', 'desc')
+                    ->limit(1);
+            });
+        }
+        if ($user->structure_id == null && $user->usertype == 'admin' && $user->profilActif()->intitule_profil == 'Agent DRSC') {
+            $dossiersQuery->whereExists(function ($query) use ($user) {
+                $query->select(DB::raw(1))
+                    ->from('suivi_dossiers')
+                    ->join('etapes', 'suivi_dossiers.etape_id', '=', 'etapes.id')
+                    ->whereColumn('suivi_dossiers.dossier_id', 'dossiers.id')
+                    ->where('suivi_dossiers.user_id', $user->id)
+                    ->where(function ($q) {
+                        $q->where('suivi_dossiers.statut', 'en attente');
+                    })
+                    ->whereIn('etapes.id', [3, 5, 6])
+                    ->orderBy('suivi_dossiers.created_at', 'desc')
+                    ->limit(1);
+            });
+        }
+        
+        if ($user->profilActif()->intitule_profil == 'Agent DRSC') {
 
-        // Passer à l'étape 3
-        $dossier->etapes()->attach(3, ['user_id' => auth()->id(), 'statut' => 'en attente']);
-
-        return back()->with('success', 'Le dossier a été validé et envoyé à la Fonction Publique.');
-    }
-
-
-    public function differerDossier(Dossier $dossier)
-    {
-        // Récupérer la dernière étape active du dossier
-        $derniereEtapeActive = $dossier->etapes()->orderByPivot('created_at', 'desc')->wherePivot('statut', '!=', 'différé')->first();
-
-        if ($derniereEtapeActive && $derniereEtapeActive->pivot->etape_id > 1) {
-            $etapeActuelleId = $derniereEtapeActive->pivot->etape_id;
-            $etapePrecedenteId = $etapeActuelleId - 1;
-
-            // Mettre à jour le statut de l'étape actuelle à "différé"
-            $dossier->etapes()->wherePivot('etape_id', $etapeActuelleId)->updateExistingPivot($etapeActuelleId, ['statut' => 'différé']);
-
-            // Réactiver l'étape précédente (si elle existe et n'est pas déjà active)
-            $etapePrecedentePivot = $dossier->etapes()->wherePivot('etape_id', $etapePrecedenteId)->first();
-            if ($etapePrecedentePivot && $etapePrecedentePivot->pivot->statut == 'différé') {
-                $dossier->etapes()->updateExistingPivot($etapePrecedenteId, ['statut' => 'en cours']); // Ou 'à traiter' selon ton besoin
-            } else if (!$etapePrecedentePivot) {
-                // Si l'étape précédente n'a pas encore d'enregistrement, on le crée
-                $dossier->etapes()->attach($etapePrecedenteId, ['user_id' => auth()->id(), 'statut' => 'en cours']); // Ou 'à traiter'
-            } else {
-                // Si l'étape précédente existe et n'est pas 'différé', on ne change rien à son statut.
+            if ($userStructureId != null) {
+               $dossiersQuery->whereExists(function ($query) use ($user, $userStructureId, $userStructureCode) {
+                    $query->select(DB::raw(1))
+                        ->from('suivi_dossiers')
+                        ->join('etapes', 'suivi_dossiers.etape_id', '=', 'etapes.id')
+                        ->whereColumn('suivi_dossiers.dossier_id', 'dossiers.id')
+                        ->where('suivi_dossiers.user_id', $user->id)
+                        ->where(function ($q) {
+                            $q->where('suivi_dossiers.statut', 'en attente')
+                              ->orWhere('suivi_dossiers.statut', 'validé');
+                        })
+                          ->where('structure_id', $userStructureId)
+                          ->where('destinataire', $userStructureCode)
+                        ->orWhere('suivi_dossiers.user_id', $user->id)
+                        ->whereIn('etapes.id', [3, 5, 6])
+                        ->orderBy('suivi_dossiers.created_at', 'desc')
+                        ->limit(1);
+                    });
             }
+            $dossiers = $dossiersQuery->paginate(5);
+            return view('traitement.agentdrsc.index', compact('dossiers'));
+        }
+        elseif ($user->profilActif()->intitule_profil == 'Ordonnateur Sectoriel') {
+            if ($userStructureId != null) {
+               $dossiersQuery->whereExists(function ($query) use ($user, $userStructureId, $userStructureCode) {
+                     $query->select(DB::raw(1))
+                        ->from('suivi_dossiers')
+                        ->join('etapes', 'suivi_dossiers.etape_id', '=', 'etapes.id')
+                        ->whereColumn('suivi_dossiers.dossier_id', 'dossiers.id')
+                        ->where('suivi_dossiers.user_id', $user->id)
+                        ->where(function ($q) {
+                            $q->where('suivi_dossiers.statut', 'en attente')
+                              ->orWhere('suivi_dossiers.statut', 'validé');
+                        })
+                        ->where('structure_id', $userStructureId)
+                          ->where('destinataire', $userStructureCode)
+                        ->orWhere('suivi_dossiers.user_id', $user->id)
+                        ->whereIn('etapes.id', [2, 4])
+                        ->orderBy('suivi_dossiers.created_at', 'desc')
+                        ->limit(1);
+                    });
+            }
+            $dossiers = $dossiersQuery->paginate(5);
+            return view('traitement.ordonnateur.index', compact('dossiers'));   
+        }
+        else {
+            $dossiers = $dossiersQuery->paginate(5);
+            return view('pages.dossiers.index', compact('dossiers'));
+        }
+    }
 
-            // Mettre à jour le statut général du dossier
-            $dossier->update(['statut' => 'en cours']); // Statut général après avoir été différé
 
-            return back()->with('success', 'Le dossier a été renvoyé à l\'étape précédente.');
+    public function encours()
+    {
+        $user = Auth::user();
+        $userStructureId = $user->structure_id;
+        $userStructureCode = $user->structure ? $user->structure->code_structure : null;
+        $profil = $user->profilActif()->intitule_profil ?? null;
+
+        $dossiers = Dossier::orderBy('created_at', 'desc');
+
+        if ($user->structure_id == null && $user->usertype == 'admin' && $user->profilActif()->intitule_profil == 'Ordonnateur Sectoriel') {
+            $dossiers->whereExists(function ($query) use ($user) {
+                     $query->select(DB::raw(1))
+                        ->from('suivi_dossiers')
+                        ->join('etapes', 'suivi_dossiers.etape_id', '=', 'etapes.id')
+                        ->whereColumn('suivi_dossiers.dossier_id', 'dossiers.id')
+                        ->where('suivi_dossiers.user_id', $user->id)
+                        ->where(function ($q) {
+                            $q->where('suivi_dossiers.statut', 'en cours');
+                        })
+                        ->whereIn('etapes.id', [2, 4])
+                        ->orderBy('suivi_dossiers.created_at', 'desc')
+                        ->limit(1);
+                    });
+        }
+
+        elseif ($user->structure_id == null && $user->usertype == 'admin' && $user->profilActif()->intitule_profil == 'Agent DRSC') {
+            $dossiers->whereExists(function ($query) use ($user) {
+                $query->select(DB::raw(1))
+                    ->from('suivi_dossiers')
+                    ->join('etapes', 'suivi_dossiers.etape_id', '=', 'etapes.id')
+                    ->whereColumn('suivi_dossiers.dossier_id', 'dossiers.id')
+                    ->where('suivi_dossiers.user_id', $user->id)
+                    ->where(function ($q) {
+                        $q->where('suivi_dossiers.statut', 'en cours');
+                    })
+                    ->whereIn('etapes.id', [3, 5, 6])
+                    ->orderBy('suivi_dossiers.created_at', 'desc')
+                    ->limit(1);
+            });
+        }
+        elseif ($userStructureId && $user->profilActif()->intitule_profil == 'Ordonnateur Sectoriel') {
+            $dossiers->whereExists(function ($query) use ($user, $userStructureId, $userStructureCode) {
+                     $query->select(DB::raw(1))
+                        ->from('suivi_dossiers')
+                        ->join('etapes', 'suivi_dossiers.etape_id', '=', 'etapes.id')
+                        ->whereColumn('suivi_dossiers.dossier_id', 'dossiers.id')
+                        ->where('suivi_dossiers.user_id', $user->id)
+                        ->where(function ($q) {
+                            $q->where('suivi_dossiers.statut', 'en cours');
+                        })
+                        ->where('structure_id', $userStructureId)
+                          ->where('destinataire', $userStructureCode)
+                        ->orWhere('suivi_dossiers.user_id', $user->id)
+                        ->whereIn('etapes.id', [2, 4])
+                        ->orderBy('suivi_dossiers.created_at', 'desc')
+                        ->limit(1);
+                    });
+        }
+        elseif ($userStructureId && $user->profilActif()->intitule_profil == 'Agent DRSC') {
+            $dossiers->whereExists(function ($query) use ($user, $userStructureId, $userStructureCode) {
+                     $query->select(DB::raw(1))
+                        ->from('suivi_dossiers')
+                        ->join('etapes', 'suivi_dossiers.etape_id', '=', 'etapes.id')
+                        ->whereColumn('suivi_dossiers.dossier_id', 'dossiers.id')
+                        ->where('suivi_dossiers.user_id', $user->id)
+                        ->where(function ($q) {
+                            $q->where('suivi_dossiers.statut', 'en cours');
+                        })
+                        ->where('structure_id', $userStructureId)
+                          ->where('destinataire', $userStructureCode)
+                        ->orWhere('suivi_dossiers.user_id', $user->id)
+                        ->whereIn('etapes.id', [2, 4])
+                        ->orderBy('suivi_dossiers.created_at', 'desc')
+                        ->limit(1);
+                    });
+        }
+        else {
+            $dossiers->whereExists(function ($query) use ($user, $userStructureId, $userStructureCode) {
+                     $query->select(DB::raw(1))
+                        ->from('suivi_dossiers')
+                        ->join('etapes', 'suivi_dossiers.etape_id', '=', 'etapes.id')
+                        ->whereColumn('suivi_dossiers.dossier_id', 'dossiers.id')
+                        ->where('suivi_dossiers.user_id', $user->id)
+                        ->where(function ($q) {
+                            $q->where('suivi_dossiers.statut', 'en cours');
+                        })
+                        ->where('structure_id', $userStructureId)
+                          ->where('destinataire', $userStructureCode)
+                        ->orWhere('suivi_dossiers.user_id', $user->id)
+                        ->whereIn('etapes.id', [2, 4])
+                        ->orderBy('suivi_dossiers.created_at', 'desc')
+                        ->limit(1);
+                    });
+        }
+
+        // $dossiers->whereHas('etapes', function ($query) use ($user) {
+        //     $query->where('suivi_dossiers.statut', 'en cours')
+        //           ->orWhere('suivi_dossiers.statut', 'validé')
+        //           ->where('suivi_dossiers.user_id', $user->id);
+        // });
+
+
+
+        // Gestion de l'affichage des demandes sous conditions (structure)
+        // if ($userStructureId) {
+        //     $dossiers->where(function ($query) use ($userStructureId, $userStructureCode) {
+        //         $query->where('structure_id', $userStructureId)
+        //               ->orWhere('destinataire', $userStructureCode);
+        //     });
+        // }
+
+        $dossiersEnCours = $dossiers->paginate(5);
+
+        if ($profil == 'Agent DRSC') {
+            return view('traitement.agentdrsc.traiter', ['dossiers' => $dossiersEnCours]);
+        } elseif ($profil == 'Ordonnateur Sectoriel') {
+            return view('traitement.ordonnateur.traiter', ['dossiers' => $dossiersEnCours]);
         } else {
-            return back()->with('error', 'Impossible de différer le dossier à cette étape.');
+            return view('pages.dossiers.traiter', ['dossiers' => $dossiersEnCours]);
         }
     }
 
 
 
-    public function differer_Dossier(Dossier $dossier) //sans mis à jour statut
-{
-    // Récupérer la dernière étape du dossier
-    $derniereEtape = $dossier->etapes()->orderByPivot('created_at', 'desc')->first();
 
-    if ($derniereEtape && $derniereEtape->pivot->etape_id > 1) {
-        $etapeActuelleId = $derniereEtape->pivot->etape_id;
-        $etapePrecedenteId = $etapeActuelleId - 1;
+    public function dossierReçus()
+    {
+        $user = Auth::user();
+        $userStructureId = $user->structure_id;
+        $userStructureCode = $user->structure ? $user->structure->code_structure : '';
+        $profil = $user->profilActif()->intitule_profil ?? null;
 
-        // Option 1: Mettre à jour le statut de l'étape actuelle à "différé"
-        $dossier->etapes()->wherePivot('etape_id', $etapeActuelleId)->updateExistingPivot($etapeActuelleId, ['statut' => 'différé']);
+        $dossiers = Dossier::query()->orderBy('created_at', 'desc');
 
-        // Option 2: Détacher de l'étape actuelle
-        // $dossier->etapes()->detach($etapeActuelleId);
+        // Filtrer les dossiers où l'utilisateur est impliqué dans une étape "en cours"
+        // $dossiers->whereHas('etapes', function ($query) use ($user) {
+        //     $query->wherePivot('statut', 'en cours')
+        //           ->where('suivi_dossiers.user_id', $user->id);
+        // });
 
-        // Rattacher à l'étape précédente avec le statut approprié
-        $dossier->etapes()->attach($etapePrecedenteId, ['user_id' => auth()->id(), 'statut' => 'à traiter']);
+        // Gestion de l'affichage des demandes sous conditions (structure)
+        if ($userStructureId) {
+            $dossiers->where(function ($query) use ($userStructureCode) {
+                $query->where('destinataire', $userStructureCode);
+            });
+        }
 
-        // Mettre à jour le statut général du dossier si nécessaire
-        $dossier->update(['statut' => 'en cours']); // Ou un autre statut pertinent
+        // Accès à tous les dossiers pour l'admin
+        if ($user->structure_id == null) {
+            $dossiers->orderBy('created_at', 'desc');
+        }
 
-        return back()->with('success', 'Le dossier a été renvoyé à l\'étape précédente.');
-    } else {
-        return back()->with('error', 'Impossible de différer le dossier à cette étape.');
+        $dossiers = $dossiers->paginate(5);
+        //$etapeActuelle = $dossier->etapes()->wherePivot('statut', '!=', 'en cours');
+
+
+        if ($profil == 'Agent DRSC') {
+            return view('traitement.agentdrsc.index', [
+                'dossiers' => $dossiers
+            ]);
+        } elseif ($profil == 'Ordonnateur Sectoriel') {
+            return view('traitement.ordonnateur.index', [
+                'dossiers' => $dossiers
+            ]);
+        } else {
+            return view('pages.dossiers.index', [
+                'dossiers' => $dossiers
+            ]);
+        }
     }
-}
+
+    public function dossierTransfert()
+    {
+        $user = Auth::user();
+        $userStructureId = $user->structure_id;
+        $userStructureCode = $user->structure ? $user->structure->code_structure : '';
+        $profil = $user->profilActif()->intitule_profil ?? null;
+
+        $dossiersReçusQuery = Dossier::whereHas('transferts', function ($query) use ($userStructureId) {
+            $query->where('destinataire_structure_id', $userStructureId);
+        })->orderBy('created_at', 'desc');
+
+        $dossiersEnvoyésQuery = Dossier::whereHas('transferts', function ($query) use ($userStructureId) {
+            $query->where('envoyeur_structure_id', $userStructureId);
+        })->orderBy('created_at', 'desc');
+
+        $dossiersQuery = Dossier::query()->orderBy('created_at', 'desc'); // Tous les dossiers (ou ceux liés à la structure)
+
+        // Accès à tous les dossiers pour l'admin (pas de filtre spécifique d'envoi/réception ici)
+        if ($user->structure_id == null) {
+            $dossiersEnvoyésQuery = Dossier::query()->orderBy('created_at', 'desc');
+            $dossiersReçusQuery = Dossier::query()->orderBy('created_at', 'desc');
+        }
+
+        $dossiersReçus = $dossiersReçusQuery->paginate(5);
+        $dossiersEnvoyés = $dossiersEnvoyésQuery->paginate(5);
+        $dossiers = $dossiersQuery->paginate(5);
+
+        return view('pages.dossierTransfert.index', [
+            'dossiers' => $dossiers,
+            'dossiersEnvoyés' => $dossiersEnvoyés,
+            'dossiersReçus' => $dossiersReçus,
+        ]);
+    }
+
+    public function showdetails(Dossier $dossier)
+    {
+        //dd($dossier);
+        $user = Auth::user();
+        $userStructureId = $user->structure_id;
+        $profil = $user->profilActif()->intitule_profil ?? null;
+
+        if ($profil == 'Agent DRSC') {
+            return view('traitement.agentdrsc.details', compact('dossier'));
+        } elseif ($profil == 'Ordonnateur Sectoriel') {
+            return view('traitement.ordonnateur.details', compact('dossier'));
+        } else {
+            return view('pages.dossiers.details', compact('dossier'));
+        }
+        
+                
+    }
+
+
+    public function validations()
+    {
+        $user = Auth::user();
+        $userStructureId = $user->structure_id;
+        $userStructureCode = $user->structure ? $user->structure->code_structure : null;
+        $profil = $user->profilActif()->intitule_profil ?? null;
+
+        $dossiers = Dossier::orderBy('created_at', 'desc');
+
+        if ($user->structure_id == null && $user->usertype == 'admin' && $user->profilActif()->intitule_profil == 'Ordonnateur Sectoriel') {
+            $dossiers->whereExists(function ($query) use ($user) {
+                     $query->select(DB::raw(1))
+                        ->from('suivi_dossiers')
+                        ->join('etapes', 'suivi_dossiers.etape_id', '=', 'etapes.id')
+                        ->whereColumn('suivi_dossiers.dossier_id', 'dossiers.id')
+                        ->where('suivi_dossiers.user_id', $user->id)
+                        ->where(function ($q) {
+                            $q->where('suivi_dossiers.statut', 'validé');
+                        })
+                        ->whereIn('etapes.id', [2, 4])
+                        ->orderBy('suivi_dossiers.created_at', 'desc')
+                        ->limit(1);
+                    });
+        }
+
+        elseif ($user->structure_id == null && $user->usertype == 'admin' && $user->profilActif()->intitule_profil == 'Agent DRSC') {
+            $dossiers->whereExists(function ($query) use ($user) {
+                $query->select(DB::raw(1))
+                    ->from('suivi_dossiers')
+                    ->join('etapes', 'suivi_dossiers.etape_id', '=', 'etapes.id')
+                    ->whereColumn('suivi_dossiers.dossier_id', 'dossiers.id')
+                    ->where('suivi_dossiers.user_id', $user->id)
+                    ->where(function ($q) {
+                        $q->where('suivi_dossiers.statut', 'validé');
+                    })
+                    ->whereIn('etapes.id', [3, 5, 6])
+                    ->orderBy('suivi_dossiers.created_at', 'desc')
+                    ->limit(1);
+            });
+        }
+        elseif ($userStructureId && $user->profilActif()->intitule_profil == 'Ordonnateur Sectoriel') {
+            $dossiers->whereExists(function ($query) use ($user, $userStructureId, $userStructureCode) {
+                     $query->select(DB::raw(1))
+                        ->from('suivi_dossiers')
+                        ->join('etapes', 'suivi_dossiers.etape_id', '=', 'etapes.id')
+                        ->whereColumn('suivi_dossiers.dossier_id', 'dossiers.id')
+                        ->where('suivi_dossiers.user_id', $user->id)
+                        ->where(function ($q) {
+                            $q->where('suivi_dossiers.statut', 'validé');
+                        })
+                        ->where('structure_id', $userStructureId)
+                          ->where('destinataire', $userStructureCode)
+                        ->orWhere('suivi_dossiers.user_id', $user->id)
+                        ->whereIn('etapes.id', [2, 4])
+                        ->orderBy('suivi_dossiers.created_at', 'desc')
+                        ->limit(1);
+                    });
+        }
+        elseif ($userStructureId && $user->profilActif()->intitule_profil == 'Agent DRSC') {
+            $dossiers->whereExists(function ($query) use ($user, $userStructureId, $userStructureCode) {
+                     $query->select(DB::raw(1))
+                        ->from('suivi_dossiers')
+                        ->join('etapes', 'suivi_dossiers.etape_id', '=', 'etapes.id')
+                        ->whereColumn('suivi_dossiers.dossier_id', 'dossiers.id')
+                        ->where('suivi_dossiers.user_id', $user->id)
+                        ->where(function ($q) {
+                            $q->where('suivi_dossiers.statut', 'validé');
+                        })
+                        ->where('structure_id', $userStructureId)
+                          ->where('destinataire', $userStructureCode)
+                        ->orWhere('suivi_dossiers.user_id', $user->id)
+                        ->whereIn('etapes.id', [2, 4])
+                        ->orderBy('suivi_dossiers.created_at', 'desc')
+                        ->limit(1);
+                    });
+        }
+        else {
+            $dossiers->whereExists(function ($query) use ($user, $userStructureId, $userStructureCode) {
+                     $query->select(DB::raw(1))
+                        ->from('suivi_dossiers')
+                        ->join('etapes', 'suivi_dossiers.etape_id', '=', 'etapes.id')
+                        ->whereColumn('suivi_dossiers.dossier_id', 'dossiers.id')
+                        ->where('suivi_dossiers.user_id', $user->id)
+                        ->where(function ($q) {
+                            $q->where('suivi_dossiers.statut', 'validé');
+                        })
+                        ->where('structure_id', $userStructureId)
+                          ->where('destinataire', $userStructureCode)
+                        ->orWhere('suivi_dossiers.user_id', $user->id)
+                        ->whereIn('etapes.id', [2, 4])
+                        ->orderBy('suivi_dossiers.created_at', 'desc')
+                        ->limit(1);
+                    });
+        }
+
+        // Accès à tous les dossiers pour l'admin (et on garde le filtre "en cours" sur les étapes)
+        if ($user->structure_id == null && $user->usertype == 'admin') {
+            $dossiers->orderBy('created_at', 'desc');
+        }
+
+        $dossiersValider = $dossiers->paginate(5);
+
+        if ($profil == 'Agent DRSC') {
+            return view('traitement.agentdrsc.valider', ['dossiers' => $dossiersValider]);
+        } elseif ($profil == 'Ordonnateur Sectoriel') {
+            return view('traitement.ordonnateur.valider', ['dossiers' => $dossiersValider]);
+        } else {
+            return view('pages.dossiers.traiter', ['dossiers' => $dossiersValider]);
+        }
+    }
+
 }

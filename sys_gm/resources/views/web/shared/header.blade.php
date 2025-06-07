@@ -12,12 +12,11 @@
 
                 <div class="hidden w-full md:flex md:w-auto" id="navbar-sticky">
                     <ul class="flex flex-col md:flex-row md:space-x-8 font-medium">
-                        <li><a href="{{ route('home') }}" class="block py-2 px-3 {{ request()->routeIs('home') ? 'text-blue-700!' : '' }}">Home</a></li>
-                        <li><a href="{{ route('about') }}" class="block py-2 px-3 text-gray-900 hover:text-blue-700 {{ request()->routeIs('about') ? 'text-blue-700!' : '' }}">About</a></li>
+                        <li><a href="{{ route('home') }}" class="block py-2 px-3 {{ request()->routeIs('home') ? 'text-blue-700!' : '' }}">Accueil</a></li>
+                        <li><a href="{{ route('about') }}" class="block py-2 px-3 text-gray-900 hover:text-blue-700 {{ request()->routeIs('about') ? 'text-blue-700!' : '' }}">A propos</a></li>
                         <li><a href="{{ route('services') }}" class="block py-2 px-3 text-gray-900 hover:text-blue-700 {{ request()->routeIs('services') ? 'text-blue-700!' : '' }}">Services</a></li>
                         <li><a href="{{ route('contact') }}" class="block py-2 px-3 text-gray-900 hover:text-blue-700 {{ request()->routeIs('contact') ? 'text-blue-700!' : '' }}">Contact</a></li>
                     </ul>
-                    
                 </div>
 
                 <div class="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">

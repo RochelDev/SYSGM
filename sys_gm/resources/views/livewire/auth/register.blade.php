@@ -60,10 +60,10 @@
 </div> --}}
 
 
-<div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+<div class="bg-white rounded-xl shadow-2xl px-6 py-2 w-full max-w-md">
     <div class="mb-8 text-center">
         <h1 class="text-2xl font-bold text-gray-800">Créer un compte</h1>
-        <p class="text-gray-600 mt-2">Inscrivez-vous pour rejoindre notre communauté</p>
+        {{-- <p class="text-gray-600 mt-2">Inscrivez-vous pour rejoindre notre communauté</p> --}}
     </div>
     <form wire:submit="register">
         <div class="space-y-4">
