@@ -19,14 +19,26 @@
     @endif
     <div class="">
         <div class="fade-in">
+            @if(auth()->user()->profilActif()->intitule_profil == 'Service RH')
             <div class="mb-6">
                 <h1 class="text-2xl font-bold text-gray-800 mb-2">
-                    Répertoire des Demandes
+                    Consulter vos demandes
                 </h1>
                 <p class="text-gray-600">
-                    Consultez les informations des demandes.
+                    Consultez les informations des demandes en cours.
                 </p>
             </div>
+            @endif
+            @if(auth()->user()->profilActif()->intitule_profil == 'Agent')
+            <div class="mb-6">
+                <h1 class="text-2xl font-bold text-gray-800 mb-2">
+                    Mes Demandes
+                </h1>
+                <p class="text-gray-600">
+                    Consultez les informations de vos demandes.
+                </p>
+            </div>
+            @endif
             <div class="mb-6 p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
                 <div class="p-4 border-b border-gray-100">
                     <div
@@ -60,6 +72,8 @@
                             />
                         </div>
                         <div class="flex flex-col sm:flex-row gap-3">
+                            @auth
+                            @if(auth()->user()->usertype == 'admin' && auth()->user()->structure_id == null)
                             <div class="flex items-center">
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -85,6 +99,8 @@
                                     </option>
                                 </select>
                             </div>
+                            @endif
+                            @endauth
                             <div>
                                 <select class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:outline-none focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                                     <option value="all">Tous les statuts</option>
@@ -109,7 +125,13 @@
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Type de mobilité
                                 </th>
-                                @auth
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Structure actuelle
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Structure cible
+                                </th>
+                                {{-- @auth
                                 @if(auth()->user()->profilActif()->intitule_profil == 'Service RH')
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Titre
@@ -121,7 +143,10 @@
                                         Référence du Dossier
                                     </th>
                                 @endif
-                                @endauth
+                                @endauth --}}
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Statut
+                                </th>
                                 <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Actions
                                 </th>
@@ -137,9 +162,15 @@
                                         {{ $demande->nom_agent }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                        {{ $demande->typeMobilite->nom }}
+                                        {{ $demande->typeMobilite->intitule_mobilite }}
                                     </td>
-                                    @auth
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#0F2C59]">
+                                        {{ $demande->structure->code_structure }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#0F2C59]">
+                                        {{ $demande->structure_cible }}
+                                    </td>
+                                    {{-- @auth
                                     @if(auth()->user()->profilActif()->intitule_profil == 'Service RH')
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                             {{ $demande->titre }}
@@ -151,9 +182,12 @@
                                             {{ $demande->reference_dossier }}
                                         </td>
                                     @endif
-                                    @endauth
+                                    @endauth --}}
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#0F2C59]">
+                                        {{ $demande->statut }}
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <a class="text-[#0F2C59] hover:text-[#4CB9E7]" href="{{ route('demande.show', $demande) }}">Voir</a>
+                                        <a class="text-[#0F2C59] hover:text-[#4CB9E7]" href="{{ route('demande.showdetails', $demande) }}">Voir</a>
                                     </td>
                                 </tr>
                             @endforeach

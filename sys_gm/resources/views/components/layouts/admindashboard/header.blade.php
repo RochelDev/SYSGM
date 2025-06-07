@@ -61,7 +61,7 @@
                 <flux:menu.radio.group>
                     <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
                     @if (auth()->user()->usertype === 'admin')
-                        <flux:menu.item :href="route('admindashboard')" wire:navigate>{{ __('Adminitrateur') }}</flux:menu.item>
+                        <flux:menu.item :href="route('admindashboard')" icon="home-modern" wire:navigate>{{ __('Adminitrateur') }}</flux:menu.item>
                     @endif
                     {{-- a ce niveau ajouter le ou les profils de l'agent. Et si possible le profil actif est marquer  --}}
                     @if (auth()->user()->profils->count() > 1)

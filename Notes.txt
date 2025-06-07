@@ -1,0 +1,350 @@
+DRSC = Direction de la Règlementation et du Suivi des Carrières
+
+Figure 4 : Diagramme de cas d’utilisation général
+Figure 5 : Détachement-Disponibilité : au niveau d’une structure
+Figure 6 : Détachement-Disponibilité : au niveau de la fonction publique 
+Figure 7 : Détachement-Disponibilité : cas général
+Figure 8 : Mise à disposition : au niveau d’une structure 
+Figure 9 : Mise à disposition : au niveau de la fonction publique
+Figure 10 : Mise à disposition : cas général
+Figure 11 : Diagramme d’activité d’une demande de mobilité
+Figure 12 : Détachement et mise en disponibilité
+Figure 13 : Mise à disposition par demande sectorielle
+Figure 14 : Diagramme de classes
+Figure 15 : Page d’acceuil
+Figure 16 : Page de connexion
+Figure 17 : Formulaire d’inscription
+Figure 18 : Formulaire pour soumettre une demande
+Figure 19 : Tableau de bord de l’ordonnateur et de l’agent DRSC
+
+
+
+
+
+Tableau 1 : Dictionnaire des données
+
+Tableau 1: S'authentifier
+Tableau 2: S’inscrire
+Tableau 3: Soumettre une demande
+Tableau 4: Traiter dossier
+Tableau 5 : Dictionnaire des données
+
+
+
+
+
+
+Notes:
+
+Pour gérer les exceptions et annuler les opérations en cas d'erreur, vous pouvez utiliser les transactions de base de données fournies par Laravel. Voici comment vous pouvez modifier la fonction valider pour inclure une gestion des transactions :
+
+PHP
+
+use Illuminate\Support\Facades\DB;
+use Throwable;
+
+public function valider(Dossier $dossier)
+{
+    $etapeActuelle = $dossier->etapes()->orderByPivot('created_at', 'desc')->first();
+
+    try {
+        DB::beginTransaction();
+
+        // Récupérer la structure DRSC. Vous devrez remplacer 'CODE_DRSC' par le code réel de la DRSC.
+        $drscStructure = Structure::where('code_structure', 'CODE_DRSC')->firstOrFail();
+
+        $user = Auth::user();
+        $userStructure = $user->structure;
+        $userStructureCode = $userStructure ? $userStructure->code_structure : null;
+
+        if ($etapeActuelle && $etapeActuelle->pivot->etape_id == 4 && $dossier->typeMobilite->code_type == 'DSP') {
+            // Récupérer la structure cible
+            $structureCible = Structure::where('code_structure', $dossier->structure_cible)->first();
+
+            if ($structureCible && Auth::user()->structure_id == $structureCible->id) {
+                $dossier->etapes()->updateExistingPivot($etapeActuelle->id, ['statut' => 'validé', 'user_id' => auth()->id()]);
+                $etapeSuivanteId = 5; // Passer à l'étape 5
+                $dossier->etapes()->attach($etapeSuivanteId, ['user_id' => auth()->id(), 'statut' => 'en attente']);
+
+                //envoyer à la DRSC
+                $dossier->update([
+                    'destinataire' => $drscStructure->code_structure,
+                    'envoyeur' => $userStructureCode,
+                ]);
+
+                DossierTransfert::create([
+                    'dossier_id' => $dossier->id,
+                    'envoyeur_structure_id' => auth()->user()->structure_id,
+                    'destinataire_structure_id' => $drscStructure->id,
+                    'motif' => 'Envoi du dossier à la DRSC',
+                ]);
+
+                DB::commit();
+                return back()->with('success', 'Le dossier a été validé et envoyé à la DRSC.');
+            } else {
+                DB::rollBack();
+                return back()->with('error', 'Vous n\'êtes pas autorisé à valider ce dossier à cette étape.');
+            }
+        } else {
+            // Logique de validation normale pour les autres étapes (principalement l'étape 2), et envoi à la DRSC
+            $dossier->etapes()->wherePivot('etape_id', 2)->updateExistingPivot(2, ['statut' => 'validé', 'user_id' => auth()->id()]);
+            $etapeSuivanteId = 3;
+
+            $dossier->update([
+                'destinataire' => $drscStructure->code_structure,
+                'envoyeur' => $userStructureCode,
+            ]);
+
+            DossierTransfert::create([
+                'dossier_id' => $dossier->id,
+                'envoyeur_structure_id' => auth()->user()->structure_id,
+                'destinataire_structure_id' => $drscStructure->id,
+                'motif' => 'Envoi du dossier à la DRSC',
+            ]);
+
+            $dossier->etapes()->attach($etapeSuivanteId, ['user_id' => null, 'statut' => 'en attente']);
+
+            DB::commit();
+            return back()->with('success', 'Le dossier a été validé et envoyé à la DRSC.');
+        }
+
+    } catch (Throwable $e) {
+        DB::rollBack();
+        // Gérer l'erreur ici, par exemple, logger l'erreur
+        \Log::error("Erreur lors de la validation du dossier " . $dossier->id . ": " . $e->getMessage());
+        return back()->with('error', 'Une erreur s\'est produite lors de la validation du dossier. Veuillez réessayer.');
+    }
+}
+Ce qui a été fait :
+
+Début de la transaction : DB::beginTransaction(); démarre une transaction au début de la fonction.
+Commit de la transaction : DB::commit(); est appelé à la fin de chaque bloc de logique réussi. Cela enregistre toutes les modifications apportées à la base de données pendant la transaction.
+Rollback en cas d'erreur : Un bloc try...catch enveloppe toute la logique. Si une exception (Throwable) se produit à n'importe quel moment à l'intérieur du bloc try, DB::rollBack(); est appelé dans le bloc catch. Cela annule toutes les modifications qui ont été faites dans la base de données depuis le début de la transaction, ramenant la base de données à son état d'origine avant le début de la transaction.
+Gestion de l'erreur : Dans le bloc catch, j'ai ajouté une ligne pour logger l'erreur et retourner un message d'erreur générique à l'utilisateur. Vous pouvez personnaliser la gestion de l'erreur selon vos besoins (par exemple, afficher un message d'erreur plus spécifique si possible).
+Avec cette modification, si une exception survient lors de la mise à jour de l'étape, de la mise à jour du dossier, ou de la création de l'enregistrement DossierTransfert, toutes ces opérations seront annulées.
+
+N'oubliez pas d'importer les classes nécessaires en haut de votre fichier contrôleur :
+
+PHP
+
+use Illuminate\Support\Facades\DB;
+use Throwable;
+
+
+
+
+
+
+
+
+
+
+
+Livewire
+
+
+
+
+
+
+<div>
+    @foreach ($posts as $post)
+        //Méthode 1
+        <livewire:post-item :$post :key="$post->id">
+
+        //Méthode 2
+        @livewire(PostItem::class, ['post' => $post], key($post->id))
+    @endforeach
+</div>
+
+
+
+Passing data into components
+
+<livewire:create-post title="Initial Title" />
+If you need to pass dynamic values or variables to a component, you can write PHP expressions in component attributes by prefixing the attribute with a colon:
+
+<livewire:create-post :title="$initialTitle" />
+
+
+
+
+
+
+
+Executing scripts
+Livewire provides a helpful @script directive that, when wrapping a <script> element, will execute the given JavaScript when your component is initialized on the page.
+
+Here is an example of a simple @script that uses JavaScript's setInterval() to refresh your component every two seconds:
+
+@script
+<script>
+    setInterval(() => {
+        $wire.$refresh()
+    }, 2000)
+</script>
+@endscript
+
+
+
+
+
+
+
+
+
+
+
+
+Let's explore a basic example of calling a save action on a CreatePost component:
+
+<?php
+ 
+namespace App\Livewire;
+ 
+use Livewire\Component;
+use App\Models\Post;
+ 
+class CreatePost extends Component
+{
+    public $title = '';
+ 
+    public $content = '';
+ 
+    public function save()
+    {
+        Post::create([
+            'title' => $this->title,
+            'content' => $this->content,
+        ]);
+ 
+        return redirect()->to('/posts');
+    }
+ 
+    public function render()
+    {
+        return view('livewire.create-post');
+    }
+}
+<form wire:submit="save"> 
+    <input type="text" wire:model="title">
+ 
+    <textarea wire:model="content"></textarea>
+ 
+    <button type="submit">Save</button>
+</form>
+In the above example, when a user submits the form by clicking "Save", wire:submit intercepts the submit event and calls the save() action on the server.
+
+
+
+Refreshing a component
+
+<button type="button" wire:click="$refresh">...</button>
+
+<button type="button" wire:click="$commit">...</button>
+You can also trigger a component refresh using AlpineJS in your Livewire component:
+
+<button type="button" x-on:click="$wire.$refresh()">...</button>
+
+
+
+<button
+    type="button"
+    wire:click="delete"
+    wire:confirm="Are you sure you want to delete this post?"
+>
+    Delete post 
+</button>
+
+
+
+
+
+
+
+
+Event listeners
+Livewire supports a variety of event listeners, allowing you to respond to various types of user interactions:
+
+Listener	Description
+wire:click	Triggered when an element is clicked
+wire:submit	Triggered when a form is submitted
+wire:keydown	Triggered when a key is pressed down
+wire:keyup	Triggered when a key is released
+wire:mouseenter	Triggered when the mouse enters an element
+wire:*	Whatever text follows wire: will be used as the event name of the listener
+
+
+
+
+
+
+
+
+<form wire:submit="save">
+    <textarea wire:model="content"></textarea>
+ 
+    <button type="submit">Save</button>
+ 
+    <span wire:loading>Saving...</span> 
+</form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+Passing parameters
+Livewire allows you to pass parameters from your Blade template to the actions in your component, giving you the opportunity to provide an action additional data or state from the frontend when the action is called.
+
+For example, let's imagine you have a ShowPosts component that allows users to delete a post. You can pass the post's ID as a parameter to the delete() action in your Livewire component. Then, the action can fetch the relevant post and delete it from the database:
+
+<?php
+ 
+namespace App\Livewire;
+ 
+use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
+use App\Models\Post;
+ 
+class ShowPosts extends Component
+{
+    public function delete($id)
+    {
+        $post = Post::findOrFail($id);
+ 
+        $this->authorize('delete', $post);
+ 
+        $post->delete();
+    }
+ 
+    public function render()
+    {
+        return view('livewire.show-posts', [
+            'posts' => Auth::user()->posts,
+        ]);
+    }
+}
+<div>
+    @foreach ($posts as $post)
+        <div wire:key="{{ $post->id }}">
+            <h1>{{ $post->title }}</h1>
+            <span>{{ $post->content }}</span>
+ 
+            <button wire:click="delete({{ $post->id }})">Delete</button> 
+        </div>
+    @endforeach
+</div>
+
+
+
+
+
+

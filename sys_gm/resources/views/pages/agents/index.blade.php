@@ -1,8 +1,10 @@
-@extends('admin')
+@extends('dashboard')
 
+{{-- @extends('admin') --}}
 @section('title', '| Agent')
 
 @section('content')
+
     @if(session('success'))
         {{-- <div class="alert alert-success">
         {{ session('success') }}
@@ -27,7 +29,7 @@
         </a>
     </div>
 
-    <div class="border rounded-xl overflow-x-auto">
+    <div class="bg-white border rounded-xl overflow-x-auto">
         <table class="min-w-full caption-bottom text-sm">
             <thead class="bg-blue-800 text-white">
             <tr class="border-b transition-colors hover:bg-muted/50">

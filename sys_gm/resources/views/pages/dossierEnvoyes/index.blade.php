@@ -1,3 +1,7 @@
+@php
+  $dossiers=$dossiersreçus
+@endphp
+
 @extends('dashboard')
 
 @section('title', '| Document')
@@ -233,7 +237,7 @@
                                     </td>
                                     <td class="px-6 py-4 flex items-center whitespace-nowrap gap-2 text-right text-sm font-medium">
                                         <a class="inline-flex items-center justify-center p-2 bg-blue-500 rounded-lg text-white hover:p-1.5" 
-                                        href="{{ route('dossier.show', $dossier, $route) }}">
+                                        href="{{ route('dossier.show', $dossier) }}">
                                           <svg xmlns="http://www.w3.org/2000/svg" width="24"
                                             height="24" viewBox="0 0 24 24" fill="none"
                                             stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -247,7 +251,7 @@
                                           </svg>
                                           Voir
                                         </a>
-                                        <a class="p-2 bg-[#0F2C59] rounded-lg text-white hover:p-1.5" href="{{ route('dossier.showdetails', $dossier) }}">Epingler</a>
+                                        <a class="p-2 bg-[#0F2C59] rounded-lg text-white hover:p-1.5" href="{{ route('dossier.show', $dossier) }}">traiter</a>
                                     </td>
                                   </tr>
                                   @endforeach

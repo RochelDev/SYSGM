@@ -201,7 +201,7 @@
                                   </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
-                                  @foreach($dossiers as $dossier)
+                                  @forelse($dossiers as $dossier)
                                   <tr class="hover:bg-gray-50 transition-colors">
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#0F2C59]">
                                         {{ $dossier->code_dossier }}
@@ -233,7 +233,7 @@
                                     </td>
                                     <td class="px-6 py-4 flex items-center whitespace-nowrap gap-2 text-right text-sm font-medium">
                                         <a class="inline-flex items-center justify-center p-2 bg-blue-500 rounded-lg text-white hover:p-1.5" 
-                                        href="{{ route('dossier.show', $dossier, $route) }}">
+                                        wire:click="$emit('openModal', {{ $dossier->id }})">
                                           <svg xmlns="http://www.w3.org/2000/svg" width="24"
                                             height="24" viewBox="0 0 24 24" fill="none"
                                             stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -245,12 +245,32 @@
                                             <path d="M16 13H8"></path>
                                             <path d="M16 17H8"></path>
                                           </svg>
-                                          Voir
+                                          Traiter
                                         </a>
-                                        <a class="p-2 bg-[#0F2C59] rounded-lg text-white hover:p-1.5" href="{{ route('dossier.showdetails', $dossier) }}">Epingler</a>
+                                        {{-- <a class="inline-flex items-center justify-center p-2 bg-blue-500 rounded-lg text-white hover:p-1.5" 
+                                          wire:click="$emit('openModal', {{ $dossier->id }})">
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                            height="24" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            class="lucide lucide-file-text h-4 w-4 mr-1">
+                                            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+                                            <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
+                                            <path d="M10 9H8"></path>
+                                            <path d="M16 13H8"></path>
+                                            <path d="M16 17H8"></path>
+                                          </svg>
+                                          Soumettre
+                                        </a> --}}
                                     </td>
                                   </tr>
-                                  @endforeach
+                                  @empty
+                                  <tr>
+                                    <td colspan="8" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                      Aucun dossier en cours de traitement.
+                                    </td>
+                                  </tr>
+                                  @endforelse
                                 </tbody>
                               </table>
                             </div>
@@ -268,14 +288,7 @@
             </div>
         </div>
 
-
-
-        
-
-
-
-
-
+         @livewire('show-modal')
     </div>
     
 @endsection

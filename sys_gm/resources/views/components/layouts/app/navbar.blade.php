@@ -1,10 +1,10 @@
 <flux:header container
-    class="block! bg-white lg:bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 sm:hidden">
+    class="block! bg-white lg:bg-yellow-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700 sm:hidden">
 
     <div class="flex item-centers justify-beetween h16">
         <div class="flex items-center">
             <div class="hidden md:block ml-4">
-                <h1 class="text-xl font-semibold text-blue-900">SysGeMob</h1>
+                <h1 class="text-xl font-semibold text-blue-900">SYSGM</h1>
             </div>
         </div>
         <div class="hidden md:block flex-1 max-w-md mx-4">
@@ -31,9 +31,9 @@
     <flux:spacer />
 
     <flux:navbar class="me-4 max-lg:hidden py-2!">
-        <flux:navbar.item icon="magnifying-glass" href="#" label="Search" />
+        {{-- <flux:navbar.item icon="magnifying-glass" href="#" label="Search" />
         <flux:navbar.item class="max-lg:hidden" icon="cog-6-tooth" href="#" label="Settings" />
-        <flux:navbar.item class="max-lg:hidden" icon="information-circle" href="#" label="Help" />
+        <flux:navbar.item class="max-lg:hidden" icon="information-circle" href="#" label="Help" /> --}}
 
         <flux:dropdown x-data align="end">
             <flux:button variant="subtle" square class="group" aria-label="Preferred color scheme">
@@ -85,7 +85,7 @@
                 <flux:menu.radio.group>
                     <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
                     @if (auth()->user()->usertype === 'admin')
-                        <flux:menu.item :href="route('admindashboard')" wire:navigate>{{ __('Adminitrateur') }}</flux:menu.item>
+                        <flux:menu.item :href="route('admindashboard')" icon="home-modern" wire:navigate>{{ __('Adminitrateur') }}</flux:menu.item>
                     @endif
                     {{-- a ce niveau ajouter le ou les profils de l'agent. Et si possible le profil actif est marquer  --}}
                     @if (auth()->user()->profils->count() > 1)

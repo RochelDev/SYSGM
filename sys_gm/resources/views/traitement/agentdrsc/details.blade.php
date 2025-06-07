@@ -7,48 +7,21 @@
     <div class="">
         <div class="fade-in">
             <div class="mb-6">
-                @if (request()->routeIs('dossier.reçus.showdetails'))
-                <a href="{{route('dossier.reçus')}}" class="inline-flex items-center text-gray-600 hover:text-gray-800 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left mr-1">
-                        <path d="m12 19-7-7 7-7"></path>
-                        <path d="M19 12H5"></path></svg>
-                    Retour
-                </a>
-
-                @elseif (request()->routeIs('dossier.encours.showdetails'))
-                <a href="{{route('traitement.encours')}}" class="inline-flex items-center text-gray-600 hover:text-gray-800 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left mr-1">
-                        <path d="m12 19-7-7 7-7"></path>
-                        <path d="M19 12H5"></path></svg>
-                    Retour aux dossiers
-                </a>
-
-                @elseif (request()->routeIs('dossier.validation.showdetails'))
-                <a href="{{route('dossier.validation')}}" class="inline-flex items-center text-gray-600 hover:text-gray-800 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left mr-1">
-                        <path d="m12 19-7-7 7-7"></path>
-                        <path d="M19 12H5"></path></svg>
-                    Retour
-                </a>
-
-                @elseif (request()->routeIs('dossier.transfert.showdetails'))
-                <a href="{{route('dossier.transfert')}}" class="inline-flex items-center text-gray-600 hover:text-gray-800 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left mr-1">
-                        <path d="m12 19-7-7 7-7"></path>
-                        <path d="M19 12H5"></path></svg>
-                    Retour
-                </a>
-
-                @else
-                
-                <a href="{{route('traitement.index')}}" class="inline-flex items-center text-gray-600 hover:text-gray-800 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left mr-1">
-                        <path d="m12 19-7-7 7-7"></path>
-                        <path d="M19 12H5"></path></svg>
-                    Retour aux dossiers
-                </a>
+                {{-- @if (Route::Has('traitement.index'))
+                traitement
                 @endif
-
+                @if (Route::has('traitement.encours'))
+                traitement en cours
+                @endif
+                @if (Route::has('traitement.index'))
+                traitement reçus
+                @endif --}}
+                <a href="{{url('/dossiers')}}" class="inline-flex items-center text-gray-600 hover:text-gray-800 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left mr-1">
+                        <path d="m12 19-7-7 7-7"></path>
+                        <path d="M19 12H5"></path></svg>
+                    Retour aux dossiers
+                </a>
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                     <div>
                         <h1 class="text-2xl font-bold text-gray-800 mb-2">

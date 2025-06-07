@@ -44,6 +44,12 @@ class DemandeController extends Controller
         
     }
 
+    public function showdetails(Dossier $demande)
+    {
+        //dd($demande);
+        return view('pages.demandes.demande', compact('demande'));        
+    }
+
 
     public function demandeStructure()
     {
@@ -129,9 +135,6 @@ class DemandeController extends Controller
         $validatedData['agent_id'] = Auth::user()->agent->id ?? null; // Assurez-vous que l'agent est lié à l'utilisateur
         $validatedData['type_demandeur'] = (Auth::user()->profilActif()->intitule_profil == 'Service RH') ? 'RH' : 'Agent';
 
-        // Création du dossier
-        $dossier = Dossier::create($validatedData);
-
         if ($dossier) {
             // Handle uploaded documents
             if ($request->hasFile('documents')) {
@@ -147,6 +150,9 @@ class DemandeController extends Controller
                     ]);
                 }
             }
+
+            // Création du dossier
+            $dossier = Dossier::create($validatedData);
 
             // Attachement à l'étape 1 avec le statut "en attente"
             $dossier->etapes()->attach(1, ['user_id' => auth()->id(), 'statut' => 'en attente']);

@@ -3,20 +3,17 @@
     <head>
         @include('partials.head')
     </head>
-    <body class="min-h-screen bg-white dark:bg-zinc-800">
+    <body class="min-h-screen bg-zinc-200 dark:bg-zinc-800">
         <flux:sidebar sticky stashable class="border-r border-zinc-200 text-white! bg-green-600 dark:border-zinc-700 dark:bg-zinc-900">
             <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
-            <div class="flex items-center justify-between px-4 py-5 border-b border-b-blue-800">
+            <div class="flex items-center justify-between px-4 py-5 border-b border-b-yellow-300">
                 <a class="flex items-center space-x-2" href="{{ route('dashboard') }}" wire:navigate>
                     <div class="bg-white p-1.5 rounded">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart2 text-blue-900">
-                            <line x1="18" x2="18" y1="20" y2="10"></line><line x1="12" x2="12" y1="20" y2="4"></line>
-                            <line x1="6" x2="6" y1="20" y2="14"></line>
-                        </svg>
+                        <img src="{{asset('img/Coat_of_arms_of_Benin.svg')}}" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart2 text-blue-900"/>
                     </div>
-                    <span class="text-xl font-bold text-white">
-                        SysGeMob
+                    <span class="text-xl font-bold text-yellow-100">
+                        SYS<span class="text-xl font-bold text-red-200">GM</span>
                     </span>
                 </a>
                 <button class="md:hidden text-white">
@@ -59,32 +56,52 @@
                 @if(auth()->user()->profilActif()->intitule_profil == 'Service RH') Service RH @endif
                 @if(auth()->user()->profilActif()->intitule_profil == 'DGFP') DGFP @endif --}}
                 @if(auth()->user()->profilActif()->intitule_profil == 'Agent' || auth()->user()->profilActif()->intitule_profil == 'Service RH' ) 
-                    <flux:navlist.item icon="folder-plus" :href="route('demande.create')" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Faire une Demande</flux:navlist.item>
+                    <flux:navlist.item icon="folder-plus" :href="route('demande.create')" class="hover:bg-blue-50! hover:text-blue-700! text-white! {{ request()->routeIs('demande.create') ? 'bg-blue-800! text-white!' : '' }} " wire:navigate>Faire une Demande</flux:navlist.item>
                 @endif
 
                 @if(auth()->user()->profilActif()->intitule_profil == 'Agent' ) 
-                    <flux:navlist.item icon="folder-plus" :href="route('demande.create')" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Consulter ses demandes</flux:navlist.item>
+                    <flux:navlist.item icon="folder" :href="route('demande.index')" class="hover:bg-blue-50! hover:text-blue-700! text-white! {{ request()->routeIs('demande.index') ? 'bg-blue-800! text-white!' : '' }} " wire:navigate>Consulter ses demandes</flux:navlist.item>
                 @endif
 
                 @if(auth()->user()->profilActif()->intitule_profil == 'Service RH') 
-                    <flux:navlist.item icon="folder-plus" :href="route('demande.create')" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Consulter dossiers</flux:navlist.item>
+                    <flux:navlist.item icon="folder" :href="route('demande.index')" class="hover:bg-blue-50! hover:text-blue-700! text-white! {{ request()->routeIs('demande.index') ? 'bg-blue-800! text-white!' : '' }} " wire:navigate>Consulter dossiers</flux:navlist.item>
                 @endif
 
                 @if(auth()->user()->profilActif()->intitule_profil == 'Ordonnateur Sectoriel' || auth()->user()->profilActif()->intitule_profil == 'Service RH' || auth()->user()->profilActif()->intitule_profil == 'Agent DRSC' ) 
-                    <flux:navlist.item icon="users" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Liste des Agents</flux:navlist.item>
+                    {{-- <flux:navlist.item icon="users" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white! {{ request()->routeIs('agent.index') ? 'bg-blue-800! text-white!' : '' }} " :href="route('agent.index')" wire:navigate>Liste des Agents</flux:navlist.item> --}}
+                @endif
+
+                @if(auth()->user()->profilActif()->intitule_profil == 'Ordonnateur Sectoriel' || auth()->user()->profilActif()->intitule_profil == 'Agent DRSC' )
+                    <flux:navlist.item icon="list-bullet" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white! {{ request()->routeIs('traitement.index') || request()->routeIs('dossier.showdetails') ? 'bg-blue-800! text-white!' : '' }} " :href="route('traitement.index')" wire:navigate>Liste d'attente</flux:navlist.item>
+                    {{-- <flux:navlist.item icon="folder" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white! {{ request()->routeIs('dossier.reçus') || request()->routeIs('dossier.reçus.showdetails') ? 'bg-blue-800! text-white!' : '' }} " :href="route('dossier.reçus')" wire:navigate>Dossiers reçus</flux:navlist.item> --}}
+
+                    {{-- <flux:navlist.item icon="document" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Générer un Document</flux:navlist.item> --}}
+                @endif
+
+                @if(auth()->user()->profilActif()->intitule_profil == 'Ordonnateur Sectoriel' || auth()->user()->profilActif()->intitule_profil == 'Agent DRSC')
+                    <flux:navlist.item icon="folder-open" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white! {{ request()->routeIs('traitement.encours') || request()->routeIs('dossier.encours.showdetails') ? 'bg-blue-800! text-white!' : '' }} " :href="route('traitement.encours')" wire:navigate>Traitement en cours</flux:navlist.item>
+                    <flux:navlist.item icon="wallet" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white! {{ request()->routeIs('dossier.validation') || request()->routeIs('dossier.reçus.showdetails') ? 'bg-blue-800! text-white!' : '' }} " :href="route('dossier.validation')" wire:navigate>Mes validations</flux:navlist.item>
+                    {{-- <flux:navlist.item icon="document" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Générer un Document</flux:navlist.item> --}}
+                @endif
+
+                {{-- @if(!auth()->user()->profilActif()->intitule_profil == 'Agent') 
+                    <flux:navlist.item icon="users" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white! {{ request()->routeIs('demande.index') ? 'bg-blue-800! text-white!' : '' }}" :href="route('dossier.index')" wire:navigate>Dossiers en attente</flux:navlist.item>
                 @endif
 
                 @if(!auth()->user()->profilActif()->intitule_profil == 'Agent') 
-                    <flux:navlist.item icon="users" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Dossiers en cours</flux:navlist.item>
+                    <flux:navlist.item icon="users" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white! {{ request()->routeIs('demande.index') ? 'bg-blue-800! text-white!' : '' }}" :href="route('dossier.index')" wire:navigate>Dossiers en attente</flux:navlist.item>
+                @endif --}}
+
+                @if(auth()->user()->profilActif()->intitule_profil == 'Ordonnateur Sectoriel' || auth()->user()->profilActif()->intitule_profil == 'Agent DRSC' ) 
+                    <flux:navlist.item icon="document-text" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white! {{ request()->routeIs('dossier.transfert') ? 'bg-blue-800! text-white!' : '' }}" :href="route('dossier.transfert')" wire:navigate>Historique Transfert</flux:navlist.item>
                 @endif
 
-                @if(auth()->user()->profilActif()->intitule_profil == 'Ordonnateur Sectoriel')
-                    <flux:navlist.item icon="folder" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Dossier à traiter</flux:navlist.item>
-                    <flux:navlist.item icon="document" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Générer un Document</flux:navlist.item>
-                @endif
+                {{-- @if(auth()->user()->profilActif()->intitule_profil == 'Ordonnateur Sectoriel' || auth()->user()->profilActif()->intitule_profil == 'Agent DRSC' ) 
+                    <flux:navlist.item icon="folder" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Dossiers envoyés</flux:navlist.item>
+                @endif --}}
 
                 @if(auth()->user()->profilActif()->intitule_profil == 'Service RH' ) 
-                    <flux:navlist.item icon="inbox" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Affectations</flux:navlist.item>
+                    <flux:navlist.item icon="inbox" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!"  wire:navigate>Affectations</flux:navlist.item>
                 @endif
                     {{-- <flux:navlist.item icon="document-text" href="#" class="hover:bg-blue-50! hover:text-blue-700! text-white!" wire:navigate>Historiques</flux:navlist.item> --}}
             @endif
@@ -92,7 +109,7 @@
 
             <flux:spacer />
 
-            <flux:navlist variant="outline" class="border-t border-blue-800 py-1">
+            <flux:navlist variant="outline" class="border-t border-yellow-300 py-1">
                 <form method="POST" action="{{ route('logout') }}" class="w-full">
                     @csrf
                     {{-- <flux:navlist.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full text-white! px-4! py-4!">
@@ -162,5 +179,6 @@
         {{ $slot }}
 
         @fluxScripts
+        @livewireScripts
     </body>
 </html>
