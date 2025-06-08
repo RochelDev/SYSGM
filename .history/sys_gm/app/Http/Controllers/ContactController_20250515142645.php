@@ -7,9 +7,11 @@ use Illuminate\Support\Facades\Mail;
 
 class ContactController extends Controller
 {
+
+
     public function send(Request $request)
     {
-        // Validation
+        // validation
         $request->validate([
             'name' => 'required|string',
             'email' => 'required|email',
@@ -17,16 +19,11 @@ class ContactController extends Controller
             'message' => 'required|string',
         ]);
 
-        // Données à transmettre à la vue
-        $data = $request->only('name', 'email', 'subject', 'message');
-
-        // Envoi du mail
-        Mail::send('emails.contact', $data, function ($message) use ($data) {
-            $message->to('contact@mobilite.gouv.bj')
-                    ->subject($data['subject'])
-                    ->replyTo($data['email']);
-        });
+        // logique d'envoi (mail ou enregistrement)
+        
 
         return back()->with('success', 'Votre message a été envoyé.');
     }
+}
+
 }

@@ -32,7 +32,7 @@
             <div class="p-4">
                 <h4 class="text-white font-semibold mb-4 text-lg">Contact</h4>
                 <ul class="space-y-2 text-white">
-                    <li>Email: <a href="mailto:mobilitecontact@gmail.com" class="hover:text-blue-700">mobilitecontact@gmail.com</a></li>
+                    <li>Email: <a href="mailto:" class="hover:text-blue-700">contact@mobilite.gouv.bj</a></li>
                     <li>Téléphone: +229 XX XX XX XX</li>
                     <li>Adresse: Cotonou, Bénin</li>
                 </ul>

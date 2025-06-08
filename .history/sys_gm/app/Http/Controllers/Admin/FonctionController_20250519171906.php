@@ -14,7 +14,7 @@ class FonctionController extends Controller
      */
     public function index()
     {
-        $fonctions = Fonction::orderBy('created_at', 'desc')->paginate(5);// limiter et paginer les résultats récupérés depuis la base de données.
+        $fonctions = Fonction::orderBy('created_at', 'desc')->paginate(5);// limiter et paginer les résultats récupérés depuis la base de données. 
 
         return view('admin.fonctions.index', [
             'fonctions' => $fonctions,
@@ -43,9 +43,8 @@ class FonctionController extends Controller
     }
 
     /**
- * Affiche le formulaire d'édition pour une fonction existante.
- */
-
+     * Met à jour les informations d'un fonction.
+     */
     public function edit(Fonction $fonction)
     {
         return view('admin.fonctions.create', compact('fonction'));

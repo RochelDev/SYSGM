@@ -343,7 +343,7 @@ class CreateMinistere extends Component
     {
         return view('livewire.ministeres.create-ministere');
     }
-}  ce code sert à quoi?
+}  
 
 
 <?php
