@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('statut')->default('demande en_attente');
             $table->string('envoyeur')->nullable();
             $table->string('destinataire')->nullable();
+            $table->string('structure_cible')->nullable();
             $table->year('annee');
             $table->json('historique_statut')->nullable();
             $table->string('type_acte')->nullable();

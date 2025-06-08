@@ -6,6 +6,7 @@ use App\Models\Agent;
 use App\Models\Ministere;
 use App\Models\Structure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AgentController extends Controller
 {
@@ -14,6 +15,23 @@ class AgentController extends Controller
      */
     public function index()
     {
+        $user = Auth::user();
+        $structureId = '';
+        
+        //Gestion de l'affichage des agents sous conditions
+        if ($user->profilActif()->intitule_profil == 'Service RH' || $user->profilActif()->intitule_profil == 'Agent') {
+            //l'affichage des agents du RH d'une structure
+            $structureId = $user->structure_id;
+            $agents = Agent::where('structure_id', $user->structure_id)
+                    ->orderBy('created_at', 'desc')
+                    ->paginate(5);
+        }
+        if ($user->usertype == 'admin' && $user->structure_id == null) {
+            //Accéder à tous les agents par défaut
+            $agents = Agent::orderBy('created_at', 'desc')->paginate(5);
+                
+        }
+
         $agents = Agent::orderBy('created_at', 'desc')->with('user', 'structure')->paginate(5);
         return view('pages.agents.index', [
             'agents' => $agents,

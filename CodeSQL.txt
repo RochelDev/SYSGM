@@ -9,6 +9,7 @@ INSERT INTO ministeres (code_ministere, nom_ministere, site_ministere) VALUES
 ('MTPT', 'Ministère des Transports et des Travaux Publics', 'https://www.mtpt.bj'),
 ('MAEP', 'Ministère de l\'Agriculture, de l\'Élevage et de la Pêche', 'https://www.maep.bj'),
 ('MDEV', 'Ministère du Développement et de l\'Économie', 'https://www.mdev.bj'),
+('MTFP', 'Ministère du Travail et de la Fonction Publique', 'https://www.travail.gouv.bj'),
 ('MCT', 'Ministère de la Culture et du Tourisme', 'https://www.mct.bj');
 
 -- Insertion des structures pour chaque ministère
@@ -44,6 +45,8 @@ INSERT INTO structures (code_structure, nom_structure, ministere_id) VALUES
 INSERT INTO structures (code_structure, nom_structure, ministere_id) VALUES
 ('DAC', 'Direction des Arts et de la Culture', (SELECT id FROM ministeres WHERE code_ministere = 'MCT'));
 
+
+Direction de la Règlementation et du Suivi des Carrières
 
 -- Insertion des postes pour chaque structure
 -- Exemple pour la DGB du MEF
@@ -335,3 +338,19 @@ INSERT INTO user_profils (user_id, profil_id, statut) VALUES
 ((SELECT id FROM users WHERE email = 'jane.smith@example.com'), (SELECT id FROM profils WHERE intitule_profil = 'Agent de saisie'), 'actif');
 
 Explications et considérations importantes :Schéma de la base de données : Les requêtes sont basées sur le schéma de base de données fourni par vos migrations. Il est crucial que votre base de données soit configurée avec ces tables et colonnes.Clés étrangères : J'ai utilisé des sous-requêtes (SELECT id FROM ... WHERE ...) pour insérer correctement les valeurs des clés étrangères. Cela garantit que les enregistrements sont liés aux bonnes tables.Valeurs uniques: J'ai respecté les contraintes d'unicité (unique) définies dans vos migrations (par exemple, pour code_ministere, nom_ministere, code_structure, nom_structure, matricule, num_NPI, etc.).Code_dossier, Code_postes, Code_fonctions: J'ai suivi les formats que vous avez spécifiés pour ces codes (par exemple, MEFDE20250001, MEFDGB0001).  La partie auto-incrémentée (0001, 0002, etc.) devra être gérée par votre application (Laravel) pour assurer l'unicité.  Vous pouvez utiliser la fonctionnalité d'auto-incrémentation de la base de données pour une partie du code, ou le gérer en PHP.Dates : Les dates sont au format AAAA-MM-JJ (par exemple, '2020-01-15').historique_statut et contenu_acte: Ces champs sont définis comme json et longtext dans vos migrations. J'ai inséré des valeurs d'exemple. Vous devrez adapter le format JSON de historique_statut selon vos besoins.user_id dans agents et dossiers: J'ai inséré NULL pour l'instant, car il est possible que tous les agents et tous les dossiers ne soient pas immédiatement liés à un utilisateur. Vous devrez mettre à jour ces valeurs lorsque les agents seront liés aux comptes utilisateurs.Chemins de fichiers : Les champs lien dans piece_justificatives contiennent des exemples de chemins de fichiers. Vous devrez les remplacer par les chemins réels de vos fichiers.Données manquantes : J'ai inséré des valeurs par défaut ou NULL pour certains champs qui peuvent être vides (par exemple, historique_poste, reference pour les pièces justificatives). Vous devrez les mettre à jour avec les données réelles.Auto-incrémentation : La partie numérique des codes code_dossier, code_poste et code_fonction devra être gérée par votre application pour garantir l'unicité.  Vous pouvez utiliser l'auto-incrémentation de la base de données ou un mécanisme dans votre code Laravel.Noms de tables et de colonnes: Assurez-vous que les noms de tables et de colonnes dans votre base de données correspondent exactement à ceux utilisés dans ces requêtes.Transactions: Pour garantir la cohérence des données, il est recommandé d'exécuter ces requêtes dans une transaction.  Si une erreur se produit pendant l'insertion, toutes les modifications seront annulées.  Dans Laravel, vous pouvez utiliser la méthode DB::transaction().N'oubliez pas d'adapter ces requêtes à vos besoins spécifiques et à votre application Laravel.
+
+
+
+
+
+
+INSERT INTO ministeres (code_ministere, nom_ministere, site_ministere) VALUES ('MTFP', 'Ministère du Travail et de la Fonction Publique', 'https://www.travail.gouv.bj');
+INSERT INTO structures (code_structure, nom_structure, ministere_id) VALUES
+('DRSC', 'Direction de la Règlementation et du Suivi des Carrières', (SELECT id FROM ministeres WHERE code_ministere = 'MTFP'));
+
+Direction de la Règlementation et du Suivi des 
+
+
+
+Commande pour exporter Base de données
+mysqldump -u root -p gesmob_save > C:\wamp64\bin\mysql\mysql9.2.0\gesmob_save.sql

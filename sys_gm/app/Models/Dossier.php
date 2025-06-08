@@ -66,7 +66,7 @@ class Dossier extends Model
 
     public function transferts(): HasMany
     {
-        return $this->hasMany(DossierTransfert::class, 'dossier_id');
+        return $this->hasMany(DossierTransfert::class);
     }
 
     public static function genererCodeDossier($structureCode)
